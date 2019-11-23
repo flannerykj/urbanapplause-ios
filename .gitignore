@@ -1,0 +1,4 @@
+Pods
+GoogleService-Info.plist
+.env*
+.DS_Store

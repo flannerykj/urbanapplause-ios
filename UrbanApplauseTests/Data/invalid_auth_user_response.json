@@ -1,0 +1,8 @@
+{
+"error" : {
+    "message" : "That email or password is not valid",
+    "stack" : "BadRequestError: That email or password is not valid",
+    "code" : "validation_auth_invalid"
+    }
+}
+
