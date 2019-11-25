@@ -55,6 +55,9 @@ class FileDownloadJob: NSObject {
         
         return subscriber
     }
+    public func setLocalData(_ data: Data) {
+        self.imageData = data
+    }
     public func removeSubscriber(_ subscriber: FileDownloadSubscriber) {
         if let index = self.subscribers.firstIndex(where: { $0.subscriberID == subscriber.subscriberID }) {
             let removed = self.subscribers.remove(at: index)

@@ -14,7 +14,7 @@ class FileService: NSObject {
     
     private let cache = Cache<String, FileDownloadJob>()
 
-    public func download(file: File) -> FileDownloadJob? {
+    public func getJobForFile(_ file: File) -> FileDownloadJob? {
         if let job = self.cache[file.storage_location] {
             // see if job already complete/in progress
             return job
@@ -23,5 +23,10 @@ class FileService: NSObject {
         let job = FileDownloadJob(file: file, spacesFileRepository: spacesFileRepository)
         self.cache[file.storage_location] = job
         return job
+    }
+    
+    public func addLocalData(_ data: Data, for file: File) {
+        let job = self.getJobForFile(file)
+        job?.setLocalData(data)
     }
 }

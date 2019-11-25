@@ -22,7 +22,7 @@ class ImageDetailViewController: UIViewController, UIScrollViewDelegate {
     init(file: File, mainCoordinator: MainCoordinator) {
         self.file = file
         self.mainCoordinator = mainCoordinator
-        self.imageDownloadJob = mainCoordinator.fileCache.download(file: file)
+        self.imageDownloadJob = mainCoordinator.fileCache.getJobForFile(file)
         
         super.init(nibName: nil, bundle: nil)
     }

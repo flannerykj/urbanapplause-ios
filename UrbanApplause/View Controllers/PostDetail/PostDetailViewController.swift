@@ -25,7 +25,7 @@ class PostDetailViewController: UIViewController {
             title = post.title
             toolbarVC.post = post
             if let file = post.PostImages?.first {
-                downloadJob = mainCoordinator.fileCache.download(file: file)
+                downloadJob = mainCoordinator.fileCache.getJobForFile(file)
             }
             artistLabel.text = post.title
             locationLabel.text = post.Location?.description
@@ -41,7 +41,7 @@ class PostDetailViewController: UIViewController {
             if let images = post.PostImages {
                 var jobs = [FileDownloadJob]()
                 for file in images {
-                    if let imageJob = mainCoordinator.fileCache.download(file: file) {
+                    if let imageJob = mainCoordinator.fileCache.getJobForFile(file) {
                         jobs.append(imageJob)
                     }
                 }

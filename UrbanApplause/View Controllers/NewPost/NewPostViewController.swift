@@ -510,6 +510,15 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
                 switch result {
                 case .success(let container):
                     post.PostImages = container.images
+                    
+                    // Backend won't have finished compressing images yet, so save on frontend to dispaly immediately
+                    if self.imagesData.count == container.images.count {
+                        for i in 0..<container.images.count {
+                            let imageData = self.imagesData[i]
+                            let file = container.images[i]
+                            self.mainCoordinator.fileCache.addLocalData(imageData, for: file)
+                        }
+                    }
                     self.delegate?.didCreatePost(post: post)
                     self.dismiss(animated: true, completion: nil)
                 case .failure(let error):

@@ -205,10 +205,10 @@ extension PostListViewController: UITableViewDelegate, UITableViewDataSource {
         let post = viewModel.posts[indexPath.row]
         if let firstFile = post.PostImages?.first {
             if let thumb = firstFile.thumbnail {
-                let imageJob = mainCoordinator.fileCache.download(file: thumb)
+                let imageJob = mainCoordinator.fileCache.getJobForFile(thumb)
                 cell.downloadJob = imageJob
             } else {
-                let imageJob = mainCoordinator.fileCache.download(file: firstFile)
+                let imageJob = mainCoordinator.fileCache.getJobForFile(firstFile)
                 cell.downloadJob = imageJob
             }
         }

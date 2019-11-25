@@ -238,7 +238,7 @@ extension PostMapViewController: MKMapViewDelegate {
             }
             annotationView.annotation = clusterAnnotation
             let file: File = clusterAnnotation.cover_image_thumb ?? clusterAnnotation.cover_image
-            annotationView.downloadJob = mainCoordinator.fileCache.download(file: file)
+            annotationView.downloadJob = mainCoordinator.fileCache.getJobForFile(file)
             let gr = UITapGestureRecognizer(target: self, action: #selector(tappedAnnotation(sender:)))
             annotationView.addGestureRecognizer(gr)
             return annotationView

@@ -28,10 +28,10 @@ class CommentListViewController: UIViewController {
         didSet {
             if let firstFile = post?.PostImages?.first {
                if let thumb = firstFile.thumbnail {
-                   let imageJob = mainCoordinator.fileCache.download(file: thumb)
+                   let imageJob = mainCoordinator.fileCache.getJobForFile(thumb)
                    self.downloadJob = imageJob
                } else {
-                   let imageJob = mainCoordinator.fileCache.download(file: firstFile)
+                   let imageJob = mainCoordinator.fileCache.getJobForFile(firstFile)
                    self.downloadJob = imageJob
                }
            }
