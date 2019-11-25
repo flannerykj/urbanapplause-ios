@@ -187,6 +187,16 @@ class PostListViewController: UIViewController {
             + (self.listTitle != nil ? sectionHeaderHeight : 0)
         self.tabContentDelegate?.didUpdateContentSize(controller: self, height: height)
     }
+    
+    func removePostFromView(_ post: Post) {
+         guard let postIndex = viewModel.posts.firstIndex(where: { $0.id == post.id }) else {
+            return
+        }
+        self.tableView.beginUpdates()
+        viewModel.removePost(atIndex: postIndex)
+        self.tableView.deleteRows(at: [IndexPath(row: postIndex, section: 0)], with: .automatic)
+        self.tableView.endUpdates()
+    }
 }
 
 extension PostListViewController: UITableViewDelegate, UITableViewDataSource {
@@ -288,11 +298,7 @@ extension PostListViewController: PostDetailDelegate {
     }
     
     func postDetail(_ controller: PostDetailViewController, didDeletePost post: Post) {
-        guard let postIndex = viewModel.posts.firstIndex(where: { $0.id == post.id }) else { return }
-        self.tableView.beginUpdates()
-        viewModel.removePost(atIndex: postIndex)
-        self.tableView.deleteRows(at: [IndexPath(row: postIndex, section: 0)], with: .automatic)
-        self.tableView.endUpdates()
+        self.removePostFromView(post)
     }
     
     func postDetail(_ controller: PostDetailViewController, didBlockUser user: User) {
@@ -313,7 +319,7 @@ extension PostListViewController: PostCellDelegate {
         viewModel.updatePost(atIndex: indexPath.row, updatedPost: post)
     }
     func postCell(_ cell: PostCell, didDeletePost post: Post, atIndexPath indexPath: IndexPath) {
-        viewModel.removePost(atIndex: indexPath.row)
+        self.removePostFromView(post)
     }
 }
 // MARK: - CLLocationManagerDelegate
