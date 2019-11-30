@@ -91,9 +91,6 @@ class PostMapViewModel {
         self.mainCoordinator = mainCoordinator
     }
     public func getPostClusters(visibleMapRect: MKMapRect, mapPixelWidth: Double) {
-        log.debug("visible map rect: \(visibleMapRect)")
-        log.debug("map width: \(mapPixelWidth)")
-
         self.currentMapRect = visibleMapRect
         self.currentMapPixelWidth = mapPixelWidth
         timer?.invalidate()

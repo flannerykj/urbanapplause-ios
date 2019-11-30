@@ -41,11 +41,19 @@ class ReportAnIssueViewController: UIViewController {
     lazy var loaderButton = UIBarButtonItem(customView: loader)
     
     lazy var tableHeaderView: UIView = {
-        let view = UIView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 100))
-        return view
-    }()
-    lazy var tableFooterView: UIView = {
-        let view = UIView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 100))
+        let horizontalPadding = StyleConstants.contentPadding * 2
+        let verticalPadding = StyleConstants.contentPadding * 2
+        let label = UILabel(type: .h3, text: "What is your objection to this content?")
+        let size = label.sizeThatFits(CGSize(width: UIScreen.main.bounds.width - horizontalPadding,
+                                             height: 1000))
+        let view = UIView(frame: CGRect(x: 0,
+                                        y: 0,
+                                        width: UIScreen.main.bounds.width,
+                                        height: size.height + verticalPadding))
+        view.layoutMargins = StyleConstants.defaultPaddingInsets
+        view.addSubview(label)
+        label.fillWithinMargins(view: view)
+        log.debug("size: \(size)")
         return view
     }()
     lazy var tableView: UITableView = {
@@ -55,7 +63,7 @@ class ReportAnIssueViewController: UIViewController {
         tableView.dataSource = self
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.tableHeaderView = tableHeaderView
-        tableView.tableFooterView = tableFooterView
+        tableView.tableFooterView = UIView()
         tableView.backgroundColor = UIColor.backgroundMain
         tableView.separatorColor = .systemGray
         return tableView
@@ -72,20 +80,11 @@ class ReportAnIssueViewController: UIViewController {
         view.addSubview(tableView)
         tableView.fill(view: self.view)
     }
+    
     func handleError(error: UAError) {
         DispatchQueue.main.async {
             self.isSubmitting = false
-            let alertController = UIAlertController(title: nil, message: error.userMessage, preferredStyle: .alert)
-            let okAction = UIAlertAction(title: "OK", style: .default) { _ in
-                alertController.dismiss(animated: true, completion: nil)
-            }
-            var rect = self.view.frame
-            rect.origin.x = self.view.frame.size.width / 20
-            rect.origin.y = self.view.frame.size.height / 20
-            alertController.popoverPresentationController?.sourceView = self.view
-            alertController.popoverPresentationController?.sourceRect = rect
-            alertController.addAction(okAction)
-            self.present(alertController, animated: true, completion: nil)
+            self.showAlert(message: error.userMessage, onDismiss: nil)
         }
     }
 }
@@ -104,6 +103,7 @@ extension ReportAnIssueViewController: UITableViewDataSource, UITableViewDelegat
         cell.textLabel?.text = PostFlagReason.allCases[indexPath.row].title
         cell.contentView.backgroundColor = UIColor.backgroundMain
         cell.accessoryType = .none
+        cell.textLabel?.numberOfLines = 0
         return cell
     }
     

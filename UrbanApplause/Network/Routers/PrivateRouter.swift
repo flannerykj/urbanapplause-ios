@@ -74,7 +74,7 @@ enum PrivateRouter: EndpointConfiguration {
     case deleteComment(commentId: Int)
     
     var baseURL: URL {
-        return URL(string: "\(Config.apiEndpoint)/private")!
+        return URL(string: "\(Config.apiEndpoint)/app")!
     }
     
     var httpMethod: HTTPMethod {
@@ -292,7 +292,7 @@ enum PrivateRouter: EndpointConfiguration {
                 try keychainService.load(itemAt: KeychainItem.tokens.userAccount)
 
             headers["Authorization"] = "Bearer \(authTokens.access_token)"
-        } catch (let error) {
+        } catch {
             log.warning(error)
         }
         return headers

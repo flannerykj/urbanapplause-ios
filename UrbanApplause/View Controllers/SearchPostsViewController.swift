@@ -14,7 +14,11 @@ class SearchPostsViewController: UIViewController {
     var postListViewModel: PostListViewModel
     var searchResultsViewModel: PostListViewModel
     var postMapViewModel: PostMapViewModel
-    
+    var needsUpdate: Bool = false {
+        didSet {
+            self.postListViewModel.getPosts(forceReload: true)
+        }
+    }
     lazy var postListVC: PostListViewController = PostListViewController(listTitle: "Recently added",
                                                                          viewModel: postListViewModel,
                                                                          mainCoordinator: mainCoordinator)
@@ -66,22 +70,7 @@ class SearchPostsViewController: UIViewController {
         // search bar config
         searchController.searchBar.autocapitalizationType = .none
         searchController.searchBar.autocorrectionType = .no
-        
-        let addButton = UIBarButtonItem(image: UIImage(systemName: "plus"),
-                                        style: .plain,
-                                        target: self,
-                                        action: #selector(pressedAddPost(_:)))
-        navigationItem.rightBarButtonItem = addButton
         navigationItem.hidesSearchBarWhenScrolling = false
-    }
-    @objc func pressedAddPost(_: Any) {
-        let vc = NewPostViewController(mainCoordinator: mainCoordinator)
-        vc.delegate = self
-        let nav = UINavigationController(rootViewController: vc)
-        // prevent swipe to dismiss so we can check for unsaved changes in didAttemptToDismiss.
-        nav.isModalInPresentation = true
-        nav.presentationController?.delegate = self
-        present(nav, animated: true, completion: {})
     }
 }
 

@@ -42,7 +42,7 @@ enum PostFlagReason: String, CaseIterable, Codable {
         case .suspiciousOrSpam:
             return "It's suspicious or spam"
         case .sensitivePhoto:
-            return "It displays a sensive photo"
+            return "It displays a sensitive photo"
         case .abusiveOrHarmful:
             return "It's abusive or harmful"
         case .selfHarmOrSuicide:

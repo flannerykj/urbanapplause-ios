@@ -126,7 +126,7 @@ class PostDetailViewController: UIViewController {
     }()
     var locationLabel: UILabel = {
         let label = UILabel(type: .body)
-        label.font = UIFont(name: Helvetica.bold.rawValue, size: 15)
+        label.font = TypographyStyle.strong.font
         label.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         return label
     }()

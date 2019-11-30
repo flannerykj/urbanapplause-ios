@@ -77,6 +77,8 @@ class IconButton: UIButton {
             updateStyleForState()
         }
     }
+    lazy var heightConstraint = heightAnchor.constraint(equalToConstant: 0)
+    lazy var widthConstraint = widthAnchor.constraint(equalToConstant: 0)
     required init(image: UIImage?,
                   activeImage: UIImage? = nil,
                   imageColor: UIColor? = UIColor.lightGray,
@@ -102,9 +104,12 @@ class IconButton: UIButton {
    
         addSubview(iconView)
 
+        heightConstraint.constant = size.height
+        widthConstraint.constant = size.width
+        
         NSLayoutConstraint.activate([
-            heightAnchor.constraint(equalToConstant: size.height),
-            widthAnchor.constraint(equalToConstant: size.width),
+            heightConstraint,
+            widthConstraint,
 
             iconView.heightAnchor.constraint(equalToConstant: (imageSize ?? size).height),
             iconView.widthAnchor.constraint(equalToConstant: (imageSize ?? size).width),

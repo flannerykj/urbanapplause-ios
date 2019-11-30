@@ -11,7 +11,6 @@ import Foundation
 class Store {
     var user = DataState<User>()
     var collections = DataState<[Collection]>()
-
     init() {}
 }
 

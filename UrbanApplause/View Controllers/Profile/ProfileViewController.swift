@@ -130,7 +130,7 @@ class ProfileViewController: UIViewController {
             bioLabel.font = TypographyStyle.body.font
         } else {
             bioLabel.text = "No bio added"
-            bioLabel.font = UIFont(name: Helvetica.lightOblique.rawValue, size: 15)
+            bioLabel.font = TypographyStyle.placeholder.font
         }
         if let dateString = user.createdAt?.justTheDate {
             memberSinceLabel.text = "Member since \(dateString)"

@@ -9,7 +9,7 @@
 import Foundation
 
 class CollectionListViewModel {
-    var userId: Int
+    var userId: Int?
     var mainCoordinator: MainCoordinator
     
     var isLoading = false {
@@ -31,12 +31,16 @@ class CollectionListViewModel {
     var didSetLoading: ((Bool) -> Void)?
     var didSetErrorMessage: ((String?) -> Void)?
     
-    init(userId: Int, mainCoordinator: MainCoordinator) {
+    init(userId: Int?, mainCoordinator: MainCoordinator) {
         self.userId = userId
         self.mainCoordinator = mainCoordinator
     }
     
     func getCollections() {
+        guard let userId = self.userId else {
+            self.errorMessage = "Must be logged in to view and create collections."
+            return
+        }
         guard !isLoading else {
             return
         }
@@ -56,7 +60,6 @@ class CollectionListViewModel {
                     self?.collections = collectionsContainer.collections
                 }
             }
-            
         }
     }
 }

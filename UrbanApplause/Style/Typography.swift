@@ -10,10 +10,20 @@ import Foundation
 import UIKit
 
 enum TypographyStyle {
-    case body, strong, h1, h2, h3, h4, h5, h6, h7, h8, label, link, small, error
+    case body, strong, h1, h2, h3, h4, h5, h6, h7, h8, label, link, small, error, placeholder
     
     var font: UIFont {
-        return UIFont(name: self.fontName, size: self.fontSize) ?? UIFont.systemFont(ofSize: self.fontSize)
+        
+        switch self {
+        case .placeholder:
+            return UIFont.italicSystemFont(ofSize: self.fontSize)
+        case .h2:
+            return UIFont.boldSystemFont(ofSize: self.fontSize)
+        case .body:
+            return UIFont.systemFont(ofSize: self.fontSize)
+        default:
+            return UIFont.boldSystemFont(ofSize: self.fontSize)
+        }
     }
     var attributes: [NSAttributedString.Key: Any] {
         return [NSAttributedString.Key.font: self.font]
@@ -60,20 +70,6 @@ enum TypographyStyle {
         default:
             return 15
         }
-    }
-    
-    var fontName: String {
-        var style: String {
-            switch self {
-            case .h2:
-                return Helvetica.bold.rawValue
-            case .body:
-                return Helvetica.normal.rawValue
-            default:
-                return Helvetica.bold.rawValue
-            }
-        }
-        return style
     }
     
     var color: UIColor {

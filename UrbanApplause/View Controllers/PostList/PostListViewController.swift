@@ -32,8 +32,6 @@ class PostListViewController: UIViewController {
     let LEFT_EDITING_MARGIN: CGFloat = 12
     var listTitle: String?
     var requestOnLoad: Bool
-    var locationManager = CLLocationManager()
-    var locationTrackingAuthorization: CLAuthorizationStatus?
     var lastCellHeight: CGFloat = 0
     
     init(listTitle: String? = nil, viewModel: PostListViewModel,
@@ -100,14 +98,12 @@ class PostListViewController: UIViewController {
         return tableView
     }()
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
+        viewModel.getPosts()
+    }
     override func viewDidLoad() {
         super.viewDidLoad()
-        // location manager setup
-        locationManager.delegate = self
-        locationManager.desiredAccuracy = kCLLocationAccuracyBest
-        locationManager.requestWhenInUseAuthorization()
-        locationManager.requestLocation()
-        
         view.addSubview(tableView)
         tableView.fill(view: self.view)
         tableView.addSubview(refreshControl)
@@ -314,25 +310,11 @@ extension PostListViewController: PostCellDelegate {
         let vc = ProfileViewController(user: user, mainCoordinator: mainCoordinator)
         navigationController?.pushViewController(vc, animated: true)
     }
-    
     func postCell(_ cell: PostCell, didUpdatePost post: Post, atIndexPath indexPath: IndexPath) {
         viewModel.updatePost(atIndex: indexPath.row, updatedPost: post)
     }
     func postCell(_ cell: PostCell, didDeletePost post: Post, atIndexPath indexPath: IndexPath) {
         self.removePostFromView(post)
-    }
-}
-// MARK: - CLLocationManagerDelegate
-extension PostListViewController: CLLocationManagerDelegate {
-    public func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-        self.locationTrackingAuthorization = status
-    }
-    public func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-
-    }
-    
-    public func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        log.error(error)
     }
 }
 extension PostListViewController: TabContentViewController {

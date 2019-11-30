@@ -112,7 +112,7 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
         
         navigationItem.rightBarButtonItem = saveButton
         self.newPostState = .initial
-        self.tableView.separatorInset = .zero
+        // self.tableView.separatorInset = .zero
         createForm()
     }
     
@@ -232,6 +232,11 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
                 }
             }
             +++ Section()
+                    <<< TextRow { row in
+                        row.tag = "title"
+                        row.title = "Title of work"
+                        row.placeholder = "Optional"
+                    }
                    <<< SwitchRow { row in
                        row.tag = "active"
                        row.value = true

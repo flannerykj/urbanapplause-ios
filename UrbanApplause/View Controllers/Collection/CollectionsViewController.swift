@@ -17,7 +17,7 @@ class CollectionsViewController: UIViewController {
     lazy var collectionListVC = CollectionListViewController(viewModel: collectionListViewModel,
                                                              mainCoordinator: mainCoordinator)
     
-    init(userId: Int, mainCoordinator: MainCoordinator) {
+    init(userId: Int?, mainCoordinator: MainCoordinator) {
         self.mainCoordinator = mainCoordinator
         self.collectionListViewModel = CollectionListViewModel(userId: userId, mainCoordinator: mainCoordinator)
         super.init(nibName: nil, bundle: nil)

@@ -26,7 +26,7 @@ class PostCell: UITableViewCell {
     var subscriber: FileDownloadSubscriber? {
         willSet {
             if let subscriber = self.subscriber { // remove previous subscriber before setting new
-                self.downloadJob?.removeSubscriber(subscriber)
+                // self.downloadJob?.removeSubscriber(subscriber)
             }
         }
     }
@@ -90,7 +90,7 @@ class PostCell: UITableViewCell {
     }()
     var locationLabel: UILabel = {
         let label = UILabel(type: .body)
-        label.font = UIFont(name: Helvetica.bold.rawValue, size: 15)
+        label.font = TypographyStyle.strong.font
         label.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         return label
     }()
@@ -111,7 +111,6 @@ class PostCell: UITableViewCell {
         postedBy.setContentHuggingPriority(.required, for: .horizontal)
         postedBy.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
         usernameButton.setContentHuggingPriority(.defaultLow, for: .horizontal)
-
         usernameButton.textAlignment = .left
        let stackView = UIStackView(arrangedSubviews: [postedBy, usernameButton])
         stackView.axis = .horizontal

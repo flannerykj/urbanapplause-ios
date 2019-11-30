@@ -10,7 +10,6 @@ import Foundation
 import UIKit
 
 extension UIScrollView {
-
     func scrollViewAvoidKeyboard() {
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(keyboardWillShow(notification:)),

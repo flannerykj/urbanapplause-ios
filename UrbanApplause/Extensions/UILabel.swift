@@ -19,7 +19,6 @@ extension UILabel {
         self.init()
 
         self.text = text
-        numberOfLines = 0
         self.style(as: type)
         if let color = color {
             self.textColor = color
@@ -30,18 +29,18 @@ extension UILabel {
     }
 
     func style(as type: TypographyStyle) {
-        
+        self.numberOfLines = 0
         self.textColor = type.color
         self.clipsToBounds = false
         self.setContentCompressionResistancePriority(.required, for: .vertical)
-
+        
         self.lineBreakMode = NSLineBreakMode.byWordWrapping
         self.translatesAutoresizingMaskIntoConstraints = false
         self.baselineAdjustment = .none
+        
+        // Enable font-scaling
         self.adjustsFontForContentSizeCategory = true
-        if let font = UIFont(name: type.fontName, size: type.fontSize) {
-            let fontMetrics = UIFontMetrics(forTextStyle: type.textStyle)
-            self.font = fontMetrics.scaledFont(for: font)
-        }
+        let fontMetrics = UIFontMetrics(forTextStyle: type.textStyle)
+        self.font = fontMetrics.scaledFont(for: type.font)
     }
 }
