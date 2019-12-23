@@ -18,6 +18,14 @@ extension UIView {
             self.bottomAnchor.constraint(equalTo: view.layoutMarginsGuide.bottomAnchor)
             ])
     }
+    func fillWithinSafeArea(view: UIView) {
+        NSLayoutConstraint.activate([
+            self.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor),
+            self.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            self.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor),
+            self.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+            ])
+    }
     
     func fill(view: UIView) {
         NSLayoutConstraint.activate([

@@ -24,7 +24,7 @@ class TabBarController: UITabBarController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    lazy var mapRootVC = PostMapViewController2(viewModel: PostMapViewModel2(mainCoordinator: mainCoordinator),
+    lazy var mapRootVC = PostMapViewController3(viewModel: PostMapViewModel3(mainCoordinator: mainCoordinator),
                                                mainCoordinator: mainCoordinator)
     lazy var mapTab = UINavigationController(rootViewController: mapRootVC)
     let mapTabBarItem = UITabBarItem(title: "Map",
@@ -37,7 +37,7 @@ class TabBarController: UITabBarController {
                                            image: UIImage(systemName: "magnifyingglass"),
                                            selectedImage: UIImage(systemName: "magnifyingglass"))
     
-    lazy var collectionsRootVC = CollectionsViewController(userId: store.user.data?.id,
+    lazy var collectionsRootVC = GalleriesViewController(userId: store.user.data?.id,
                                                            mainCoordinator: mainCoordinator)
     lazy var collectionsTab = UINavigationController(rootViewController: collectionsRootVC)
     let collectionsTabBarItem = UITabBarItem(title: "Galleries",
@@ -159,12 +159,12 @@ class UATabBar: UITabBar {
 }
 extension TabBarController: PostFormDelegate {
     func didCreatePost(post: Post) {
-        // postListViewModel.getPosts(forceReload: true)
-        self.listRootVC.needsUpdate = true
-        self.mapRootVC.needsUpdate = true
+        self.listRootVC.didDeletePost(post: post)
+        self.mapRootVC.didCreatePost(post: post)
     }
     
     func didDeletePost(post: Post) {
-        // postListViewModel.getPosts(forceReload: true)
+        self.listRootVC.didCreatePost(post: post)
+        self.mapRootVC.didDeletePost(post: post)
     }
 }

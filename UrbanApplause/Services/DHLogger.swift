@@ -126,7 +126,7 @@ class DHLogger {
         #endif
         let functionText: String = String(function.split(separator: "(").first ?? "")
         
-        #if DEBUG
+        // #if DEBUG
             // Log to console
             guard level.rawValue >= minLogLevel else {
                 return
@@ -141,7 +141,7 @@ class DHLogger {
                 filename,
                 "\(functionText):\(line)",
                 "--", resolvedMessage)
-        #else
+        /* #else
             // RELEASE: Send to Bugsnag
             if level.rawValue >= minBusgnagLevel {
                 var message: String?
@@ -156,7 +156,7 @@ class DHLogger {
                    //  Bugsnag.notify(exception)
                 }
             }
-         #endif
+         #endif */
         
     }
     class var formattedDateString: String {

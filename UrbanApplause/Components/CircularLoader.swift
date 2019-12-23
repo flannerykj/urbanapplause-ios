@@ -10,6 +10,26 @@ import Foundation
 import UIKit
 
 class CircularLoader: UIView {
+    init() {
+        super.init(frame: .zero)
+        self.heightAnchor.constraint(equalToConstant: 24).isActive = true
+        self.widthAnchor.constraint(equalToConstant: 24).isActive = true
+        self.translatesAutoresizingMaskIntoConstraints = false
+        self.tintColor = UIColor.systemPink
+    }
+    
+    public func showAndAnimate() {
+        self.animate()
+        self.isHidden = false
+    }
+    
+    public func hide() {
+        self.isHidden = true
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     override var layer: CAShapeLayer {
         return super.layer as! CAShapeLayer
     }

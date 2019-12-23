@@ -102,6 +102,7 @@ class PostDetailViewController: UIViewController {
             guard let job = downloadJob else { log.debug("job is nil"); return }
             self.subscriber = job.subscribe(onSuccess: { data in
                 DispatchQueue.main.async {
+                    self.imageLoadingIndicator.hide()
                     self.photoView.image = UIImage(data: data)
                 }
             })
@@ -110,6 +111,8 @@ class PostDetailViewController: UIViewController {
 
     var downloadedImages: [Int: UIImage] = [:]
     
+    let imageLoadingIndicator = CircularLoader()
+    
     lazy var photoView: UIImageView = {
         let view = UIImageView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -117,6 +120,12 @@ class PostDetailViewController: UIViewController {
         view.contentMode = .scaleAspectFill
         view.layer.masksToBounds = true
         view.image = UIImage(named: "placeholder")
+        view.addSubview(imageLoadingIndicator)
+        NSLayoutConstraint.activate([
+            imageLoadingIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            imageLoadingIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+        ])
+        imageLoadingIndicator.showAndAnimate()
         return view
     }()
     var artistLabel: UILabel = {

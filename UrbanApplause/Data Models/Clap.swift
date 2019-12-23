@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct Applause: Codable {
+struct Clap: Codable {
     var id: Int
     var UserId: Int
     var PostId: Int
@@ -18,5 +18,6 @@ struct Applause: Codable {
 }
 
 struct ApplauseInteractionContainer: Codable {
-    var applause: Applause
+    var clap: Clap
+    var deleted: Bool
 }

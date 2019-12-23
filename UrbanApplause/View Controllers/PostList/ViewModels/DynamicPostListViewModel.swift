@@ -9,11 +9,13 @@
 import Foundation
 import MapKit
 
-class PostListViewModel {
+class DynamicPostListViewModel: PostListViewModel {
     private var mainCoordinator: MainCoordinator
     
     private let itemsPerPage = 10
-    var filterForUser: User?
+    
+    var filterForVisitedBy: User?
+    var filterForPostedBy: User?
     var filterForUserApplause: User?
     var filterForArtist: Artist?
     var filterForQuery: String?
@@ -27,13 +29,13 @@ class PostListViewModel {
             posts.count % itemsPerPage == 0 &&
             firstEmptyPage == nil
     }
-    private(set) var posts = [Post]()
-    private(set) var errorMessage: String? = nil {
+    internal var _posts = [Post]()
+    var errorMessage: String? = nil {
         didSet {
             self.didSetErrorMessage?(errorMessage)
         }
     }
-    private(set) var isLoading = false {
+    var isLoading = false {
         didSet {
             self.didSetLoading?(isLoading)
         }
@@ -46,29 +48,23 @@ class PostListViewModel {
     var currentPage: Int = 0
     var firstEmptyPage: Int?
     
-    init(filterForUser: User? = nil,
+    init(filterForPostedBy: User? = nil,
+         filterForVisitedBy: User? = nil,
          filterForUserApplause: User? = nil,
          filterForArtist: Artist? = nil,
          filterForQuery: String? = nil,
          filterForCollection: Collection? = nil,
          mainCoordinator: MainCoordinator) {
         
-        self.filterForUser = filterForUser
+        self.filterForPostedBy = filterForPostedBy
+        self.filterForVisitedBy = filterForVisitedBy
         self.filterForUserApplause = filterForUserApplause
         self.filterForArtist = filterForArtist
         self.filterForQuery = filterForQuery
         self.filterForCollection = filterForCollection
         self.mainCoordinator = mainCoordinator
     }
-    
-    func removePost(atIndex index: Int) {
-        self.posts.remove(at: index)
-    }
-    
-    func updatePost(atIndex index: Int, updatedPost: Post) {
-        self.posts[index] = updatedPost
-    }
-    
+
     func getPosts(forceReload: Bool = false) {
         if forceReload {
             self.currentPage = 0
@@ -86,16 +82,18 @@ class PostListViewModel {
         }
         isLoading = true
         errorMessage = nil
-        _ = mainCoordinator.networkService.request(PrivateRouter.getPosts(page: currentPage,
-                                                                      limit: self.itemsPerPage,
-                                                                      userId: self.filterForUser?.id,
-                                                                      applaudedBy: self.filterForUserApplause?.id,
-                                                                      artistId: filterForArtist?.id,
-                                                                      search: filterForQuery,
-                                                                      collectionId: filterForCollection?.id,
-                                                                      proximity: self.filterForProximity,
-                                                                      bounds: self.filterForGeoBounds,
-                                                                      include: ["applause", "collections", "comments"])
+        let postQuery = PostQuery(page: currentPage,
+                                limit: self.itemsPerPage,
+                                userId: self.filterForPostedBy?.id,
+                                applaudedBy: self.filterForUserApplause?.id,
+                                visitedBy: self.filterForVisitedBy?.id,
+                                artistId: filterForArtist?.id,
+                                search: filterForQuery,
+                                collectionId: filterForCollection?.id,
+                                proximity: self.filterForProximity,
+                                bounds: self.filterForGeoBounds,
+                                include: ["applause", "collections", "comments"])
+        _ = mainCoordinator.networkService.request(PrivateRouter.getPosts(query: postQuery)
         ) { [weak self] (result: UAResult<PostsContainer>) in
             DispatchQueue.main.async {
                 self?.isLoading = false
@@ -110,20 +108,17 @@ class PostListViewModel {
                             return
                         }
                     }
-                    let startIndex = self!.posts.count
-                    let endIndex = startIndex + postsContainer.posts.count
-                    let newIndexPaths = (startIndex ..< endIndex).map { IndexPath(row: $0, section: 0)}
+                    
                     if forceReload {
-                        self!.posts = postsContainer.posts
+                        self!._posts = postsContainer.posts
                     } else {
-                        self?.posts.append(contentsOf: postsContainer.posts)
+                        self?._posts.append(contentsOf: postsContainer.posts)
                     }
                     let shouldReload = self!.currentPage == 0
-                    self!.didUpdateData?(newIndexPaths, [], shouldReload)
+                    self!.didUpdateData?(self!.getNewIndexPaths(forAddedPosts: postsContainer.posts), [], shouldReload)
                     self!.currentPage += 1
                 }
             }
-            
         }
     }
 }

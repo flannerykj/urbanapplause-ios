@@ -9,6 +9,10 @@
 import Foundation
 
 struct Collection: Codable {
+    var type: Gallery {
+        return .custom(self)
+    }
+    
     var id: Int
     var title: String
     var description: String?

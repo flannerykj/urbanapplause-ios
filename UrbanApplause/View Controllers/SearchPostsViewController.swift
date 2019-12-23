@@ -11,9 +11,9 @@ import UIKit
 
 class SearchPostsViewController: UIViewController {
     var mainCoordinator: MainCoordinator
-    var postListViewModel: PostListViewModel
-    var searchResultsViewModel: PostListViewModel
-    var postMapViewModel: PostMapViewModel
+    var postListViewModel: DynamicPostListViewModel
+    var searchResultsViewModel: DynamicPostListViewModel
+    var postMapViewModel: PostMapViewModel2
     var needsUpdate: Bool = false {
         didSet {
             self.postListViewModel.getPosts(forceReload: true)
@@ -41,15 +41,15 @@ class SearchPostsViewController: UIViewController {
     // MARK: - UIViewController Lifecycle
     init(mainCoordinator: MainCoordinator) {
         self.mainCoordinator = mainCoordinator
-        self.postListViewModel = PostListViewModel(filterForUser: nil,
+        self.postListViewModel = DynamicPostListViewModel(filterForPostedBy: nil,
                                                    filterForArtist: nil,
                                                    filterForQuery: nil,
                                                    mainCoordinator: mainCoordinator)
-        self.searchResultsViewModel = PostListViewModel(filterForUser: nil,
+        self.searchResultsViewModel = DynamicPostListViewModel(filterForPostedBy: nil,
                                                     filterForArtist: nil,
                                                     filterForQuery: nil,
                                                     mainCoordinator: mainCoordinator)
-        self.postMapViewModel = PostMapViewModel(mainCoordinator: mainCoordinator)
+        self.postMapViewModel = PostMapViewModel2(mainCoordinator: mainCoordinator)
         super.init(nibName: nil, bundle: nil)
     }
     

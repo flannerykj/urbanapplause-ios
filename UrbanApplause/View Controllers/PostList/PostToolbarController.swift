@@ -32,20 +32,20 @@ class PostToolbarController: UIViewController {
     lazy var applauseCountLabel = UILabel(type: .body, text: applauseCountText())
     lazy var saveCountLabel = UILabel(type: .body, text: saveCountText())
     lazy var commentCountLabel = UILabel(type: .body, text: commentCountText())
-
+    
     // lazy var saveCountButton = UIButton(type: .link, title: interactionCountText(type: .save), target: self, onTouchDown: #selector(viewSavedCount(_:)))
     
     // lazy var actionButton = IconButton(image: UIImage(systemName: "square.and.arrow.up"), target: nil, onTouchDown: nil)
     lazy var moreButton = IconButton(image: UIImage(systemName: "ellipsis"),
                                      target: self,
                                      action: #selector(showMoreOptions(_:)))
-
+    
     lazy var stackView: UIStackView = {
         applauseCountLabel.numberOfLines = 1
         saveCountLabel.numberOfLines = 1
         commentCountLabel.numberOfLines = 1
         
-        let applauseButton = IconButton(image: UIImage(named: "applaud"),
+        let applauseButton = IconButton(image: UIImage(named: "applause"),
                                         size: CGSize(width: 28, height: 28),
                                         target: nil,
                                         action: #selector(applaudPost(_:)))
@@ -56,11 +56,11 @@ class PostToolbarController: UIViewController {
         applauseStack.translatesAutoresizingMaskIntoConstraints = false
         applauseStack.spacing = 2
         
-        let saveButton = IconButton(image: UIImage(systemName: "square.grid.2x2"),
-                                    target: self,
-                                    action: #selector(savePost(_:)))
+        let visitsButton = IconButton(image: UIImage(systemName: "eye"),
+                                      target: self,
+                                      action: #selector(addVisit(_:)))
         
-        let saveStack = UIStackView(arrangedSubviews: [saveButton, saveCountLabel])
+        let saveStack = UIStackView(arrangedSubviews: [visitsButton, saveCountLabel])
         saveStack.axis = .horizontal
         saveStack.spacing = 2
         saveStack.alignment = .center
@@ -96,7 +96,7 @@ class PostToolbarController: UIViewController {
         applauseCountLabel.textColor = UIColor.lightGray
         saveCountLabel.textColor = UIColor.lightGray
         commentCountLabel.textColor = UIColor.lightGray
-
+        
         view.addSubview(stackView)
         stackView.fill(view: view)
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -106,27 +106,26 @@ class PostToolbarController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    @objc func savePost(_ sender: UIButton) {
+    func savePost() {
         guard let mainCoordinator = self.mainCoordinator, let userId = mainCoordinator.store.user.data?.id else {
             return
         }
-        let collectionViewModel = CollectionListViewModel(userId: userId, mainCoordinator: mainCoordinator)
-        let vc = CollectionListViewController(viewModel: collectionViewModel,
-                                              mainCoordinator: mainCoordinator)
-     vc.navigationItem.title = "Add to galleries"
+        let galleriesViewModel = GalleryListViewModel(userId: userId,
+                                                      includeGeneratedGalleries: false,
+                                                      mainCoordinator: mainCoordinator)
+        
+        let vc = GalleryListViewController(viewModel: galleriesViewModel,
+                                           mainCoordinator: mainCoordinator)
+        vc.navigationItem.title = "Add to galleries"
         vc.delegate = self
         present(UINavigationController(rootViewController: vc), animated: true, completion: nil)
     }
     @objc func applaudPost(_ sender: UIButton) {
-        guard let store = self.mainCoordinator?.store else { log.debug("no store"); return }
-        let existing = post?.Applause?.first {
-            $0.UserId == store.user.data?.id
-        }
-        if existing != nil {
-            removeApplause(interactionId: existing!.id)
-            return
-        }
-        addApplause()
+        toggleApplause()
+    }
+    
+    @objc func addVisit(_ sender: UIButton) {
+        
     }
     
     func blockUser(_ user: User) {
@@ -142,38 +141,54 @@ class PostToolbarController: UIViewController {
             let endpoint = PrivateRouter.blockUser(blockingUserId: blockingUser.id, blockedUserId: user.id)
             _ = mainCoordinator.networkService.request(endpoint,
                                                        completion: { (result: UAResult<BlockedUserContainer>) in
-                DispatchQueue.main.async {
-                    switch result {
-                    case .success:
-                        self.delegate?.postToolbar(self, didBlockUser: user)
-                        let successMsg = "\(username) has been blocked"
-                        let successAlert = UIAlertController(title: successMsg, message: nil, preferredStyle: .alert)
-                        let okAction = UIAlertAction(title: "OK", style: .default, handler: { _ in
-                            successAlert.dismiss(animated: true, completion: nil)
-                        })
-                        successAlert.addAction(okAction)
-                        self.present(successAlert, animated: true, completion: nil)
-                    case .failure(let error):
-                        log.error(error)
-                        let errorAlert = UIAlertController(title: "Unable to complete request",
-                                                           message: error.userMessage,
-                                                           preferredStyle: .alert)
-                        let okAction = UIAlertAction(title: "OK", style: .default, handler: { _ in
-                            errorAlert.dismiss(animated: true, completion: nil)
-                        })
-                        errorAlert.addAction(okAction)
-                        self.present(errorAlert, animated: true, completion: nil)
-                    }
-                }
+                                                        DispatchQueue.main.async {
+                                                            switch result {
+                                                            case .success:
+                                                                self.onBlockUserSuccess(user: user)
+                                                            case .failure(let error):
+                                                                self.onBlockUserError(error, user: user)
+                                                            }
+                                                        }
             })
         })
         alertController.addAction(cancelAction)
         alertController.addAction(blockAction)
         presentAlertInCenter(alertController)
-
+        
+    }
+    
+    func onBlockUserSuccess(user: User) {
+        self.delegate?.postToolbar(self, didBlockUser: user)
+        let username = user.username ?? "This user"
+        let successMsg = "\(username) has been blocked"
+        let successAlert = UIAlertController(title: successMsg,
+                                             message: nil,
+                                             preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "OK", style: .default, handler: { _ in
+            successAlert.dismiss(animated: true, completion: nil)
+        })
+        successAlert.addAction(okAction)
+        self.present(successAlert, animated: true, completion: nil)
+    }
+    
+    func onBlockUserError(_ error: UAError, user: User) {
+        log.error(error)
+        let errorAlert = UIAlertController(title: "Unable to complete request",
+                                           message: error.userMessage,
+                                           preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "OK", style: .default, handler: { _ in
+            errorAlert.dismiss(animated: true, completion: nil)
+        })
+        errorAlert.addAction(okAction)
+        self.present(errorAlert, animated: true, completion: nil)
     }
     @objc func showMoreOptions(_ sender: UIButton) {
         let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        
+        let savePostAction = UIAlertAction(title: "Save to gallery", style: .default, handler: { _ in
+            self.savePost()
+        })
+        alertController.addAction(savePostAction)
         
         if let mainCoordinator = mainCoordinator,
             let user = mainCoordinator.store.user.data,
@@ -194,6 +209,7 @@ class PostToolbarController: UIViewController {
             alertController.addAction(reportPostAction)
             alertController.addAction(blockAction)
         }
+        
         let cancel = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
         alertController.addAction(cancel)
         alertController.popoverPresentationController?.sourceView = sender
@@ -203,48 +219,54 @@ class PostToolbarController: UIViewController {
     
     func confirmDeletePost() {
         guard let mainCoordinator = self.mainCoordinator, let post = self.post else { return }
-
+        
         let alertController = UIAlertController(title: "Are you sure you want to delete this post?",
                                                 message: "This cannot be undone.",
                                                 preferredStyle: .alert)
         
         let cancelAction = UIAlertAction(title: "Cancel", style: .default, handler: { _ in
-                   alertController.dismiss(animated: true, completion: nil)
-               })
-        let deleteAction = UIAlertAction(title: "Delete", style: .destructive, handler: { _ in
-        _ = mainCoordinator.networkService.request(PrivateRouter.deletePost(id: post.id),
-                                                   completion: { (result: UAResult<PostContainer>) in
-            DispatchQueue.main.async {
-                switch result {
-                case .success:
-                    self.delegate?.postToolbar(self, didDeletePost: post)
-                    let successAlert = UIAlertController(title: "Your post has been deleted.",
-                                                         message: nil,
-                                                         preferredStyle: .alert)
-                    
-                    let okAction = UIAlertAction(title: "OK", style: .default, handler: { _ in
-                        successAlert.dismiss(animated: true, completion: nil)
-                    })
-                    successAlert.addAction(okAction)
-                    self.present(successAlert, animated: true, completion: nil)
-                case .failure(let error):
-                    log.error(error)
-                    let errorAlert = UIAlertController(title: "Unable to complete request",
-                                                       message: error.userMessage,
-                                                       preferredStyle: .alert)
-                    let okAction = UIAlertAction(title: "OK", style: .default, handler: { _ in
-                        errorAlert.dismiss(animated: true, completion: nil)
-                    })
-                    errorAlert.addAction(okAction)
-                    self.present(errorAlert, animated: true, completion: nil)
-                }
-            }
+            alertController.dismiss(animated: true, completion: nil)
         })
-       })
-       alertController.addAction(cancelAction)
-       alertController.addAction(deleteAction)
-       present(alertController, animated: true, completion: nil)
+        let deleteAction = UIAlertAction(title: "Delete", style: .destructive, handler: { _ in
+            _ = mainCoordinator.networkService.request(PrivateRouter.deletePost(id: post.id),
+                                                       completion: { (result: UAResult<PostContainer>) in
+                                                        DispatchQueue.main.async {
+                                                            switch result {
+                                                            case .success:
+                                                                self.onDeletePostSuccess(post: post)
+                                                            case .failure(let error):
+                                                                self.onDeletePostError(error, post: post)
+                                                            }
+                                                        }
+            })
+        })
+        alertController.addAction(cancelAction)
+        alertController.addAction(deleteAction)
+        present(alertController, animated: true, completion: nil)
+    }
+    
+    func onDeletePostSuccess(post: Post) {
+        self.delegate?.postToolbar(self, didDeletePost: post)
+        let successAlert = UIAlertController(title: "Your post has been deleted.",
+                                             message: nil,
+                                             preferredStyle: .alert)
         
+        let okAction = UIAlertAction(title: "OK", style: .default, handler: { _ in
+            successAlert.dismiss(animated: true, completion: nil)
+        })
+        successAlert.addAction(okAction)
+        self.present(successAlert, animated: true, completion: nil)
+    }
+    func onDeletePostError(_ error: UAError, post: Post) {
+        log.error(error)
+        let errorAlert = UIAlertController(title: "Unable to complete request",
+                                           message: error.userMessage,
+                                           preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "OK", style: .default, handler: { _ in
+            errorAlert.dismiss(animated: true, completion: nil)
+        })
+        errorAlert.addAction(okAction)
+        self.present(errorAlert, animated: true, completion: nil)
     }
     func flagPost() {
         guard let store = self.mainCoordinator?.store else { log.debug("no store"); return }
@@ -254,7 +276,7 @@ class PostToolbarController: UIViewController {
         present(UINavigationController(rootViewController: vc), animated: true, completion: nil)
     }
     func applauseCountText() -> String {
-        guard let applause = post?.Applause else { return "0" }
+        guard let applause = post?.Claps else { return "0" }
         return "\(String(applause.count))"
     }
     func saveCountText() -> String {
@@ -279,52 +301,34 @@ class PostToolbarController: UIViewController {
         present(UINavigationController(rootViewController: vc), animated: true, completion: nil)
     }
     
-    func addApplause() {
-        log.debug("addApplause")
+    func toggleApplause() {
         guard let post = self.post,
             let mainCoordinator = self.mainCoordinator,
             let userId = mainCoordinator.store.user.data?.id else {
-                log.error("missing data for crating applause")
+                log.error("missing data for creating applause")
                 return
         }
-        _ = mainCoordinator.networkService.request(PrivateRouter.addApplause(postId: post.id, userId: userId),
+        _ = mainCoordinator.networkService.request(PrivateRouter.addOrRemoveClap(postId: post.id, userId: userId),
                                                    completion: { (result: UAResult<ApplauseInteractionContainer>) in
-            switch result {
-            case .success(let container):
-                DispatchQueue.main.async {
-                    self.post?.Applause?.append(container.applause)
-                    self.delegate?.postToolbar(self, didUpdatePost: post)
-                    self.applauseCountLabel.text = self.applauseCountText()
-                    self.view.setNeedsDisplay()
-                }
-            case .failure(let error):
-                log.error(error)
-            }
+                                                    switch result {
+                                                    case .success(let container):
+                                                        DispatchQueue.main.async {
+                                                            if container.deleted {
+                                                                self.post?.Claps?.removeAll { interaction in
+                                                                    interaction.id == container.clap.id
+                                                                }
+                                                            } else {
+                                                                self.post?.Claps?.append(container.clap)
+                                                            }
+                                                            self.delegate?.postToolbar(self, didUpdatePost: post)
+                                                            self.applauseCountLabel.text = self.applauseCountText()
+                                                            self.view.setNeedsDisplay()
+                                                        }
+                                                    case .failure(let error):
+                                                        log.error(error)
+                                                    }
         })
     }
-    func removeApplause(interactionId: Int) {
-        log.debug("removeApplause")
-        guard let mainCoordinator = self.mainCoordinator,
-            let post = self.post else { log.debug("missing daa for remove applause"); return }
-        _ = mainCoordinator.networkService.request(PrivateRouter.removeApplause(applauseId: interactionId),
-                                                   completion: { (result: UAResult<ApplauseInteractionContainer>) in
-
-            switch result {
-            case .success:
-                DispatchQueue.main.async {
-                    self.post?.Applause?.removeAll { interaction in
-                        interaction.id == interactionId
-                    }
-                    self.delegate?.postToolbar(self, didUpdatePost: post)
-                    self.applauseCountLabel.text = self.applauseCountText()
-                    self.view.setNeedsDisplay()
-                }
-            case .failure(let error):
-                log.error(error)
-            }
-        })
-    }
-    
     func addPostToCollection(_ collection: Collection, completion: @escaping (Bool) -> Void) {
         guard let post = self.post, let mainCoordinator = self.mainCoordinator else {
             return
@@ -372,43 +376,28 @@ class PostToolbarController: UIViewController {
         guard let mainCoordinator = self.mainCoordinator, let post = self.post else { return }
         reportAnIssueController.self.isSubmitting = true
         _ = mainCoordinator.networkService.request(PrivateRouter.createPostFlag(postId: post.id,
-                                                                            reason: reason),
-                                               completion: { (result: UAResult<PostFlagContainer>) in
-            DispatchQueue.main.async {
-                reportAnIssueController.self.isSubmitting = false
-                switch result {
-                case .success(let container):
-                    log.debug(container)
-                    reportAnIssueController.didSubmit = true
-                case .failure(let error):
-                    log.error(error)
-                    reportAnIssueController.handleError(error: error)
-                }
-            }
+                                                                                reason: reason),
+                                                   completion: { (result: UAResult<PostFlagContainer>) in
+                                                    DispatchQueue.main.async {
+                                                        reportAnIssueController.self.isSubmitting = false
+                                                        switch result {
+                                                        case .success(let container):
+                                                            log.debug(container)
+                                                            reportAnIssueController.didSubmit = true
+                                                        case .failure(let error):
+                                                            log.error(error)
+                                                            reportAnIssueController.handleError(error: error)
+                                                        }
+                                                    }
         })
     }
 }
-extension PostToolbarController: CollectionListDelegate {
-    func collectionList(_ controller: CollectionListViewController,
-                        accessoryViewForCollection collection: Collection,
-                        at indexPath: IndexPath) -> UIView? {
-        if updatingCollections.contains(where: {
-            $0.id == collection.id
-        }) {
-            let activityIndicator = UIActivityIndicatorView(frame: CGRect(x: 0, y: 0, width: 24, height: 24))
-            activityIndicator.style = UIActivityIndicatorView.Style.medium
-            activityIndicator.startAnimating()
-            return activityIndicator
-        }
-        if addedToCollections.contains(where: {
-            $0.id == collection.id
-        }) { return UIImageView(image: UIImage(systemName: "checkmark")) }
-        return nil
-    }
-    
-    func collectionList(_ controller: CollectionListViewController,
-                        didSelectCollection collection: Collection,
-                        at indexPath: IndexPath) {
+extension PostToolbarController: GalleryListDelegate {
+    func galleryList(_ controller: GalleryListViewController,
+                     didSelectGallery gallery: Gallery,
+                     at indexPath: IndexPath) {
+        
+        guard case let Gallery.custom(collection) = gallery else { return }
         if updatingCollections.firstIndex(where: {
             $0.id == collection.id
         }) != nil {
@@ -417,8 +406,7 @@ extension PostToolbarController: CollectionListDelegate {
         
         let updatingIndex = self.updatingCollections.count
         self.updatingCollections.append(collection)
-        controller.tableView.reloadRows(at: [indexPath], with: .automatic)
-
+        
         let firstIndex = addedToCollections.firstIndex(where: {
             $0.id == collection.id
         })
@@ -429,7 +417,6 @@ extension PostToolbarController: CollectionListDelegate {
                         $0.id == collection.id
                     })
                     self.updatingCollections.remove(at: updatingIndex)
-                    controller.tableView.reloadRows(at: [indexPath], with: .automatic)
                 }
             })
         } else {
@@ -437,13 +424,34 @@ extension PostToolbarController: CollectionListDelegate {
                 if success {
                     self.addedToCollections.append(collection)
                     self.updatingCollections.remove(at: updatingIndex)
-                    controller.tableView.reloadRows(at: [indexPath], with: .automatic)
                 }
             })
         }
+        controller.reloadGalleries([.custom(collection)], animate: true)
+
     }
     
+    func galleryList(_ controller: GalleryListViewController,
+                     accessoryViewForGallery gallery: Gallery,
+                     at indexPath: IndexPath) -> UIView? {
+        
+        if case let Gallery.custom(collection) = gallery {
+            if updatingCollections.contains(where: {
+                $0.id == collection.id
+            }) {
+                let activityIndicator = UIActivityIndicatorView(frame: CGRect(x: 0, y: 0, width: 24, height: 24))
+                activityIndicator.style = UIActivityIndicatorView.Style.medium
+                activityIndicator.startAnimating()
+                return activityIndicator
+            }
+            if addedToCollections.contains(where: {
+                $0.id == collection.id
+            }) { return UIImageView(image: UIImage(systemName: "checkmark")) }
+        }
+        return nil
+    }
 }
+
 extension PostToolbarController: CommentListDelegate {
     func commentList(didUpdateComments comments: [Comment]) {
         if let post = self.post {

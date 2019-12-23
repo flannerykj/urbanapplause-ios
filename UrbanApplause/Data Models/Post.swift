@@ -22,10 +22,51 @@ class Post: NSObject, Codable {
     var Artists: [Artist]?
     var Location: Location?
     var User: User?
-    var Applause: [Applause]?
+    var Claps: [Clap]?
+    var Visits: [Visit]?
     var Collections: [Collection]?
     var Comments: [Comment]?
 }
+
+struct PostQuery {
+    var page: Int
+    var limit: Int
+    var userId: Int?
+    var applaudedBy: Int?
+    var visitedBy: Int?
+    var artistId: Int?
+    var search: String?
+    var collectionId: Int?
+    var proximity: ProximityFilter?
+    var bounds: GeoBoundsFilter?
+    var include: [String]
+    
+    init(page: Int = 0,
+         limit: Int = 100,
+         userId: Int? = nil,
+         applaudedBy: Int? = nil,
+         visitedBy: Int? = nil,
+         artistId: Int? = nil,
+         search: String? = nil,
+         collectionId: Int? = nil,
+         proximity: ProximityFilter? = nil,
+         bounds: GeoBoundsFilter? = nil,
+         include: [String] = []) {
+        
+        self.page = page
+        self.limit = limit
+        self.userId = userId
+        self.applaudedBy = applaudedBy
+        self.visitedBy = visitedBy
+        self.artistId = artistId
+        self.search = search
+        self.collectionId = collectionId
+        self.proximity = proximity
+        self.bounds = bounds
+        self.include = include
+    }
+}
+
 extension Post: MKAnnotation {
     var coordinate: CLLocationCoordinate2D {
         guard let coords = self.Location?.coordinates else {

@@ -14,16 +14,7 @@ enum PrivateRouter: EndpointConfiguration {
     case authenticate(email: String, password: String, username: String?, newUser: Bool)
     
     // posts
-    case getPosts(page: Int,
-        limit: Int,
-        userId: Int?,
-        applaudedBy: Int?,
-        artistId: Int?,
-        search: String?,
-        collectionId: Int?,
-        proximity: ProximityFilter?,
-        bounds: GeoBoundsFilter?,
-        include: [String])
+    case getPosts(query: PostQuery)
     
     case getPost(id: Int)
     case getPostClusters(postedAfter: Date?, threshold: Double?, bounds: GeoBoundsFilter?)
@@ -51,8 +42,12 @@ enum PrivateRouter: EndpointConfiguration {
     case createArtist(values: Parameters)
     
     // applause
-    case addApplause(postId: Int, userId: Int)
-    case removeApplause(applauseId: Int)
+    case addOrRemoveClap(postId: Int, userId: Int)
+    case removeClap(clapId: Int)
+    
+    // visits
+    case addVisit(postId: Int, userId: Int)
+    case removeVisit(visitId: Int)
     
     // collections
     case getCollections(userId: Int?, postId: Int?)
@@ -79,11 +74,11 @@ enum PrivateRouter: EndpointConfiguration {
     
     var httpMethod: HTTPMethod {
         switch self {
-        case .deletePost, .deletePostImage, .removeApplause, .deleteCollection, .deleteFromCollection, .deleteComment:
+        case .deletePost, .deletePostImage, .removeClap, .deleteCollection, .deleteFromCollection, .deleteComment:
             return .delete
         case .editPost, .updateUser, .updateCollection, .updateCollectionPost:
             return .put
-        case .authenticate, .createPost, .createUser, .addApplause, .createCollection, .addToCollection, .uploadImages, .createArtist, .createComment, .createPostFlag, .blockUser:
+        case .authenticate, .createPost, .createUser, .addOrRemoveClap, .createCollection, .addToCollection, .uploadImages, .createArtist, .createComment, .createPostFlag, .blockUser:
             return .post
         default:
             return .get
@@ -117,10 +112,14 @@ enum PrivateRouter: EndpointConfiguration {
             return "posts/\(postId)/images/\(imageId)"
         case .getLocationPosts(let locationId):
             return "locations/\(locationId)/posts"
-        case .addApplause:
-            return "applause"
-        case .removeApplause(let id):
-            return "applause/\(id)"
+        case .addOrRemoveClap:
+            return "claps"
+        case .removeClap(let id):
+            return "claps/\(id)"
+        case .addVisit:
+            return "visits"
+        case .removeVisit(let id):
+            return "visits/\(id)"
         case .createCollection, .getCollections:
             return "collections"
         case .deleteCollection(let collectionId), .updateCollection(let collectionId, _):
@@ -158,7 +157,7 @@ enum PrivateRouter: EndpointConfiguration {
             return .requestParameters(bodyParameters: nil, urlParameters: params)
         case .authenticate(let email, let password, let username, _):
             let body: Parameters = ["user": ["email": email, "password": password, "username": username],
-                                    "refresh_token": "true"] as [String : Any]
+                                    "refresh_token": "true"] as [String: Any]
             return .requestParameters(bodyParameters: body, urlParameters: nil)
         case .getArtists(let queryParams):
             return .requestParameters(bodyParameters: nil, urlParameters: queryParams)
@@ -172,52 +171,50 @@ enum PrivateRouter: EndpointConfiguration {
             return .requestParameters(bodyParameters: ["collection": values], urlParameters: nil)
         case .addToCollection(_, let postId, _):
             return .requestParameters(bodyParameters: ["PostId": postId], urlParameters: nil)
-        case .addApplause(let postId, let userId):
-            return .requestParameters(bodyParameters: ["applause": ["PostId": postId, "UserId": userId]],
+        case .addOrRemoveClap(let postId, let userId):
+            return .requestParameters(bodyParameters: ["clap": ["PostId": postId, "UserId": userId]],
+                                      urlParameters: nil)
+        case .addVisit(let postId, let userId):
+            return .requestParameters(bodyParameters: ["visit": ["PostId": postId, "UserId": userId]],
                                       urlParameters: nil)
         case .uploadImages(_, let userId, let imagesData):
             return .upload(fileKeyPath: "images[]", imagesData: imagesData, bodyParameters: ["UserId": userId])
-        case .getPosts(let page,
-                       let limit,
-                       let userId,
-                       let applaudedBy,
-                       let artistId,
-                       let search,
-                       let collectionId,
-                       let proximityFilter,
-                       let geoBoundsFilter,
-                        let includes):
+        case .getPosts(let query):
+            log.debug("query: \(query)")
             var params = Parameters()
-            params["page"] = String(page)
-            params["limit"] = String(limit)
-            if let id = userId {
+            params["page"] = String(query.page)
+            params["limit"] = String(query.limit)
+            if let id = query.userId {
                 params["userId"] = String(id)
             }
-            if let id = applaudedBy {
-                params["applaudedBy"] = String(id)
+            if let id = query.applaudedBy {
+                params["clappedBy"] = String(id)
             }
-            if let id = artistId {
+            if let id = query.visitedBy {
+                params["visitedBy"] = String(id)
+            }
+            if let id = query.artistId {
                 params["artistId"] = String(id)
             }
-            if let searchQuery = search, searchQuery.count > 0 {
+            if let searchQuery = query.search, searchQuery.count > 0 {
                 params["search"] = searchQuery
             }
-            if let id = collectionId {
+            if let id = query.collectionId {
                 params["collectionId"] = String(id)
             }
-            if let filter = proximityFilter {
+            if let filter = query.proximity {
                 params["lat"] = String(filter.target.latitude)
                 params["lng"] = String(filter.target.longitude)
                 params["max_distance"] = "\(filter.maxDistanceKm)"
             }
-            if let bounds = geoBoundsFilter {
+            if let bounds = query.bounds {
                 params["lat1"] = String(bounds.neCoord.latitude)
                 params["lng1"] = String(bounds.neCoord.longitude)
                 params["lat2"] = String(bounds.swCoord.latitude)
                 params["lng2"] = String(bounds.swCoord.longitude)
             }
-            if includes.count > 0 {
-                params["include"] = includes.joined(separator: ",")
+            if query.include.count > 0 {
+                params["include"] = query.include.joined(separator: ",")
             }
             return .requestParameters(bodyParameters: nil, urlParameters: params)
         case .getPostClusters(let postedAfter, let proximity, let geoBounds):

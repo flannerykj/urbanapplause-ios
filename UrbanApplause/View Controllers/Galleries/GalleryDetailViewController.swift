@@ -13,18 +13,28 @@ protocol CollectionDetailControllerDelegate: class {
     func collectionDetail(didDeleteCollection collection: Collection)
 }
 
-class CollectionDetailViewController: UIViewController {
+class GalleryDetailViewController: UIViewController {
     var mainCoordinator: MainCoordinator
-    var postListViewModel: PostListViewModel
-    var collection: Collection
+    var postListViewModel: DynamicPostListViewModel
+    var gallery: Gallery
     weak var delegate: CollectionDetailControllerDelegate?
     
     lazy var postListVC = PostListViewController(viewModel: postListViewModel, mainCoordinator: mainCoordinator)
     
-    init(collection: Collection, mainCoordinator: MainCoordinator) {
+    init(gallery: Gallery, mainCoordinator: MainCoordinator) {
         self.mainCoordinator = mainCoordinator
-        self.collection = collection
-        self.postListViewModel = PostListViewModel(filterForCollection: collection, mainCoordinator: mainCoordinator)
+        self.gallery = gallery
+        switch gallery {
+        case .custom(let collection):
+            self.postListViewModel = DynamicPostListViewModel(filterForCollection: collection,
+                                                              mainCoordinator: mainCoordinator)
+        case .visits:
+            self.postListViewModel = DynamicPostListViewModel(filterForVisitedBy: mainCoordinator.store.user.data,
+                                                              mainCoordinator: mainCoordinator)
+        case .applause:
+            self.postListViewModel = DynamicPostListViewModel(filterForUserApplause: mainCoordinator.store.user.data,
+                                                              mainCoordinator: mainCoordinator)
+        }
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -53,7 +63,7 @@ class CollectionDetailViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         postListVC.postListDelegate = self
-        navigationItem.title = collection.title
+        navigationItem.title = gallery.title
         view.addSubview(postListVC.view)
         postListVC.view.translatesAutoresizingMaskIntoConstraints = false
         postListVC.view.fill(view: self.view)
@@ -75,6 +85,8 @@ class CollectionDetailViewController: UIViewController {
     }
     
     @objc func deleteCollection(_: Any) {
+        
+        guard case let Gallery.custom(collection) = gallery else { return }
         let alertController = UIAlertController(title: "Delete this gallery?",
                                                 message: "This cannot be undone",
                                                 preferredStyle: .actionSheet)
@@ -86,7 +98,7 @@ class CollectionDetailViewController: UIViewController {
             indicator.startAnimating()
             alertController.view.addSubview(indicator)
             
-            let endpoint = PrivateRouter.deleteCollection(id: self.collection.id)
+            let endpoint = PrivateRouter.deleteCollection(id: collection.id)
             _ = self.mainCoordinator.networkService.request(endpoint,
                                                             completion: {(result: UAResult<CollectionContainer>) in
                 switch result {
@@ -111,18 +123,19 @@ class CollectionDetailViewController: UIViewController {
     }
 }
 
-extension CollectionDetailViewController: PostListControllerDelegate {
+extension GalleryDetailViewController: PostListControllerDelegate {
     var canEditPosts: Bool {
         return true
     }
     
     func didDeletePost(_ post: Post, atIndexPath indexPath: IndexPath) {
+        guard case let Gallery.custom(collection) = gallery else { return }
         self.postListVC.tableView.beginUpdates()
         self.postListVC.viewModel.removePost(atIndex: indexPath.row)
         self.postListVC.tableView.deleteRows(at: [indexPath], with: .automatic)
         self.postListVC.tableView.endUpdates()
         
-        let endpoint = PrivateRouter.deleteFromCollection(collectionId: self.collection.id, postId: post.id)
+        let endpoint = PrivateRouter.deleteFromCollection(collectionId: collection.id, postId: post.id)
         _ = self.mainCoordinator.networkService.request(endpoint, completion: { (result: UAResult<PostContainer>) in
             switch result {
             case .success:

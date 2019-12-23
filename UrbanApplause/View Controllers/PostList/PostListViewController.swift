@@ -34,7 +34,8 @@ class PostListViewController: UIViewController {
     var requestOnLoad: Bool
     var lastCellHeight: CGFloat = 0
     
-    init(listTitle: String? = nil, viewModel: PostListViewModel,
+    init(listTitle: String? = nil,
+         viewModel: PostListViewModel,
          requestOnLoad: Bool = true,
          mainCoordinator: MainCoordinator) {
         
@@ -100,7 +101,7 @@ class PostListViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
-        viewModel.getPosts()
+        viewModel.getPosts(forceReload: false)
     }
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -145,7 +146,7 @@ class PostListViewController: UIViewController {
             }
         }
         if requestOnLoad {
-            viewModel.getPosts()
+            viewModel.getPosts(forceReload: false)
         }
         updateTableFooter()
         refreshControl.addTarget(self, action: #selector(refreshControlTriggered(_:)), for: .valueChanged)
@@ -174,7 +175,7 @@ class PostListViewController: UIViewController {
         viewModel.getPosts(forceReload: true)
     }
     @objc func pressedLoadMorePosts(_: UIButton) {
-        viewModel.getPosts()
+        viewModel.getPosts(forceReload: false)
     }
     func updateContentHeight() {
         let height = tableHeaderView.bounds.height

@@ -88,15 +88,13 @@ struct SpacesFileRepository {
         transferUtility?.downloadData(forKey: "uploads/\(filename)", expression: nil, completionHandler: { (task, url, data, error) in
             
             guard error == nil else {
-                log.debug("S3 Download Error: \(error!.localizedDescription)")
+                log.error("S3 Download Error: \(error!.localizedDescription)")
                 completion(nil, error)
                 return
             }
-            log.debug("S3 Download Completed")
             completion(data, nil)
         }).continueWith(block: { (task) -> Any? in
             // start the download task
-            log.debug("S3 Download Starting")
             return nil
         })
     }

@@ -14,11 +14,11 @@ class ProfileViewController: UIViewController {
     var isAuthUser: Bool
     
     lazy var tabItems: [ToolbarTabItem] = {
-        let userPostsViewModel = PostListViewModel(filterForUser: user, filterForArtist: nil, filterForQuery: nil,
+        let userPostsViewModel = DynamicPostListViewModel(filterForPostedBy: user, filterForArtist: nil, filterForQuery: nil,
                                                    mainCoordinator: mainCoordinator)
         let userPostsVC = PostListViewController(viewModel: userPostsViewModel, mainCoordinator: mainCoordinator)
 
-        let applaudedPostsViewModel = PostListViewModel(filterForUserApplause: user, mainCoordinator: mainCoordinator)
+        let applaudedPostsViewModel = DynamicPostListViewModel(filterForUserApplause: user, mainCoordinator: mainCoordinator)
         let userApplauseVC = PostListViewController(viewModel: applaudedPostsViewModel,
                                                     mainCoordinator: mainCoordinator)
         
