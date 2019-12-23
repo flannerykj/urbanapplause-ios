@@ -53,15 +53,17 @@ class GalleriesViewController: UIViewController {
 }
 extension GalleriesViewController: GalleryListDelegate {
     func galleryList(_ controller: GalleryListViewController,
-                     didSelectGallery gallery: Gallery,
+                     didSelectCellModel cellModel: GalleryCellViewModel,
                      at indexPath: IndexPath) {
-        let vc = GalleryDetailViewController(gallery: gallery, mainCoordinator: mainCoordinator)
+        
+        let vc = GalleryDetailViewController(gallery: cellModel.gallery, mainCoordinator: mainCoordinator)
         navigationController?.pushViewController(vc, animated: true)
     }
     
     func galleryList(_ controller: GalleryListViewController,
-                     accessoryViewForGallery gallery: Gallery,
+                     accessoryViewForCellModel cellModel: GalleryCellViewModel,
                      at indexPath: IndexPath) -> UIView? {
+        
                 return UIImageView(image: UIImage(systemName: "chevron.right"))
 
     }

@@ -11,11 +11,11 @@ import Combine
 
 protocol GalleryListDelegate: class {
     func galleryList(_ controller: GalleryListViewController,
-                     didSelectGallery gallery: Gallery,
+                     didSelectCellModel cellModel: GalleryCellViewModel,
                      at indexPath: IndexPath)
     
     func galleryList(_ controller: GalleryListViewController,
-                     accessoryViewForGallery gallery: Gallery,
+                     accessoryViewForCellModel cellModel: GalleryCellViewModel,
                      at indexPath: IndexPath) -> UIView?
 }
 
@@ -68,27 +68,27 @@ class GalleryListViewController: UIViewController {
     func makeDataSource() -> GalleriesTableSource {
         return GalleriesTableSource(
             tableView: tableView,
-            cellProvider: {  tableView, indexPath, gallery in
+            cellProvider: {  tableView, indexPath, cellModel in
                 let cell = tableView.dequeueReusableCell(
                     withIdentifier: GalleryCell.ReuseID,
                     for: indexPath
                 )
 
-                cell.textLabel?.text = gallery.title
-                if let postCount = gallery.numberOfPosts {
+                cell.textLabel?.text = cellModel.gallery.title
+                if let postCount = cellModel.gallery.numberOfPosts {
                     cell.detailTextLabel?.text = String.pluralize(postCount, unit: "post")
                 }
                 cell.backgroundColor = UIColor.backgroundMain
-                cell.accessoryView = self.delegate?.galleryList(self, accessoryViewForGallery: gallery, at: indexPath)
-                cell.imageView?.image = gallery.icon
+                cell.accessoryView = self.delegate?.galleryList(self, accessoryViewForCellModel: cellModel, at: indexPath)
+                cell.imageView?.image = cellModel.gallery.icon
                 return cell
             }
         )
     }
     
-    func reloadGalleries(_ galleries: [Gallery], animate: Bool) {
-        var snapshot = NSDiffableDataSourceSnapshot<GalleriesSection, Gallery>()
-        snapshot.reloadItems(galleries)
+    func reloadGalleryCells(_ cellModels: [GalleryCellViewModel], animate: Bool) {
+        var snapshot = dataSource.snapshot()
+        snapshot.reloadItems(cellModels)
         dataSource.apply(snapshot, animatingDifferences: animate)
     }
     override func viewWillAppear(_ animated: Bool) {
@@ -180,28 +180,13 @@ extension GalleryListViewController: UITableViewDelegate {
     } */
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        log.debug("did select")
-        guard let gallery = dataSource.itemIdentifier(for: indexPath) else { log.error("no gallery"); return }
-        delegate?.galleryList(self, didSelectGallery: gallery, at: indexPath)
+        guard let cellModel = dataSource.itemIdentifier(for: indexPath) else { log.error("no gallery"); return }
+        delegate?.galleryList(self, didSelectCellModel: cellModel, at: indexPath)
     }
-    
-    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        log.debug("GET hEIGHT")
-        return 50
-    }
-    
-    
 }
 
 extension GalleryListViewController: NewCollectionViewControllerDelegate {
     func didCreateCollection(collection: Collection) {
         viewModel.addCollection(collection)
-    }
-}
-
-
-class GalleriesTableSource: UITableViewDiffableDataSource<GalleriesSection, Gallery> {
-    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        return self.snapshot().sectionIdentifiers[section].title
     }
 }

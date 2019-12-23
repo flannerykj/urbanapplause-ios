@@ -11,6 +11,4 @@ import UIKit
 
 class GalleryCell: UITableViewCell {
     static let ReuseID = "GalleryCell"
-    
-    
 }

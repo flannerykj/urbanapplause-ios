@@ -7,3 +7,10 @@
 //
 
 import Foundation
+import UIKit
+
+class GalleriesTableSource: UITableViewDiffableDataSource<GalleriesSection, GalleryCellViewModel> {
+    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        return self.snapshot().sectionIdentifiers[section].title
+    }
+}

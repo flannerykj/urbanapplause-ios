@@ -394,10 +394,11 @@ class PostToolbarController: UIViewController {
 }
 extension PostToolbarController: GalleryListDelegate {
     func galleryList(_ controller: GalleryListViewController,
-                     didSelectGallery gallery: Gallery,
+                     didSelectCellModel cellModel: GalleryCellViewModel,
                      at indexPath: IndexPath) {
         
-        guard case let Gallery.custom(collection) = gallery else { return }
+        guard case let Gallery.custom(collection) = cellModel.gallery else { return }
+        
         if updatingCollections.firstIndex(where: {
             $0.id == collection.id
         }) != nil {
@@ -416,26 +417,28 @@ extension PostToolbarController: GalleryListDelegate {
                     self.addedToCollections.removeAll(where: {
                         $0.id == collection.id
                     })
-                    self.updatingCollections.remove(at: updatingIndex)
                 }
+                self.updatingCollections.remove(at: updatingIndex)
+                controller.reloadGalleryCells([cellModel], animate: true)
             })
         } else {
             self.addPostToCollection(collection, completion: { success in
+                log.debug("finished with success: \(success)")
                 if success {
                     self.addedToCollections.append(collection)
-                    self.updatingCollections.remove(at: updatingIndex)
                 }
+                self.updatingCollections.remove(at: updatingIndex)
+                controller.reloadGalleryCells([cellModel], animate: true)
             })
         }
-        controller.reloadGalleries([.custom(collection)], animate: true)
-
+        controller.reloadGalleryCells([cellModel], animate: true)
     }
     
     func galleryList(_ controller: GalleryListViewController,
-                     accessoryViewForGallery gallery: Gallery,
+                     accessoryViewForCellModel cellModel: GalleryCellViewModel,
                      at indexPath: IndexPath) -> UIView? {
         
-        if case let Gallery.custom(collection) = gallery {
+        if case let Gallery.custom(collection) = cellModel.gallery {
             if updatingCollections.contains(where: {
                 $0.id == collection.id
             }) {
@@ -446,7 +449,9 @@ extension PostToolbarController: GalleryListDelegate {
             }
             if addedToCollections.contains(where: {
                 $0.id == collection.id
-            }) { return UIImageView(image: UIImage(systemName: "checkmark")) }
+            }) {
+                return UIImageView(image: UIImage(systemName: "checkmark"))
+            }
         }
         return nil
     }

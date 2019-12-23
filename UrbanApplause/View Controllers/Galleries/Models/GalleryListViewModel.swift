@@ -11,9 +11,9 @@ import Combine
 import UIKit
 
 class GalleryListViewModel {
-    typealias Snapshot = NSDiffableDataSourceSnapshot<GalleriesSection, Gallery>
+    typealias Snapshot = NSDiffableDataSourceSnapshot<GalleriesSection, GalleryCellViewModel>
     @Published private(set) var itemViewModels: [GalleryCellViewModel] = []
-    let itemChanges = PassthroughSubject<CollectionDifference<Gallery>, Never>()
+    let itemChanges = PassthroughSubject<CollectionDifference<GalleryCellViewModel>, Never>()
 
     var snapshot: AnyPublisher<Snapshot, Never> {
         collections
@@ -23,11 +23,13 @@ class GalleryListViewModel {
             let (collections, visits) = collectionsAndVisits
             var snapshot = Snapshot()
             snapshot.appendSections([GalleriesSection.myCollections])
-            snapshot.appendItems(collections.map { Gallery.custom($0) }, toSection: .myCollections)
+            snapshot.appendItems(collections.map { GalleryCellViewModel(gallery: Gallery.custom($0)) }, toSection: .myCollections)
             
             if self.includeGeneratedGalleries {
                 snapshot.appendSections([GalleriesSection.other])
-                snapshot.appendItems([.visits(visits), .applause(applauded)], toSection: .other)
+                snapshot.appendItems([GalleryCellViewModel(gallery: .visits(visits)),
+                                      GalleryCellViewModel(gallery: .applause(applauded))
+                ], toSection: .other)
             }
             return snapshot
         }.eraseToAnyPublisher()
@@ -72,8 +74,8 @@ class GalleryListViewModel {
                 switch change {
                 case .remove(let offset, _, _):
                     newModels.remove(at: offset)
-                case .insert(let offset, let gallery, _):
-                    let model = GalleryCellViewModel(gallery: gallery)
+                case .insert(let offset, let cellModel, _):
+                    let model = cellModel
                     // can apply transformations here....
                     newModels.insert(model, at: offset)
                 }

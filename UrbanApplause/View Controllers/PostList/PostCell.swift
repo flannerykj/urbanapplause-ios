@@ -193,7 +193,6 @@ class PostCell: UITableViewCell {
 }
 extension PostCell: PostToolbarDelegate {
     func postToolbar(_ toolbar: PostToolbarController, didBlockUser user: User) {
-        log.debug("dib block")
         delegate?.postCell(self, didBlockUser: user)
     }
     
@@ -206,5 +205,4 @@ extension PostCell: PostToolbarDelegate {
         guard let indexPath = self.indexPath else { log.error("no index path set"); return }
         delegate?.postCell(self, didDeletePost: post, atIndexPath: indexPath)
     }
-
 }

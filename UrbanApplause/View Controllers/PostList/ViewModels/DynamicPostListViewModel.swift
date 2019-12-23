@@ -64,7 +64,7 @@ class DynamicPostListViewModel: PostListViewModel {
         self.filterForCollection = filterForCollection
         self.mainCoordinator = mainCoordinator
     }
-
+    
     func getPosts(forceReload: Bool = false) {
         if forceReload {
             self.currentPage = 0
