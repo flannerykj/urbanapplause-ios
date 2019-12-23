@@ -142,6 +142,7 @@ class PostDetailViewController: UIViewController {
     var dateLabel: UILabel = {
         let label = UILabel()
         label.style(as: .body)
+        label.textAlignment = .right
         label.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
         return label
     }()

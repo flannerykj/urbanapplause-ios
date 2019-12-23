@@ -18,5 +18,6 @@ struct Visit: Codable {
 }
 
 struct VisitInteractionContainer: Codable {
+    var deleted: Bool
     var visit: Visit
 }

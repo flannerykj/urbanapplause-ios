@@ -92,7 +92,7 @@ class DynamicPostListViewModel: PostListViewModel {
                                 collectionId: filterForCollection?.id,
                                 proximity: self.filterForProximity,
                                 bounds: self.filterForGeoBounds,
-                                include: ["applause", "collections", "comments"])
+                                include: ["claps", "collections", "comments", "visits"])
         _ = mainCoordinator.networkService.request(PrivateRouter.getPosts(query: postQuery)
         ) { [weak self] (result: UAResult<PostsContainer>) in
             DispatchQueue.main.async {

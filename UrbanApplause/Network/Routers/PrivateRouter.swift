@@ -46,7 +46,7 @@ enum PrivateRouter: EndpointConfiguration {
     case removeClap(clapId: Int)
     
     // visits
-    case addVisit(postId: Int, userId: Int)
+    case addOrRemoveVisit(postId: Int, userId: Int)
     case removeVisit(visitId: Int)
     
     // collections
@@ -78,7 +78,8 @@ enum PrivateRouter: EndpointConfiguration {
             return .delete
         case .editPost, .updateUser, .updateCollection, .updateCollectionPost:
             return .put
-        case .authenticate, .createPost, .createUser, .addOrRemoveClap, .createCollection, .addToCollection, .uploadImages, .createArtist, .createComment, .createPostFlag, .blockUser:
+        case .authenticate, .createPost, .createUser, .addOrRemoveClap, .addOrRemoveVisit, .createCollection, .addToCollection,
+             .uploadImages, .createArtist, .createComment, .createPostFlag, .blockUser:
             return .post
         default:
             return .get
@@ -116,7 +117,7 @@ enum PrivateRouter: EndpointConfiguration {
             return "claps"
         case .removeClap(let id):
             return "claps/\(id)"
-        case .addVisit:
+        case .addOrRemoveVisit:
             return "visits"
         case .removeVisit(let id):
             return "visits/\(id)"
@@ -174,7 +175,7 @@ enum PrivateRouter: EndpointConfiguration {
         case .addOrRemoveClap(let postId, let userId):
             return .requestParameters(bodyParameters: ["clap": ["PostId": postId, "UserId": userId]],
                                       urlParameters: nil)
-        case .addVisit(let postId, let userId):
+        case .addOrRemoveVisit(let postId, let userId):
             return .requestParameters(bodyParameters: ["visit": ["PostId": postId, "UserId": userId]],
                                       urlParameters: nil)
         case .uploadImages(_, let userId, let imagesData):

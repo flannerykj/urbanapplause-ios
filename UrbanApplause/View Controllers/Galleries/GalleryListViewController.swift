@@ -73,14 +73,13 @@ class GalleryListViewController: UIViewController {
                     withIdentifier: GalleryCell.ReuseID,
                     for: indexPath
                 )
-
                 cell.textLabel?.text = cellModel.gallery.title
                 if let postCount = cellModel.gallery.numberOfPosts {
                     cell.detailTextLabel?.text = String.pluralize(postCount, unit: "post")
                 }
                 cell.backgroundColor = UIColor.backgroundMain
                 cell.accessoryView = self.delegate?.galleryList(self, accessoryViewForCellModel: cellModel, at: indexPath)
-                cell.imageView?.image = cellModel.gallery.icon
+                    // cell.imageView?.image = cellModel.gallery.icon
                 return cell
             }
         )
@@ -182,6 +181,10 @@ extension GalleryListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard let cellModel = dataSource.itemIdentifier(for: indexPath) else { log.error("no gallery"); return }
         delegate?.galleryList(self, didSelectCellModel: cellModel, at: indexPath)
+    }
+    
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return 50
     }
 }
 

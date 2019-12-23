@@ -21,7 +21,7 @@ class PostToolbarController: UIViewController {
     var post: Post? {
         didSet {
             applauseCountLabel.text = applauseCountText()
-            saveCountLabel.text = saveCountText()
+            visitsCountLabel.text = visitsCountText()
             commentCountLabel.text = commentCountText()
             addedToCollections = post?.Collections ?? []
         }
@@ -30,7 +30,7 @@ class PostToolbarController: UIViewController {
     var addedToCollections: [Collection] = []
     
     lazy var applauseCountLabel = UILabel(type: .body, text: applauseCountText())
-    lazy var saveCountLabel = UILabel(type: .body, text: saveCountText())
+    lazy var visitsCountLabel = UILabel(type: .body, text: visitsCountText())
     lazy var commentCountLabel = UILabel(type: .body, text: commentCountText())
     
     // lazy var saveCountButton = UIButton(type: .link, title: interactionCountText(type: .save), target: self, onTouchDown: #selector(viewSavedCount(_:)))
@@ -42,7 +42,7 @@ class PostToolbarController: UIViewController {
     
     lazy var stackView: UIStackView = {
         applauseCountLabel.numberOfLines = 1
-        saveCountLabel.numberOfLines = 1
+        visitsCountLabel.numberOfLines = 1
         commentCountLabel.numberOfLines = 1
         
         let applauseButton = IconButton(image: UIImage(named: "applause"),
@@ -58,9 +58,9 @@ class PostToolbarController: UIViewController {
         
         let visitsButton = IconButton(image: UIImage(systemName: "eye"),
                                       target: self,
-                                      action: #selector(addVisit(_:)))
+                                      action: #selector(toggleVisited(_:)))
         
-        let saveStack = UIStackView(arrangedSubviews: [visitsButton, saveCountLabel])
+        let saveStack = UIStackView(arrangedSubviews: [visitsButton, visitsCountLabel])
         saveStack.axis = .horizontal
         saveStack.spacing = 2
         saveStack.alignment = .center
@@ -94,7 +94,7 @@ class PostToolbarController: UIViewController {
         self.mainCoordinator = mainCoordinator
         super.init(nibName: nil, bundle: nil)
         applauseCountLabel.textColor = UIColor.lightGray
-        saveCountLabel.textColor = UIColor.lightGray
+        visitsCountLabel.textColor = UIColor.lightGray
         commentCountLabel.textColor = UIColor.lightGray
         
         view.addSubview(stackView)
@@ -120,12 +120,38 @@ class PostToolbarController: UIViewController {
         vc.delegate = self
         present(UINavigationController(rootViewController: vc), animated: true, completion: nil)
     }
+    
     @objc func applaudPost(_ sender: UIButton) {
         toggleApplause()
     }
     
-    @objc func addVisit(_ sender: UIButton) {
-        
+    @objc func toggleVisited(_ sender: UIButton) {
+        guard let mainCoordinator = self.mainCoordinator,
+            let user = mainCoordinator.store.user.data,
+            let post = self.post else {
+                return
+        }
+        let endpoint = PrivateRouter.addOrRemoveVisit(postId: post.id, userId: user.id)
+        _ = mainCoordinator.networkService.request(endpoint) { (result: UAResult<VisitInteractionContainer>) in
+            switch result {
+            case .success(let container):
+                DispatchQueue.main.async {
+                    log.debug("container: \(container)")
+                    if container.deleted {
+                        self.post?.Visits?.removeAll { interaction in
+                            interaction.id == container.visit.id
+                        }
+                    } else {
+                        self.post?.Visits?.append(container.visit)
+                    }
+                    self.delegate?.postToolbar(self, didUpdatePost: post)
+                    self.visitsCountLabel.text = self.visitsCountText()
+                    self.view.setNeedsDisplay()
+                }
+            case .failure(let error):
+                log.error(error)
+            }
+        }
     }
     
     func blockUser(_ user: User) {
@@ -279,8 +305,8 @@ class PostToolbarController: UIViewController {
         guard let applause = post?.Claps else { return "0" }
         return "\(String(applause.count))"
     }
-    func saveCountText() -> String {
-        guard let collections = post?.Collections else { return "0" }
+    func visitsCountText() -> String {
+        guard let collections = post?.Visits else { return "0" }
         return "\(String(collections.count))"
     }
     func commentCountText() -> String {
@@ -329,6 +355,7 @@ class PostToolbarController: UIViewController {
                                                     }
         })
     }
+    
     func addPostToCollection(_ collection: Collection, completion: @escaping (Bool) -> Void) {
         guard let post = self.post, let mainCoordinator = self.mainCoordinator else {
             return
@@ -339,7 +366,7 @@ class PostToolbarController: UIViewController {
                 switch result {
                 case .success(let container):
                     post.Collections = [container.collection] + (post.Collections ?? [])
-                    self.saveCountLabel.text = self.saveCountText()
+                    self.visitsCountLabel.text = self.visitsCountText()
                     self.delegate?.postToolbar(self, didUpdatePost: post)
                     completion(true)
                 case .failure(let error):
@@ -362,7 +389,7 @@ class PostToolbarController: UIViewController {
                     post.Collections?.removeAll { collection in
                         collection.id == container.collection.id
                     }
-                    self.saveCountLabel.text = self.saveCountText()
+                    self.visitsCountLabel.text = self.visitsCountText()
                     self.delegate?.postToolbar(self, didUpdatePost: post)
                     completion(true)
                 case .failure(let error):
@@ -423,7 +450,6 @@ extension PostToolbarController: GalleryListDelegate {
             })
         } else {
             self.addPostToCollection(collection, completion: { success in
-                log.debug("finished with success: \(success)")
                 if success {
                     self.addedToCollections.append(collection)
                 }

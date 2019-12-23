@@ -11,4 +11,12 @@ import UIKit
 
 class GalleryCell: UITableViewCell {
     static let ReuseID = "GalleryCell"
+    
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: .subtitle, reuseIdentifier: GalleryCell.ReuseID)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 }

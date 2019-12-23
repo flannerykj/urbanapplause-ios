@@ -99,17 +99,14 @@ class PostListViewController: UIViewController {
         return tableView
     }()
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(true)
-        viewModel.getPosts(forceReload: false)
-    }
     override func viewDidLoad() {
         super.viewDidLoad()
         view.addSubview(tableView)
         tableView.fill(view: self.view)
-        tableView.addSubview(refreshControl)
+        tableView.refreshControl = refreshControl
 
         view.backgroundColor = backgroundColor
+        
         viewModel.didUpdateData = { addedIndexPaths, removedIndexPaths, shouldReload in
             DispatchQueue.main.async {
                 if shouldReload {
@@ -131,6 +128,7 @@ class PostListViewController: UIViewController {
         
         viewModel.didSetLoading = { isLoading in
             DispatchQueue.main.async {
+                log.debug("isLoading: \(isLoading)")
                 if isLoading {
                     if self.viewModel.currentPage == 0 {
                         self.refreshControl.beginRefreshing()
@@ -145,9 +143,8 @@ class PostListViewController: UIViewController {
                 self.updateTableFooter()
             }
         }
-        if requestOnLoad {
-            viewModel.getPosts(forceReload: false)
-        }
+        self.refreshControl.beginRefreshing()
+        viewModel.getPosts(forceReload: false)
         updateTableFooter()
         refreshControl.addTarget(self, action: #selector(refreshControlTriggered(_:)), for: .valueChanged)
     }

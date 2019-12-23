@@ -12,6 +12,7 @@ protocol PostListViewModel: class {
     var _posts: [Post] { get set }
     var didUpdateData: ((_ added: [IndexPath], _ removed: [IndexPath], _ shouldReload: Bool) -> Void)? { get set }
     var didSetLoading: ((Bool) -> Void)? { get set }
+    
     var didSetErrorMessage: ((String?) -> Void)? { get set }
     var showOptionToLoadMore: Bool { get }
     func getPosts(forceReload: Bool)
