@@ -1,8 +1,8 @@
 //
-//  PostGISClusterAnnotationView2.swift
+//  PostGISClusterMKAnnotationClusterView.swift
 //  UrbanApplause
 //
-//  Created by Flannery Jefferson on 2019-11-29.
+//  Created by Flannery Jefferson on 2019-11-30.
 //  Copyright © 2019 Flannery Jefferson. All rights reserved.
 //
 
@@ -10,28 +10,18 @@ import Foundation
 import UIKit
 import MapKit
 
-class PostGISClusterAnnotationView: MKMarkerAnnotationView {
-    static let reuseIdentifier = "PostGISClusterAnnotationView"
+
+// Used when post are clustered by backend (we've received an array of PostCluster objects)
+// AND clustered by mapkit (MKAnnotationCluster, where members are PostCluster objects).
+
+class PostGISClusterMKClusterAnnotationView: MKMarkerAnnotationView {
+    static let reuseIdentifier = "PostGISClusterMKClusterAnnotationView"
     
     override var annotation: MKAnnotation? {
         didSet {
-            if let postCluster = annotation as? PostCluster {
-                if postCluster.count > 1 {
-                    clusterMembersCountLabel.text = String(postCluster.count)
-                    clusterMembersCountView.isHidden = false
-                } else {
-                    clusterMembersCountView.isHidden = true
-                }
-            } else if let postCluster = annotation as? MKClusterAnnotation {
-                if let members = postCluster.memberAnnotations as? [PostCluster] {
-                    let sum = members.map { $0.count }.reduce(0, +)
-                    if sum > 1 {
-                        clusterMembersCountLabel.text = String(sum)
-                        clusterMembersCountView.isHidden = false
-                    } else {
-                        clusterMembersCountView.isHidden = true
-                    }
-                }
+            if let cluster = annotation as? MKClusterAnnotation, let members = cluster.memberAnnotations as? [PostCluster] {
+                let sum = members.map { $0.count }.reduce(0, +)
+                clusterMembersCountLabel.text = String(sum)
             }
         }
     }
@@ -75,13 +65,13 @@ class PostGISClusterAnnotationView: MKMarkerAnnotationView {
         displayPriority = .defaultHigh
         canShowCallout = false
         markerTintColor = .clear
-        clusteringIdentifier = PostGISClusterMKClusterAnnotationView.reuseIdentifier
+        clusteringIdentifier = nil // MKMapViewDefaultClusterAnnotationViewReuseIdentifier
         glyphText = ""
         addSubview(contentView)
         addSubview(clusterMembersCountView)
         clusterMembersCountView.centerYAnchor.constraint(equalTo: contentView.topAnchor).isActive = true
         clusterMembersCountView.centerXAnchor.constraint(equalTo: contentView.rightAnchor).isActive = true
-        contentView.backgroundColor = .orange
+        contentView.backgroundColor = .red
     }
 
     required init?(coder aDecoder: NSCoder) {

@@ -1,8 +1,8 @@
 //
-//  PostClusterView.swift
+//  PostAnnotationView3.swift
 //  UrbanApplause
 //
-//  Created by Flannery Jefferson on 2019-11-27.
+//  Created by Flannery Jefferson on 2019-12-19.
 //  Copyright © 2019 Flannery Jefferson. All rights reserved.
 //
 
@@ -10,10 +10,11 @@ import Foundation
 import UIKit
 import MapKit
 
-class PostAnnotationView: MKMarkerAnnotationView {
-    static let reuseIdentifier = "PostAnnotationView"
-    
+class PostAnnotationView3: MKMarkerAnnotationView {
+    static let reuseIdentifier = "postAnnotation"
+    var fileCache: FileService?
     var contentView = AnnotationContentView()
+
     var downloadJob: FileDownloadJob? {
         didSet {
             guard let job = downloadJob else {
@@ -32,15 +33,27 @@ class PostAnnotationView: MKMarkerAnnotationView {
     let animationDuration: TimeInterval = 0.25
 
     // MARK: - Initialization methods
+
     override init(annotation: MKAnnotation?, reuseIdentifier: String?) {
         super.init(annotation: annotation, reuseIdentifier: reuseIdentifier)
-        displayPriority = .defaultHigh
-        canShowCallout = false
         markerTintColor = .clear
-        clusteringIdentifier = PostMKClusterAnnotationView.reuseIdentifier
-        glyphText = ""
+        clusteringIdentifier = "post"
         addSubview(contentView)
-        contentView.backgroundColor = .green
+        // contentView.backgroundColor = .green
+
+    }
+    override func prepareForDisplay() {
+        super.prepareForDisplay()
+        // displayPriority = .defaultHigh
+        glyphText = ""
+        
+        if let post = annotation as? Post {
+            if let coverPhotoThumb = post.PostImages?.first?.thumbnail {
+                downloadJob = fileCache?.getJobForFile(coverPhotoThumb)
+            } else if let coverPhotoFull = post.PostImages?.first {
+               downloadJob = fileCache?.getJobForFile(coverPhotoFull)
+           }
+        }
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -73,6 +86,7 @@ class PostAnnotationView: MKMarkerAnnotationView {
     override func prepareForReuse() {
         super.prepareForReuse()
         self.contentView.setImage(nil)
+        downloadJob = nil
     }
     override func layoutSubviews() {
         super.layoutSubviews()

@@ -37,7 +37,7 @@ class PostMapViewController2: UIViewController {
         super.init(nibName: nil, bundle: nil)
         self.viewModel.onError = self.handleError
     }
-    let activityIndicator = CircularLoader(frame: .zero)
+    let activityIndicator = CircularLoader()
     
     lazy var loadingView: UIView = {
         let view = UIView()
@@ -71,7 +71,8 @@ class PostMapViewController2: UIViewController {
         
         view.backgroundColor = UIColor.backgroundMain
         view.addSubview(mapView)
-        mapView.fill(view: view)
+        mapView.translatesAutoresizingMaskIntoConstraints = false
+        mapView.fillWithinSafeArea(view: view)
         
         view.addSubview(userLocationButton)
         NSLayoutConstraint.activate([
@@ -91,13 +92,17 @@ class PostMapViewController2: UIViewController {
             }
         }
         
-        viewModel.onUpdateClusters = { clustersAdded, clearExistingClusters in
+        viewModel.onUpdateMarkers = { clustersAdded, clearExistingClusters in
             DispatchQueue.main.async {
                 if clearExistingClusters {
+                    log.debug("clear existing")
                     self.mapView.removeAnnotations(self.mapView.annotations)
                 }
                 if let clusters = clustersAdded {
+                    log.debug("add clusters: \(clustersAdded)")
                     self.mapView.addAnnotations(clusters)
+                    // self.mapView.showAnnotations(clusters, animated: true)
+                    log.debug("map annotations: \(self.mapView.annotations)")
                 }
             }
         }
@@ -145,16 +150,24 @@ class PostMapViewController2: UIViewController {
     lazy var mapView: MKMapView = {
         let mapView = MKMapView(frame: self.view.frame)
         mapView.delegate = self
-        mapView.register(PostGISClusterAnnotationView2.self,
-                         forAnnotationViewWithReuseIdentifier: PostGISClusterAnnotationView2.reuseIdentifier)
+        mapView.register(PostGISClusterMKClusterAnnotationView.self,
+                         forAnnotationViewWithReuseIdentifier: PostGISClusterMKClusterAnnotationView.reuseIdentifier)
+        
+        mapView.register(PostGISClusterAnnotationView.self,
+                         forAnnotationViewWithReuseIdentifier: PostGISClusterAnnotationView.reuseIdentifier)
+        
+        mapView.register(PostMKClusterAnnotationView.self,
+                         forAnnotationViewWithReuseIdentifier: PostMKClusterAnnotationView.reuseIdentifier)
+        
         mapView.register(PostAnnotationView.self,
                          forAnnotationViewWithReuseIdentifier: PostAnnotationView.reuseIdentifier)
         return mapView
     }()
     
     @objc func tappedAnnotation(sender: UITapGestureRecognizer) {
-        if let annotationView = sender.view as? PostGISClusterAnnotationView,
-            let clusterAnnotation = annotationView.annotation as? PostCluster {
+        guard let annotationView = sender.view as? MKAnnotationView else { return }
+        
+        if let clusterAnnotation = annotationView.annotation as? PostCluster {
             if clusterAnnotation.count == 1 {
                 let viewController = PostDetailViewController(postId: clusterAnnotation.cover_post_id,
                                                               post: nil,
@@ -163,10 +176,17 @@ class PostMapViewController2: UIViewController {
                 navigationController?.pushViewController(viewController, animated: true)
             } else {
                 let region = viewModel.getRegionForCluster(clusterAnnotation,
-                                                           in: self.mapView.visibleMapRect,
-                                                           mapWidth: Double(self.mapView.bounds.width))
+                                                           mapBounds: self.mapView.bounds)
                 mapView.setRegion(region, animated: true)
             }
+        } else if let annotation = annotationView.annotation as? MKClusterAnnotation,
+            let members = annotation.memberAnnotations as? [Post] {
+            self.mapView.showAnnotations(members, animated: true)
+        } else if let post = annotationView.annotation as? Post {
+            let viewController = PostDetailViewController(postId: post.id,
+                                                          post: post,
+                                                          mainCoordinator: mainCoordinator)
+            navigationController?.pushViewController(viewController, animated: true)
         }
     }
     func handleError(_ error: Error) {
@@ -175,7 +195,6 @@ class PostMapViewController2: UIViewController {
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        mapView.frame = self.view.frame
         updateMap()
         view.bringSubviewToFront(userLocationButton)
     }
@@ -184,13 +203,10 @@ class PostMapViewController2: UIViewController {
         if refreshCache {
             viewModel.resetCache()
         }
-        log.debug("map visible rec: \(mapView.visibleMapRect)")
-        viewModel.getPosts(visibleMapRect: mapView.visibleMapRect, mapPixelWidth: Double(mapView.bounds.width))
+        viewModel.requestMapData(visibleMapRect: mapView.visibleMapRect, mapPixelWidth: Double(mapView.bounds.width))
     }
     @objc func requestZoomToCurrentLocation(_: Any) {
-        log.debug("requested zoom to current. status is : \(locationTrackingAuthorization)")
         if locationTrackingAuthorization == .denied {
-            log.debug("status is denied")
             showAlertForDeniedPermissions(permissionType: "location")
         } else if let location = locationManager.location {
             self.zoomToLocation(location)
@@ -210,37 +226,69 @@ class PostMapViewController2: UIViewController {
 
 extension PostMapViewController2: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+        log.debug("dequeing view for annotation: \(annotation.coordinate.latitude)")
         guard !annotation.isKind(of: MKUserLocation.self) else {
             // exit if the annotation is the `MKUserLocation`
             return nil
         }
-        if let clusterAnnotation = annotation as? PostCluster {
-            guard let annotationView = mapView.dequeueReusableAnnotationView(
-                withIdentifier: PostGISClusterAnnotationView2.reuseIdentifier) as? PostGISClusterAnnotationView2 else {
+        var annotationView: MKAnnotationView?
+        
+        if let mkClusterAnnotation = annotation as? MKClusterAnnotation {
+            if let clusterMembers = mkClusterAnnotation.memberAnnotations as? [PostCluster] {
+                // clustered by mapkit and on backend - red
+                guard let mkClusterAnnotationView = mapView.dequeueReusableAnnotationView(
+                    withIdentifier: PostGISClusterMKClusterAnnotationView.reuseIdentifier) as? PostGISClusterMKClusterAnnotationView else {
+                    return nil
+                }
+                mkClusterAnnotationView.annotation = mkClusterAnnotation
+                if let firstMember = clusterMembers.first {
+                    let file: File = firstMember.cover_image_thumb ?? firstMember.cover_image
+                    mkClusterAnnotationView.downloadJob = mainCoordinator.fileCache.getJobForFile(file)
+                }
+                annotationView = mkClusterAnnotationView
+            } else if let postMembers = mkClusterAnnotation.memberAnnotations as? [Post] {
+               // clustered by mapkit only - yellow
+                guard let mkClusterAnnotationView = mapView.dequeueReusableAnnotationView(
+                    withIdentifier: PostMKClusterAnnotationView.reuseIdentifier) as? PostMKClusterAnnotationView else {
+                    return nil
+                }
+                
+                mkClusterAnnotationView.annotation = mkClusterAnnotation
+                if let firstMember = postMembers.first, let firstImage = firstMember.PostImages?.first {
+                    let file: File = firstImage.thumbnail ?? firstImage
+                    mkClusterAnnotationView.downloadJob = mainCoordinator.fileCache.getJobForFile(file)
+                }
+                annotationView = mkClusterAnnotationView
+            }
+        } else if let postGISClusterAnnotation = annotation as? PostCluster {
+            // clustered by backend only - orange
+            guard let postGISClusterAnnotationView = mapView.dequeueReusableAnnotationView(
+                withIdentifier: PostGISClusterAnnotationView.reuseIdentifier) as? PostGISClusterAnnotationView else {
                 return nil
             }
-            annotationView.annotation = clusterAnnotation
-            let file: File = clusterAnnotation.cover_image_thumb ?? clusterAnnotation.cover_image
-            annotationView.downloadJob = mainCoordinator.fileCache.getJobForFile(file)
-            let gr = UITapGestureRecognizer(target: self, action: #selector(tappedAnnotation(sender:)))
-            annotationView.addGestureRecognizer(gr)
-            return annotationView
+            postGISClusterAnnotationView.annotation = postGISClusterAnnotation
+            let file: File = postGISClusterAnnotation.cover_image_thumb ?? postGISClusterAnnotation.cover_image
+            postGISClusterAnnotationView.downloadJob = mainCoordinator.fileCache.getJobForFile(file)
+            annotationView = postGISClusterAnnotationView
         } else if let postAnnotation = annotation as? Post {
-            guard let annotationView = mapView.dequeueReusableAnnotationView(
+            // no clustering - green
+            guard let postAnnotationView = mapView.dequeueReusableAnnotationView(
                 withIdentifier: PostAnnotationView.reuseIdentifier) as? PostAnnotationView else {
                 return nil
             }
-            annotationView.annotation = postAnnotation
+            postAnnotationView.annotation = postAnnotation
             if let file: File = postAnnotation.PostImages?.first?.thumbnail {
-                annotationView.downloadJob = mainCoordinator.fileCache.getJobForFile(file)
+                postAnnotationView.downloadJob = mainCoordinator.fileCache.getJobForFile(file)
             }
-            let gr = UITapGestureRecognizer(target: self, action: #selector(tappedAnnotation(sender:)))
-            annotationView.addGestureRecognizer(gr)
-            return annotationView
+            annotationView = postAnnotationView
+        } else {
+            log.debug("annotation of unknown type: \(annotation)")
         }
-        return nil
+        
+        let gr = UITapGestureRecognizer(target: self, action: #selector(tappedAnnotation(sender:)))
+        annotationView?.addGestureRecognizer(gr)
+        return annotationView
     }
-    
     func mapViewDidChangeVisibleRegion(_ mapView: MKMapView) {
         // called while user is moving the screen
         self.updateMap()
@@ -251,13 +299,15 @@ extension PostMapViewController2: MKMapViewDelegate {
         // self.updatePostsForVisibleRegion()
     }
     
+    func mapView(_ mapView: MKMapView, didAdd views: [MKAnnotationView]) {
+        log.debug("did add views: \(views.count)")
+    }
 }
 
 extension PostMapViewController2: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         let locationAuthorized = (status == .authorizedWhenInUse || status == .authorizedAlways)
         // userLocationButton.isHidden = !locationAuthorized
-        log.debug("updated status: \(status)")
         self.locationTrackingAuthorization = status
         if !locationAuthorized, self.requestedZoomToCurrentLocation {
             self.requestedZoomToCurrentLocation = false

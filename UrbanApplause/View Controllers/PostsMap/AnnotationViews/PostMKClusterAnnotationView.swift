@@ -1,8 +1,8 @@
 //
-//  PostGISClusterAnnotationView2.swift
+//  PostClusterAnnotation.swift
 //  UrbanApplause
 //
-//  Created by Flannery Jefferson on 2019-11-29.
+//  Created by Flannery Jefferson on 2019-11-27.
 //  Copyright © 2019 Flannery Jefferson. All rights reserved.
 //
 
@@ -10,28 +10,13 @@ import Foundation
 import UIKit
 import MapKit
 
-class PostGISClusterAnnotationView2: MKMarkerAnnotationView {
-    static let reuseIdentifier = "PostGISCluster"
+class PostMKClusterAnnotationView: MKMarkerAnnotationView {
+    static let reuseIdentifier = "PostMKClusterAnnotationView"
     
     override var annotation: MKAnnotation? {
         didSet {
-            if let postCluster = annotation as? PostCluster {
-                if postCluster.count > 1 {
-                    clusterMembersCountLabel.text = String(postCluster.count)
-                    clusterMembersCountView.isHidden = false
-                } else {
-                    clusterMembersCountView.isHidden = true
-                }
-            } else if let postCluster = annotation as? MKClusterAnnotation {
-                if let members = postCluster.memberAnnotations as? [PostCluster] {
-                    let sum = members.map { $0.count }.reduce(0, +)
-                    if sum > 1 {
-                        clusterMembersCountLabel.text = String(sum)
-                        clusterMembersCountView.isHidden = false
-                    } else {
-                        clusterMembersCountView.isHidden = true
-                    }
-                }
+            if let cluster = annotation as? MKClusterAnnotation {
+                clusterMembersCountLabel.text = String(cluster.memberAnnotations.count)
             }
         }
     }
@@ -81,6 +66,7 @@ class PostGISClusterAnnotationView2: MKMarkerAnnotationView {
         addSubview(clusterMembersCountView)
         clusterMembersCountView.centerYAnchor.constraint(equalTo: contentView.topAnchor).isActive = true
         clusterMembersCountView.centerXAnchor.constraint(equalTo: contentView.rightAnchor).isActive = true
+        contentView.backgroundColor = .yellow
     }
 
     required init?(coder aDecoder: NSCoder) {

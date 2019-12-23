@@ -11,6 +11,8 @@ import UIKit
 
 class AnnotationContentView: UIView {
     static let width: CGFloat = 75
+    static let height: CGFloat = 75
+
     var cornerRadius: CGFloat = 8
     var imagePadding: CGFloat = 3
     var arrowHeight: CGFloat = 10
@@ -29,7 +31,7 @@ class AnnotationContentView: UIView {
     var shadowLayer: CAShapeLayer?
     
     init() {
-        super.init(frame: CGRect(x: 0, y: 0, width: AnnotationContentView.width, height: AnnotationContentView.width))
+        super.init(frame: CGRect(x: 0, y: 0, width: AnnotationContentView.width, height: AnnotationContentView.height))
         self.imageView.contentMode = .scaleAspectFill
         self.addSubview(imageView)
         self.layer.cornerRadius = 8
