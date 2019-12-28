@@ -1,8 +1,8 @@
 //
-//  PostGISClusterAnnotationView2.swift
+//  PostClusterAnnotation.swift
 //  UrbanApplause
 //
-//  Created by Flannery Jefferson on 2019-11-29.
+//  Created by Flannery Jefferson on 2019-11-27.
 //  Copyright © 2019 Flannery Jefferson. All rights reserved.
 //
 
@@ -10,29 +10,37 @@ import Foundation
 import UIKit
 import MapKit
 
-class PostGISClusterAnnotationView: MKMarkerAnnotationView {
-    static let reuseIdentifier = "PostGISClusterAnnotationView"
+class PostMKClusterAnnotationView: MKAnnotationView {
+    static let reuseIdentifier = "PostMKClusterAnnotationView"
+    var fileCache: FileService?
     
-    override var annotation: MKAnnotation? {
-        didSet {
-            if let postCluster = annotation as? PostCluster {
-                if postCluster.count > 1 {
-                    clusterMembersCountLabel.text = String(postCluster.count)
-                    clusterMembersCountView.isHidden = false
-                } else {
-                    clusterMembersCountView.isHidden = true
+    override func prepareForDisplay() {
+        super.prepareForDisplay()
+        displayPriority = .defaultHigh
+        contentView.setImage(nil)
+        if let cluster = annotation as? MKClusterAnnotation {
+            if let posts = cluster.memberAnnotations as? [Post] {
+                let sorted = posts.sorted(by: {
+                    guard let firstDate = $0.createdAt else { return false }
+                    guard let secondDate = $1.createdAt else { return true }
+                    return firstDate > secondDate
+                })
+                if let coverPhotoThumb = sorted.first?.PostImages?.first?.thumbnail {
+                    downloadJob = fileCache?.getJobForFile(coverPhotoThumb)
+                } else if let coverPhotoFull = sorted.first?.PostImages?.first {
+                    downloadJob = fileCache?.getJobForFile(coverPhotoFull)
                 }
-            } else if let postCluster = annotation as? MKClusterAnnotation {
-                if let members = postCluster.memberAnnotations as? [PostCluster] {
-                    let sum = members.map { $0.count }.reduce(0, +)
-                    if sum > 1 {
-                        clusterMembersCountLabel.text = String(sum)
-                        clusterMembersCountView.isHidden = false
-                    } else {
-                        clusterMembersCountView.isHidden = true
-                    }
+            } else if let posts = cluster.memberAnnotations as? [PostCluster] {
+                let sorted = posts.sorted(by: {
+                    return $0.cover_post_id > $1.cover_post_id
+                })
+                if let coverPhotoThumb = sorted.first?.cover_image_thumb {
+                    downloadJob = fileCache?.getJobForFile(coverPhotoThumb)
+                } else if let coverPhotoFull = sorted.first?.cover_image {
+                    downloadJob = fileCache?.getJobForFile(coverPhotoFull)
                 }
             }
+            clusterMembersCountLabel.text = String(cluster.memberAnnotations.count)
         }
     }
     
@@ -72,16 +80,12 @@ class PostGISClusterAnnotationView: MKMarkerAnnotationView {
 
     override init(annotation: MKAnnotation?, reuseIdentifier: String?) {
         super.init(annotation: annotation, reuseIdentifier: reuseIdentifier)
-        displayPriority = .defaultHigh
-        canShowCallout = false
-        markerTintColor = .clear
-        clusteringIdentifier = PostGISClusterMKClusterAnnotationView.reuseIdentifier
-        glyphText = ""
+        collisionMode = .rectangle
         addSubview(contentView)
         addSubview(clusterMembersCountView)
         clusterMembersCountView.centerYAnchor.constraint(equalTo: contentView.topAnchor).isActive = true
         clusterMembersCountView.centerXAnchor.constraint(equalTo: contentView.rightAnchor).isActive = true
-        contentView.backgroundColor = .orange
+        // contentView.backgroundColor = .orange
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -111,10 +115,7 @@ class PostGISClusterAnnotationView: MKMarkerAnnotationView {
         }
         return isInside
     }
-    override func prepareForReuse() {
-        super.prepareForReuse()
-        self.contentView.setImage(nil)
-    }
+
     override func layoutSubviews() {
         super.layoutSubviews()
         centerOffset = CGPoint(x: -contentView.bounds.width/2, y: -contentView.bounds.height)

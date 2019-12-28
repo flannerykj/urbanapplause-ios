@@ -20,7 +20,7 @@ class PostCluster: NSObject, Codable {
 }
 
 struct PostGISBoundingDiagonal: Codable {
-    var coordinates: [[Double]]
+    var coordinates: [[Double]] // [[lat,lng],[lat,lng]]
     var type: String
 }
 

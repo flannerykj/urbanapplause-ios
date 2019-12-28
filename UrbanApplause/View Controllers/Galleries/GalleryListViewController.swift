@@ -74,9 +74,7 @@ class GalleryListViewController: UIViewController {
                     for: indexPath
                 )
                 cell.textLabel?.text = cellModel.gallery.title
-                if let postCount = cellModel.gallery.numberOfPosts {
-                    cell.detailTextLabel?.text = String.pluralize(postCount, unit: "post")
-                }
+                cell.detailTextLabel?.text = String.pluralize(cellModel.posts.count, unit: "post")
                 cell.backgroundColor = UIColor.backgroundMain
                 cell.accessoryView = self.delegate?.galleryList(self, accessoryViewForCellModel: cellModel, at: indexPath)
                     // cell.imageView?.image = cellModel.gallery.icon

@@ -24,23 +24,28 @@ struct GeoBoundsFilter {
 
 
 class PostMapViewModel2 {
+    enum RequestedMapContent {
+        case posts, postClusters
+    }
     public var didSetLoading: ((Bool) -> Void)?
     public var onUpdateMarkers: (([MKAnnotation]?, Bool) -> Void)?
     public var onError: ((Error) -> Void)?
-    
+    private var didTransitionZoomBoundary: Bool = false
     private var timer: Timer?
     private var mainCoordinator: MainCoordinator
     
     private var requestedForceReload: Bool = false
     
+    private var visiblePosts: [Post]?
     private var visibleClusters: [PostCluster]?
     private var visibleMapRect: MKMapRect?
 
-    private var lastLoadedMapRect = MKMapRect()
+    private var lastLoadedClustersMapRect = MKMapRect()
     private var lastLoadedZoomScale: Double = 0
     private var loadedAllPostsForRect: MKMapRect?
     private var visibleMapPixelWidth: Double?
-    
+    private var lastRequestedMapContent: RequestedMapContent = .postClusters
+
     var isLoading: Bool = false {
         didSet {
             didSetLoading?(isLoading)
@@ -76,11 +81,15 @@ class PostMapViewModel2 {
         }
     }
     func getAllPostClusters(visibleMapRect: MKMapRect, mapPixelWidth: Double) {
-        if self.visibleClusters != nil && !requestedForceReload {
+        if self.visibleClusters != nil
+            && !requestedForceReload
+            && lastLoadedClustersMapRect.contains(visibleMapRect)
+            && lastRequestedMapContent == .postClusters {
             return
         }
         let clusterByProximity = getMarkerWidthInDegrees(visibleMapRect: visibleMapRect, mapPixelWidth: mapPixelWidth) / 2
         self.isLoading = true
+        self.lastRequestedMapContent = .postClusters
         let filterForGeoBounds = getMapGeoBounds(visibleMapRect: visibleMapRect)
         _ = mainCoordinator.networkService.request(PrivateRouter.getPostClusters(postedAfter: nil,
                                                                              threshold: clusterByProximity,
@@ -93,9 +102,10 @@ class PostMapViewModel2 {
                 case .failure(let error):
                     self?.onError?(error)
                 case .success(let clusterContainer):
+                    log.debug("cover post ids: \(clusterContainer.post_clusters.map { $0.cover_post_id})")
                     self?.visibleClusters = clusterContainer.post_clusters
                     self!.onUpdateMarkers?(clusterContainer.post_clusters, true)
-                    self!.lastLoadedMapRect = visibleMapRect
+                    self!.lastLoadedClustersMapRect = visibleMapRect
                     self!.lastLoadedZoomScale = mapPixelWidth / visibleMapRect.size.width
                 }
             }
@@ -105,12 +115,16 @@ class PostMapViewModel2 {
     func getIndividualPosts(visibleMapRect: MKMapRect?) {
         log.debug("getting posts")
         self.visibleClusters = nil
-        if let loadedRect = self.loadedAllPostsForRect, let nextRect = visibleMapRect {
+        if let loadedRect = self.loadedAllPostsForRect,
+            let nextRect = visibleMapRect,
+            lastRequestedMapContent == .posts {
+            
             if loadedRect.contains(nextRect) {
                 // self.onUpdateMarkers?(nil, false)
                 return
             }
         }
+        self.lastRequestedMapContent = .posts
         self.isLoading = true
         var filterForGeoBounds: GeoBoundsFilter?
         if let nextRect = visibleMapRect {
@@ -136,24 +150,50 @@ class PostMapViewModel2 {
                 case .failure(let error):
                     self?.onError?(error)
                 case .success(let container):
+                    self!.visiblePosts = container.posts
                     self!.loadedAllPostsForRect = visibleMapRect
-                    self!.lastLoadedMapRect = visibleMapRect ?? self!.lastLoadedMapRect
                     self!.onUpdateMarkers?(container.posts, true)
                 }
             }
         }
     }
+    func getRegionForClusters(_ postClusters: [PostCluster],
+                              mapBounds: CGRect) -> MKCoordinateRegion? {
+        guard postClusters.count > 0 else { return nil }
+        let coords: [CLLocationCoordinate2D] = postClusters.reduce([], {acc, cluster in
+            return  acc + cluster.bounding_diagonal.coordinates.map { point in
+                CLLocationCoordinate2D(latitude: point[0], longitude: point[1])
+            }
+        })
+        let minLng = coords.map { $0.longitude }.min()!
+        let maxLng = coords.map { $0.longitude }.max()!
+        let minLat = coords.map { $0.latitude }.min()!
+        let maxLat = coords.map { $0.latitude }.max()!
+        
+        let centerLat = (maxLat - minLat)/2
+        let centerLng = (maxLng - minLng)/2
+        let center = CLLocationCoordinate2D(latitude: centerLat, longitude: centerLng)
+        let latitudeDelta = abs(maxLat - minLat)
+        let longitudeDelta = abs(maxLng - minLng)
+        let markerDegreesWidth = latitudeDelta * Double(AnnotationContentView.width) / Double(mapBounds.width)
+        let markerDegreesHeight = longitudeDelta * Double(AnnotationContentView.height) / Double(mapBounds.height)
+        let padding = markerDegreesWidth * 0.2
+        let span = MKCoordinateSpan(latitudeDelta: latitudeDelta + markerDegreesHeight + padding*2,
+                                    longitudeDelta: longitudeDelta + markerDegreesWidth + padding*2)
+        return MKCoordinateRegion(center: center, span: span)
+    }
+    
     func getRegionForCluster(_ postCluster: PostCluster,
-                             mapBounds: CGRect) -> MKCoordinateRegion {
+                             mapBounds: CGRect) -> MKCoordinateRegion? {
         let coords: [CLLocationCoordinate2D] = postCluster.bounding_diagonal.coordinates.map { point in
-            return CLLocationCoordinate2D(latitude: point[1], longitude: point[0])
+            return CLLocationCoordinate2D(latitude: point[0], longitude: point[1])
         }
         let latitudeDelta = CLLocationDegrees(abs(coords[0].latitude - coords[1].latitude))
         let longitudeDelta = abs(coords[0].longitude - coords[1].longitude)
-        let markerDegreesWidth = latitudeDelta * Double(AnnotationContentView.width) / Double(mapBounds.width)
-        let markerDegreesHeight = longitudeDelta * Double(AnnotationContentView.height) / Double(mapBounds.height)
-        let span = MKCoordinateSpan(latitudeDelta: latitudeDelta + markerDegreesWidth,
-                                    longitudeDelta: longitudeDelta + markerDegreesHeight)
+        let markerDegreesWidth = longitudeDelta * Double(AnnotationContentView.width) / Double(mapBounds.width)
+        let markerDegreesHeight = latitudeDelta * Double(AnnotationContentView.height) / Double(mapBounds.height)
+        let span = MKCoordinateSpan(latitudeDelta: latitudeDelta + markerDegreesHeight*2,
+                                    longitudeDelta: longitudeDelta + markerDegreesWidth*2)
         return MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: postCluster.centroid.latitude,
                                                                  longitude: postCluster.centroid.longitude),
                                   span: span)
@@ -170,6 +210,7 @@ class PostMapViewModel2 {
         let markerWidthInDegrees = mapWidthInDegrees * Double(annotationWidthInPixels) / mapPixelWidth
         return markerWidthInDegrees
     }
+    
     private func getZoomDidChange(_ firstValue: Double, _ secondValue: Double) -> Bool {
         let lastZoom = firstValue.rounded(toPlaces: 6)
         let currentZoom = secondValue.rounded(toPlaces: 6)
@@ -178,7 +219,6 @@ class PostMapViewModel2 {
         let didDecrease = currentZoom < lastZoom
         return didIncrease || didDecrease
     }
-    
     private func shouldClusterPosts(zoomScale: Double) -> Bool {
         if zoomScale > 0.0009765623579461887 {
             return false
@@ -193,14 +233,35 @@ class PostMapViewModel2 {
         return GeoBoundsFilter(neCoord: neCoord, swCoord: swCoord)
     }
     public func resetCache() {
-        self.lastLoadedMapRect = MKMapRect()
+        self.lastLoadedClustersMapRect = MKMapRect()
         self.visibleClusters = nil
         self.lastLoadedZoomScale = 0
     }
-
+    
+    public func addPost(_ post: Post) {
+        var cached = self.visiblePosts ?? []
+        cached.append(post)
+        self.visiblePosts = cached
+        onUpdateMarkers?(cached, true)
+    }
+    public func removePost(_ post: Post) {
+        var cached = self.visiblePosts ?? []
+        cached.removeAll(where: { $0.id == post.id })
+        self.visiblePosts = cached
+        onUpdateMarkers?(cached, true)
+    }
+    
+    func isAtMaxZoom(visibleMapRect: MKMapRect, mapPixelWidth: Double) -> Bool {
+        let zoomScale = mapPixelWidth / visibleMapRect.size.width // This number increases as you zoom in.
+        let maxZoomScale: Double = 0.194138880976604 // This is the greatest zoom scale Map Kit lets you get to,
+        // i.e. the most you can zoom in.
+        return zoomScale >= maxZoomScale
+    }
     private func isRectCovered(_ rect: CGRect, by rects: [CGRect]) -> Bool {
-        
-        
+        if areRectanglesExactCover(of: rect, rectangles: rects) {
+            return true
+        }
+        // need to find algorith to determine if set of rectangles completely covers another rect. 
         return false
     }
     private func areRectanglesExactCover(of rect: CGRect, rectangles: [CGRect]) -> Bool {

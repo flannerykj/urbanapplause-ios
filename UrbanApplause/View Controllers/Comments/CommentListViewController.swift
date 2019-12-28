@@ -297,8 +297,8 @@ extension CommentListViewController: CommentCellDelegate {
     }
     
     func commentCell(didSelectUser user: User) {
-        let vc = ProfileViewController(user: user, mainCoordinator: mainCoordinator)
-        navigationController?.pushViewController(vc, animated: true)
+        // let vc = ProfileViewController(user: user, mainCoordinator: mainCoordinator)
+        // navigationController?.pushViewController(vc, animated: true)
     }
     func confirmDeleteComment(_ comment: Comment, atIndexPath indexPath: IndexPath) {
         let alertController = UIAlertController(title: "Are you sure you want to delete this comment?",

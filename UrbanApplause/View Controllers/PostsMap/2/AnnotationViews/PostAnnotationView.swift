@@ -1,5 +1,5 @@
 //
-//  PostClusterAnnotation.swift
+//  PostClusterView.swift
 //  UrbanApplause
 //
 //  Created by Flannery Jefferson on 2019-11-27.
@@ -10,31 +10,11 @@ import Foundation
 import UIKit
 import MapKit
 
-class PostMKClusterAnnotationView: MKMarkerAnnotationView {
-    static let reuseIdentifier = "PostMKClusterAnnotationView"
+class PostAnnotationView: MKMarkerAnnotationView {
+    static let reuseIdentifier = "PostAnnotationView"
     
-    override var annotation: MKAnnotation? {
-        didSet {
-            if let cluster = annotation as? MKClusterAnnotation {
-                clusterMembersCountLabel.text = String(cluster.memberAnnotations.count)
-            }
-        }
-    }
-    
+    var fileCache: FileService?
     var contentView = AnnotationContentView()
-    var clusterMembersCountLabel = UILabel()
-    
-    lazy var clusterMembersCountView: UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(clusterMembersCountLabel)
-        clusterMembersCountLabel.fillWithinMargins(view: view)
-        view.backgroundColor = UIColor.systemBlue
-        view.layer.cornerRadius = 8
-        clusterMembersCountLabel.translatesAutoresizingMaskIntoConstraints = false
-        clusterMembersCountLabel.textColor = .white
-        return view
-    }()
 
     var downloadJob: FileDownloadJob? {
         didSet {
@@ -57,16 +37,25 @@ class PostMKClusterAnnotationView: MKMarkerAnnotationView {
 
     override init(annotation: MKAnnotation?, reuseIdentifier: String?) {
         super.init(annotation: annotation, reuseIdentifier: reuseIdentifier)
-        displayPriority = .defaultHigh
-        canShowCallout = false
         markerTintColor = .clear
-        clusteringIdentifier = nil // MKMapViewDefaultClusterAnnotationViewReuseIdentifier
-        glyphText = ""
+        clusteringIdentifier = "post"
         addSubview(contentView)
-        addSubview(clusterMembersCountView)
-        clusterMembersCountView.centerYAnchor.constraint(equalTo: contentView.topAnchor).isActive = true
-        clusterMembersCountView.centerXAnchor.constraint(equalTo: contentView.rightAnchor).isActive = true
-        contentView.backgroundColor = .yellow
+        // contentView.backgroundColor = .blue
+
+    }
+    override func prepareForDisplay() {
+        super.prepareForDisplay()
+        contentView.setImage(nil)
+        // displayPriority = .defaultHigh
+        glyphText = ""
+        
+        if let post = annotation as? Post {
+            if let coverPhotoThumb = post.PostImages?.first?.thumbnail {
+                downloadJob = fileCache?.getJobForFile(coverPhotoThumb)
+            } else if let coverPhotoFull = post.PostImages?.first {
+               downloadJob = fileCache?.getJobForFile(coverPhotoFull)
+           }
+        }
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -99,6 +88,7 @@ class PostMKClusterAnnotationView: MKMarkerAnnotationView {
     override func prepareForReuse() {
         super.prepareForReuse()
         self.contentView.setImage(nil)
+        downloadJob = nil
     }
     override func layoutSubviews() {
         super.layoutSubviews()

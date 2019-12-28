@@ -24,7 +24,7 @@ class TabBarController: UITabBarController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    lazy var mapRootVC = PostMapViewController3(viewModel: PostMapViewModel3(mainCoordinator: mainCoordinator),
+    lazy var mapRootVC = PostMapViewController2(viewModel: PostMapViewModel2(mainCoordinator: mainCoordinator),
                                                mainCoordinator: mainCoordinator)
     lazy var mapTab = UINavigationController(rootViewController: mapRootVC)
     let mapTabBarItem = UITabBarItem(title: "Map",

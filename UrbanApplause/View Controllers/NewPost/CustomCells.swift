@@ -90,8 +90,9 @@ public final class LocationRow: OptionsRow<PushSelectorCell<CLPlacemark>>, Prese
 
         displayValueFor = {
             guard let placemark = $0 else { log.debug("no placemark set"); return "" }
-            log.debug("next title: \(placemark.title)")
+            log.debug(" placemark: \(placemark.location)")
             return placemark.title
+            
             /* guard let location = placemark.location else { return "" }
             let fmt = NumberFormatter()
             fmt.maximumFractionDigits = 4

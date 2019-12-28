@@ -102,32 +102,20 @@ class PostDetailViewController: UIViewController {
             guard let job = downloadJob else { log.debug("job is nil"); return }
             self.subscriber = job.subscribe(onSuccess: { data in
                 DispatchQueue.main.async {
-                    self.imageLoadingIndicator.hide()
-                    self.photoView.image = UIImage(data: data)
+                    self.photoView.state = .complete(UIImage(data: data))
+                }
+            }, onError: { error in
+                DispatchQueue.main.async {
+                    self.photoView.state = .error(error)
                 }
             })
         }
     }
 
     var downloadedImages: [Int: UIImage] = [:]
+        
+    lazy var photoView = LoadableImageView(initialState: .loading)
     
-    let imageLoadingIndicator = CircularLoader()
-    
-    lazy var photoView: UIImageView = {
-        let view = UIImageView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.clipsToBounds = true
-        view.contentMode = .scaleAspectFill
-        view.layer.masksToBounds = true
-        view.image = UIImage(named: "placeholder")
-        view.addSubview(imageLoadingIndicator)
-        NSLayoutConstraint.activate([
-            imageLoadingIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            imageLoadingIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
-        ])
-        imageLoadingIndicator.showAndAnimate()
-        return view
-    }()
     var artistLabel: UILabel = {
         let label = UILabel()
         label.style(as: .h2)
@@ -252,8 +240,8 @@ class PostDetailViewController: UIViewController {
     }
     @objc func didSelectUser(_: Any) {
         guard let user = post?.User else { return }
-        let vc = ProfileViewController(user: user, mainCoordinator: mainCoordinator)
-        navigationController?.pushViewController(vc, animated: true)
+        // let vc = ProfileViewController(user: user, mainCoordinator: mainCoordinator)
+        // navigationController?.pushViewController(vc, animated: true)
     }
 }
 

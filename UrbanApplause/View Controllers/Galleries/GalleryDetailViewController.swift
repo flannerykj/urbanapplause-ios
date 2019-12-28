@@ -34,6 +34,9 @@ class GalleryDetailViewController: UIViewController {
         case .applause:
             self.postListViewModel = DynamicPostListViewModel(filterForUserApplause: mainCoordinator.store.user.data,
                                                               mainCoordinator: mainCoordinator)
+        case .posted:
+            self.postListViewModel = DynamicPostListViewModel(filterForPostedBy: mainCoordinator.store.user.data,
+                                                              mainCoordinator: mainCoordinator)
         }
         super.init(nibName: nil, bundle: nil)
     }

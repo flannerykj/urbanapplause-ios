@@ -12,10 +12,12 @@ import Combine
 
 class GalleryCellViewModel: NSObject {
     var gallery: Gallery
+    var posts: [Post]
     var isSelected: Bool = false
     
-    init(gallery: Gallery) {
-        self.gallery = gallery
+    init(galleryType: Gallery, posts: [Post]) {
+        self.gallery = galleryType
+        self.posts = posts
     }
 }
 

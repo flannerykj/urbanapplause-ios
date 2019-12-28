@@ -20,19 +20,12 @@ class PostMapViewController3: UIViewController {
             }
         }
     }
-    
+
     lazy var scaleView: MKScaleView = MKScaleView(mapView: mapView)
-    lazy var userLocationButton = IconButton(image: UIImage(systemName: "location"),
-                                             activeImage: UIImage(systemName: "location.fill"),
-                                             imageColor: .systemBlue,
-                                             imageSize: CGSize(width: 32, height: 32),
-                                             target: self,
-                                             action: #selector(requestZoomToCurrentLocation(_:)))
     
     // Create a location manager to trigger user tracking
     var locationManager = CLLocationManager()
-    var locationTrackingAuthorization: CLAuthorizationStatus?
-    var requestedZoomToCurrentLocation: Bool = false
+    var awaitingZoomToCurrentLocation: Bool = false
     
     init(viewModel: PostMapViewModel3, mainCoordinator: MainCoordinator) {
         self.mainCoordinator = mainCoordinator
@@ -40,6 +33,7 @@ class PostMapViewController3: UIViewController {
         super.init(nibName: nil, bundle: nil)
         self.viewModel.onError = self.handleError
     }
+    
     let activityIndicator = CircularLoader()
     
     override func viewWillAppear(_ animated: Bool) {
@@ -58,18 +52,21 @@ class PostMapViewController3: UIViewController {
         mapView.translatesAutoresizingMaskIntoConstraints = false
         mapView.fillWithinSafeArea(view: view)
         
-        view.addSubview(userLocationButton)
-        NSLayoutConstraint.activate([
-            userLocationButton.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -24),
-            userLocationButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -24)
-        ])
         mapView.addSubview(activityIndicator)
+        mapView.showsUserLocation = true
         activityIndicator.centerXAnchor.constraint(equalTo: mapView.centerXAnchor).isActive = true
         activityIndicator.topAnchor.constraint(equalTo: mapView.safeAreaLayoutGuide.topAnchor,
                                                constant: 24).isActive = true
         let backItem = UIBarButtonItem()
         backItem.title = "Map"
         navigationItem.backBarButtonItem = backItem
+        
+        let locationButton = UIBarButtonItem(image: UIImage(systemName: "location"),
+                                             style: .plain,
+                                             target: self,
+                                             action: #selector(requestZoomToCurrentLocation(_:)))
+        
+        navigationItem.rightBarButtonItem = locationButton
 
         viewModel.didSetLoading = { isLoading in
             DispatchQueue.main.async {
@@ -150,7 +147,9 @@ class PostMapViewController3: UIViewController {
         if let annotation = annotationView.annotation as? MKClusterAnnotation,
             let members = annotation.memberAnnotations as? [Post] {
             
-            if viewModel.isAtMaxZoom(visibleMapRect: mapView.visibleMapRect, mapPixelWidth: Double(mapView.bounds.width)) {
+            if viewModel.isAtMaxZoom(visibleMapRect: mapView.visibleMapRect,
+                                     mapPixelWidth: Double(mapView.bounds.width)) {
+                
                 let wallViewModel = StaticPostListViewModel(posts: members, mainCoordinator: mainCoordinator)
                 let wallController = PostListViewController(viewModel: wallViewModel,
                                                 mainCoordinator: mainCoordinator)
@@ -167,27 +166,35 @@ class PostMapViewController3: UIViewController {
         }
     }
     func handleError(_ error: Error) {
-        log.error(error)
-    }
-
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        view.bringSubviewToFront(userLocationButton)
+        // DEV
+        showAlert(message: error.localizedDescription)
     }
 
     @objc func requestZoomToCurrentLocation(_: Any) {
-        if locationTrackingAuthorization == .denied {
-            showAlertForDeniedPermissions(permissionType: "location")
-        } else if let location = locationManager.location {
-            self.zoomToLocation(location)
+        guard CLLocationManager.locationServicesEnabled() else {
+            showAlert(message: "Please enable location services under Settings.")
             return
-        } else {
-            requestedZoomToCurrentLocation = true
+        }
+        switch CLLocationManager.authorizationStatus() {
+        case .notDetermined:
             locationManager.requestWhenInUseAuthorization()
-            locationManager.requestLocation()
+            awaitingZoomToCurrentLocation = true
+        case .restricted, .denied:
+            showAlertForDeniedPermissions(permissionType: "location")
+        case .authorizedAlways, .authorizedWhenInUse:
+            if let location = locationManager.location {
+                self.zoomToLocation(location)
+            } else {
+                awaitingZoomToCurrentLocation = true
+                locationManager.requestWhenInUseAuthorization()
+                locationManager.requestLocation()
+            }
+        @unknown default:
+            log.error("unknwon auth status: \(CLLocationManager.authorizationStatus())")
         }
     }
     func zoomToLocation(_ location: CLLocation) {
+        self.awaitingZoomToCurrentLocation = false
         let region = MKCoordinateRegion(center: location.coordinate,
                                         span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01))
         mapView.setRegion(region, animated: true)
@@ -196,7 +203,7 @@ class PostMapViewController3: UIViewController {
 
 extension PostMapViewController3: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
-        guard let _ = annotation as? Post else { return nil }
+        guard (annotation as? Post) != nil else { return nil }
         return PostAnnotationView3(annotation: annotation, reuseIdentifier: PostAnnotationView3.reuseIdentifier)
     }
     
@@ -213,22 +220,29 @@ extension PostMapViewController3: MKMapViewDelegate {
                 annotationView.fileCache = mainCoordinator.fileCache
             }
         }
+        
     }
 }
 
 extension PostMapViewController3: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         let locationAuthorized = (status == .authorizedWhenInUse || status == .authorizedAlways)
-        // userLocationButton.isHidden = !locationAuthorized
-        self.locationTrackingAuthorization = status
-        if !locationAuthorized, self.requestedZoomToCurrentLocation {
-            self.requestedZoomToCurrentLocation = false
-            self.showAlertForDeniedPermissions(permissionType: "location")
+        if self.awaitingZoomToCurrentLocation {
+            if !locationAuthorized {
+                self.awaitingZoomToCurrentLocation = false
+                self.showAlertForDeniedPermissions(permissionType: "location")
+            } else {
+                if let location = locationManager.location {
+                    self.zoomToLocation(location)
+                } else {
+                    self.locationManager.requestLocation()
+                }
+            }
         }
     }
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        if self.requestedZoomToCurrentLocation, let location = locations.first {
-            self.requestedZoomToCurrentLocation = false
+        if self.awaitingZoomToCurrentLocation, let location = locations.first {
+            self.awaitingZoomToCurrentLocation = false
             self.zoomToLocation(location)
         }
     }

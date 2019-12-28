@@ -17,18 +17,18 @@ class GalleryListViewModel {
 
     var snapshot: AnyPublisher<Snapshot, Never> {
         collections
-        .combineLatest(visits)
-        .combineLatest(applauded)
-        .map { collectionsAndVisits, applauded in
-            let (collections, visits) = collectionsAndVisits
+        .combineLatest(visits, applauded, posted)
+        .map { collections, visits, applauded , posted in
             var snapshot = Snapshot()
             snapshot.appendSections([GalleriesSection.myCollections])
-            snapshot.appendItems(collections.map { GalleryCellViewModel(gallery: Gallery.custom($0)) }, toSection: .myCollections)
+            snapshot.appendItems(collections.map { GalleryCellViewModel(galleryType: Gallery.custom($0), posts: $0.Posts ?? []) }, toSection: .myCollections)
             
             if self.includeGeneratedGalleries {
                 snapshot.appendSections([GalleriesSection.other])
-                snapshot.appendItems([GalleryCellViewModel(gallery: .visits(visits)),
-                                      GalleryCellViewModel(gallery: .applause(applauded))
+                
+                snapshot.appendItems([GalleryCellViewModel(galleryType: .visits, posts: visits),
+                                      GalleryCellViewModel(galleryType: .applause, posts: applauded),
+                                      GalleryCellViewModel(galleryType: .posted, posts: posted)
                 ], toSection: .other)
             }
             return snapshot
@@ -43,10 +43,13 @@ class GalleryListViewModel {
     private var collections = CurrentValueSubject<[Collection], Never>([])
     private var visits = CurrentValueSubject<[Post], Never>([])
     private var applauded = CurrentValueSubject<[Post], Never>([])
+    private var posted = CurrentValueSubject<[Post], Never>([])
 
     private var collectionsLoading = CurrentValueSubject<Bool, Never>(false)
     private var visitsLoading = CurrentValueSubject<Bool, Never>(false)
     private var applaudedLoading = CurrentValueSubject<Bool, Never>(false)
+    private var postedLoading = CurrentValueSubject<Bool, Never>(false)
+    
     private var _errorMessage = CurrentValueSubject<String?, Never>(nil)
 
     public var errorMessage: AnyPublisher<String?, Never>!
@@ -61,11 +64,9 @@ class GalleryListViewModel {
         self.errorMessage = _errorMessage.eraseToAnyPublisher()
 
         self.isLoading = collectionsLoading
-            .combineLatest(visitsLoading)
-            .combineLatest(applaudedLoading)
-            .map { collectionsAndVisitsLoading, applaudedLoading in
-                let (collectionsLoading, visitsLoading) = collectionsAndVisitsLoading
-                return collectionsLoading || visitsLoading || applaudedLoading
+            .combineLatest(applaudedLoading, visitsLoading, postedLoading)
+            .map { collectionsLoading, applaudedLoading, visitsLoading, postedLoading in
+                return collectionsLoading || visitsLoading || applaudedLoading || postedLoading
         }.eraseToAnyPublisher()
         
         $itemViewModels.zip(itemChanges) { existingModels, changes in
@@ -89,6 +90,7 @@ class GalleryListViewModel {
         if includeGeneratedGalleries {
             self.getVisits()
             self.getApplauded()
+            self.getPosted()
         }
     }
     
@@ -157,6 +159,23 @@ class GalleryListViewModel {
                     self._errorMessage.value = error.userMessage
                 case .success(let container):
                     self.applauded.value = container.posts
+                }
+            }
+        }
+    }
+    private func getPosted() {
+        guard !postedLoading.value else { return }
+        postedLoading.value = true
+        let endpoint = PrivateRouter.getPosts(query: PostQuery(userId: mainCoordinator.store.user.data?.id))
+        _ = mainCoordinator.networkService.request(endpoint) { (result: UAResult<PostsContainer>) in
+            DispatchQueue.main.async {
+                self.postedLoading.value = false
+                switch result {
+                case .failure(let error):
+                    log.error(error)
+                    self._errorMessage.value = error.userMessage
+                case .success(let container):
+                    self.posted.value = container.posts
                 }
             }
         }

@@ -134,7 +134,6 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
                 row.tag = "add_photo_button"
                 row.title = "Add a photo"
                 row.onCellSelection { cell, _ in
-                    
                     let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
                     let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
                     let takePhotoAction = UIAlertAction(title: "Camera", style: .default, handler: { _ in
@@ -145,7 +144,9 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
                         cameraController.popoverPresentationController?.sourceRect = self.view.frame
                         self.present(cameraController, animated: true, completion: nil)
                     })
-                    let pickPhotoAction = UIAlertAction(title: "Photo Library", style: .default, handler: { _ in
+                    let pickPhotoAction = UIAlertAction(title: "Photo Library",
+                                                        style: .default, handler: { _ in
+                                                            
                         let controller = BSImagePickerViewController()
                         controller.maxNumberOfSelections = 1
                         self.bs_presentImagePickerController(controller, animated: true,
@@ -154,6 +155,7 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
                                                                 self.handleSelectedPhotos([asset])
                                                                 // User selected an asset.
                                                                 // Do something with it, start upload perhaps?
+                                                                
                         }, deselect: { (_) -> Void in
                             // User deselected an assets.
                             // Do something, cancel upload?
@@ -189,7 +191,6 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
                     self.progressBar.centerYAnchor.constraint(equalTo: cell.view!.centerYAnchor),
                     self.progressBar.widthAnchor.constraint(equalTo: cell.view!.widthAnchor, multiplier: 0.8)
                 ])
-                
                 cell.update()
             }
             

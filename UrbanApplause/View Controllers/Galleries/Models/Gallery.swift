@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 
 enum Gallery: Equatable {
-    case custom(Collection), visits([Post]), applause([Post])
+    case custom(Collection), visits, applause, posted
     
     var id: Int {
         switch self {
@@ -20,6 +20,8 @@ enum Gallery: Equatable {
             return -1
         case .applause:
             return -2
+        case .posted:
+            return -3
         }
     }
     
@@ -31,15 +33,8 @@ enum Gallery: Equatable {
             return "Visited"
         case .applause:
             return "Applauded"
-        }
-    }
-    
-    var numberOfPosts: Int? {
-        switch self {
-        case .custom(let collection):
-            return collection.Posts?.count
-        case .applause(let posts), .visits(let posts):
-            return posts.count
+        case .posted:
+            return "Posted"
         }
     }
     
