@@ -65,6 +65,7 @@ class SettingsViewController: UIViewController {
 extension SettingsViewController: UITableViewDataSource, UITableViewDelegate {
     var sections: [[SettingsItem]] {
         return [
+            [.account],
             [.termsOfService, .privacyPolicy],
             [.logout]
         ]
@@ -104,6 +105,9 @@ extension SettingsViewController: UITableViewDataSource, UITableViewDelegate {
         switch helpItem {
         case .logout:
             mainCoordinator.endSession(authContext: .userInitiated)
+        case .account:
+            let accountVC = AccountViewController(mainCoordinator: mainCoordinator)
+            navigationController?.pushViewController(accountVC, animated: true)
         default:
             if let url = helpItem.url {
                 let vc = SFSafariViewController(url: url, configuration: SFSafariViewController.Configuration())
