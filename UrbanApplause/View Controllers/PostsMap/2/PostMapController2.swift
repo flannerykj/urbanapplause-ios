@@ -162,7 +162,8 @@ class PostMapViewController2: UIViewController {
     
     @objc func tappedAnnotation(sender: UITapGestureRecognizer) {
         guard let annotationView = sender.view as? MKAnnotationView else { return }
-        
+        let thumbImage = (sender.view as? PostAnnotationViewProtocol)?.contentView.getImage()
+
         if let annotation = annotationView.annotation as? MKClusterAnnotation {
             if let members = annotation.memberAnnotations as? [Post] {
             
@@ -183,18 +184,23 @@ class PostMapViewController2: UIViewController {
                                        animated: true)
             }
         } else if let post = annotationView.annotation as? Post {
-            let viewController = PostDetailViewController(postId: post.id,
-                                                          post: post,
-                                                          mainCoordinator: mainCoordinator)
-            navigationController?.pushViewController(viewController, animated: true)
-        } else if let postCluster = annotationView.annotation as? PostCluster,
-            let region = viewModel.getRegionForCluster(postCluster, mapBounds: self.mapView.bounds) {
-            self.mapView.setRegion(region, animated: true)
-            
-            let newRegion = viewModel.getMapGeoBounds(visibleMapRect: self.mapView.visibleMapRect)
-            log.debug("new region SW: \(newRegion.swCoord)")
-            log.debug("new region NE: \(newRegion.neCoord)")
+            showDetailForPostWithID(post.id, post: post, thumbImage: thumbImage)
+        } else if let postCluster = annotationView.annotation as? PostCluster {
+            if postCluster.count == 1 {
+                showDetailForPostWithID(postCluster.cover_post_id, post: nil, thumbImage: thumbImage)
+            } else if let region = viewModel.getRegionForCluster(postCluster, mapBounds: self.mapView.bounds) {
+                self.mapView.setRegion(region, animated: true)
+            }
         }
+    }
+    
+    func showDetailForPostWithID(_ postID: Int, post: Post?, thumbImage: UIImage?) {
+        log.debug("thumb image: \(thumbImage)")
+        let viewController = PostDetailViewController(postId: postID,
+                                                      post: post,
+                                                      thumbImage: thumbImage,
+                                                      mainCoordinator: mainCoordinator)
+        navigationController?.pushViewController(viewController, animated: true)
     }
     func handleError(_ error: Error) {
         log.error(error)

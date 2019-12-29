@@ -143,27 +143,36 @@ class PostMapViewController3: UIViewController {
     
     @objc func tappedAnnotation(sender: UITapGestureRecognizer) {
         guard let annotationView = sender.view as? MKAnnotationView else { return }
-        
+        let thumbImage = (sender.view as? PostAnnotationViewProtocol)?.contentView.getImage()
+
         if let annotation = annotationView.annotation as? MKClusterAnnotation,
             let members = annotation.memberAnnotations as? [Post] {
-            
-            if viewModel.isAtMaxZoom(visibleMapRect: mapView.visibleMapRect,
-                                     mapPixelWidth: Double(mapView.bounds.width)) {
-                
-                let wallViewModel = StaticPostListViewModel(posts: members, mainCoordinator: mainCoordinator)
-                let wallController = PostListViewController(viewModel: wallViewModel,
-                                                mainCoordinator: mainCoordinator)
-                wallController.postListDelegate = self
-                navigationController?.pushViewController(wallController, animated: true)
-            } else {
-                self.mapView.showAnnotations(members, animated: true)
+            if members.count > 1 {
+                if viewModel.isAtMaxZoom(visibleMapRect: mapView.visibleMapRect,
+                                         mapPixelWidth: Double(mapView.bounds.width)) {
+                    
+                    let wallViewModel = StaticPostListViewModel(posts: members, mainCoordinator: mainCoordinator)
+                    let wallController = PostListViewController(viewModel: wallViewModel,
+                                                                mainCoordinator: mainCoordinator)
+                    wallController.postListDelegate = self
+                    navigationController?.pushViewController(wallController, animated: true)
+                } else {
+                    self.mapView.showAnnotations(members, animated: true)
+                }
+            } else if let post = members.first {
+                showDetailForPost(post, thumbImage: thumbImage)
             }
         } else if let post = annotationView.annotation as? Post {
-            let viewController = PostDetailViewController(postId: post.id,
-                                                          post: post,
-                                                          mainCoordinator: mainCoordinator)
-            navigationController?.pushViewController(viewController, animated: true)
+            showDetailForPost(post, thumbImage: thumbImage)
         }
+    }
+    func showDetailForPost(_ post: Post, thumbImage: UIImage?) {
+        log.debug("thumb image: \(thumbImage)")
+        let viewController = PostDetailViewController(postId: post.id,
+                                                      post: post,
+                                                      thumbImage: thumbImage,
+                                                      mainCoordinator: mainCoordinator)
+        navigationController?.pushViewController(viewController, animated: true)
     }
     func handleError(_ error: Error) {
         // DEV

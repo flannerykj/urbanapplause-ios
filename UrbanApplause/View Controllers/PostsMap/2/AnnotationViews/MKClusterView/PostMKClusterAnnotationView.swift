@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 import MapKit
 
-class PostMKClusterAnnotationView: MKAnnotationView {
+class PostMKClusterAnnotationView: MKAnnotationView, PostAnnotationViewProtocol {
     static let reuseIdentifier = "PostMKClusterAnnotationView"
     var fileCache: FileService?
     

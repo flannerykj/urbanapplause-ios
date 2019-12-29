@@ -9,13 +9,41 @@
 import Foundation
 import UIKit
 
-
-class LoadableImageView: UIImageView {
-    enum State {
-        case empty, loading, complete(UIImage?), error(Error)
+protocol LoadableImageViewProtocol: UIImageView {
+    var state: LoadableImageState { get set }
+    var errorImageView: UIImageView { get set }
+    var progressView: UIView { get }
+    func setProgress(_ progress: Float)
+}
+extension LoadableImageViewProtocol {
+    func updateViewForState() {
+        switch self.state {
+        case .empty:
+            self.image = nil
+            self.errorImageView.isHidden = true
+            self.progressView.isHidden = true
+        case .downloading(let progress):
+            self.errorImageView.isHidden = true
+            self.progressView.isHidden = false
+            setProgress(progress ?? 0)
+        case .complete(let image):
+            self.image = image
+            self.errorImageView.isHidden = true
+            self.progressView.isHidden = true
+        case .error(_):
+            self.image = nil
+            self.errorImageView.isHidden = false
+            self.progressView.isHidden = true
+        }
     }
-    
-    var state: State = .empty {
+}
+
+enum LoadableImageState {
+    case empty, downloading(_ progress: Float?), complete(UIImage?), error(Error)
+}
+
+class LoadableImageView: UIImageView, LoadableImageViewProtocol {
+    var state: LoadableImageState = .empty {
         didSet {
             self.updateViewForState()
         }
@@ -27,20 +55,25 @@ class LoadableImageView: UIImageView {
         return view
     }()
     
-    let imageLoadingIndicator = CircularLoader()
-
-    init(initialState: State = .empty) {
+    lazy var progressBar = UIProgressView()
+    
+    init(initialState: LoadableImageState = .empty) {
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
         clipsToBounds = true
         contentMode = .scaleAspectFill
         layer.masksToBounds = true
         image = UIImage(named: "placeholder")
-        addSubview(imageLoadingIndicator)
+        addSubview(progressBar)
         addSubview(errorImageView)
+        progressBar.translatesAutoresizingMaskIntoConstraints = false
+        progressBar.tintColor = .systemPink
+        progressBar.backgroundColor = UIColor.systemGray6.withAlphaComponent(0.2)
         NSLayoutConstraint.activate([
-            imageLoadingIndicator.centerXAnchor.constraint(equalTo: self.centerXAnchor),
-            imageLoadingIndicator.centerYAnchor.constraint(equalTo: self.centerYAnchor),
+            progressBar.leftAnchor.constraint(equalTo: self.leftAnchor),
+            progressBar.rightAnchor.constraint(equalTo: self.rightAnchor),
+            progressBar.bottomAnchor.constraint(equalTo: self.bottomAnchor),
+            progressBar.heightAnchor.constraint(equalToConstant: 10),
             errorImageView.centerXAnchor.constraint(equalTo: self.centerXAnchor),
             errorImageView.centerYAnchor.constraint(equalTo: self.centerYAnchor)
         ])
@@ -52,24 +85,10 @@ class LoadableImageView: UIImageView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func updateViewForState() {
-        switch self.state {
-        case .empty:
-            self.image = nil
-            self.errorImageView.isHidden = true
-            self.imageLoadingIndicator.hide()
-        case .loading:
-            self.image = nil
-            self.errorImageView.isHidden = true
-            self.imageLoadingIndicator.showAndAnimate()
-        case .complete(let image):
-            self.image = image
-            self.errorImageView.isHidden = true
-            self.imageLoadingIndicator.hide()
-        case .error(_):
-            self.image = nil
-            self.errorImageView.isHidden = false
-            self.imageLoadingIndicator.hide()
-        }
+    func setProgress(_ progress: Float) {
+        self.progressBar.progress = progress
+    }
+    var progressView: UIView {
+        return self.progressBar
     }
 }

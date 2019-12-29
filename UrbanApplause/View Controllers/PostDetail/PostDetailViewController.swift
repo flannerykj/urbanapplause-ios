@@ -18,7 +18,7 @@ protocol PostDetailDelegate: class {
 class PostDetailViewController: UIViewController {
     weak var delegate: PostDetailDelegate?
     var mainCoordinator: MainCoordinator
-    var imageDownloadJobs: [FileDownloadJob] = []
+    
     var post: Post? {
         didSet {
             guard let post = post else { return }
@@ -37,16 +37,6 @@ class PostDetailViewController: UIViewController {
             let span = MKCoordinateSpan(latitudeDelta: 0.2, longitudeDelta: 0.2)
             let region = MKCoordinateRegion(center: post.coordinate, span: span)
             mapView.setRegion(region, animated: true)
-            
-            if let images = post.PostImages {
-                var jobs = [FileDownloadJob]()
-                for file in images {
-                    if let imageJob = mainCoordinator.fileCache.getJobForFile(file) {
-                        jobs.append(imageJob)
-                    }
-                }
-                self.imageDownloadJobs = jobs
-            }
         }
     }
     var isLoading: Bool = false {
@@ -108,13 +98,17 @@ class PostDetailViewController: UIViewController {
                 DispatchQueue.main.async {
                     self.photoView.state = .error(error)
                 }
+            }, onUpdateProgress: { progress in
+                DispatchQueue.main.async {
+                    self.photoView.state = .downloading(progress)
+                }
             })
         }
     }
 
     var downloadedImages: [Int: UIImage] = [:]
         
-    lazy var photoView = LoadableImageView(initialState: .loading)
+    lazy var photoView = LoadableImageView(initialState: .empty)
     
     var artistLabel: UILabel = {
         let label = UILabel()

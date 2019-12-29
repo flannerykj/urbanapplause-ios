@@ -20,6 +20,7 @@ class FileDownloadJob: NSObject {
     private var file: File
     private var subscribers: [FileDownloadSubscriber] = []
     private var spacesFileRepository: SpacesFileRepository
+    
     init(file: File, spacesFileRepository: SpacesFileRepository) {
         // setup
         self.file = file
@@ -103,7 +104,9 @@ class FileDownloadJob: NSObject {
     }
     private func fetchDataFromCDN() {
         self.downloading = true
-        spacesFileRepository.downloadFile(filename: file.storage_location, completion: { data, error in
+        spacesFileRepository.downloadFile(filename: file.storage_location, updateProgress: { progress in
+            self.downloadProgress = Float(progress)
+        }, completion: { data, error in
             self.downloading = false
             if data != nil {
                  self.imageData = data

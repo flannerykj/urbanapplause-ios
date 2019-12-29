@@ -10,7 +10,11 @@ import Foundation
 import UIKit
 import MapKit
 
-class PostAnnotationView3: MKMarkerAnnotationView {
+protocol PostAnnotationViewProtocol {
+    var contentView: AnnotationContentView { get set }
+}
+
+class PostAnnotationView3: MKMarkerAnnotationView, PostAnnotationViewProtocol {
     static let reuseIdentifier = "postAnnotation"
     var fileCache: FileService?
     var contentView = AnnotationContentView()

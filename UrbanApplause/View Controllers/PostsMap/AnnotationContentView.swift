@@ -26,6 +26,9 @@ class AnnotationContentView: UIView {
     public func setImage(_ image: UIImage?) {
         imageView.image = image
     }
+    public func getImage() -> UIImage? {
+        return imageView.image
+    }
     private lazy var imageView = UIImageView(frame: self.frame.inset(by: imageInsets))
     
     var shadowLayer: CAShapeLayer?

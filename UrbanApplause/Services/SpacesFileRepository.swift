@@ -57,9 +57,12 @@ struct SpacesFileRepository {
         transferConfiguration.isAccelerateModeEnabled = false
         transferConfiguration.bucket = SpacesFileRepository.bucket
         
-        AWSS3TransferUtility.register(with: configuration!, transferUtilityConfiguration: transferConfiguration,
+        AWSS3TransferUtility.register(with: configuration!,
+                                      transferUtilityConfiguration: transferConfiguration,
                                       forKey: SpacesFileRepository.bucket)
         transferUtility = AWSS3TransferUtility.s3TransferUtility(forKey: SpacesFileRepository.bucket)
+        
+        
     }
     
     /* func uploadFileData(_ data: Data, completion: @escaping (UAResult<String>) -> Void) {
@@ -84,9 +87,16 @@ struct SpacesFileRepository {
             })
     } */
     
-    func downloadFile(filename: String, completion: @escaping (Data?, Error?) -> Void) {
-        transferUtility?.downloadData(forKey: "uploads/\(filename)", expression: nil, completionHandler: { (task, url, data, error) in
-            
+    func downloadFile(filename: String,
+                      updateProgress: @escaping (Double) -> Void,
+                      completion: @escaping (Data?, Error?) -> Void) {
+        
+        let expression = AWSS3TransferUtilityDownloadExpression()
+        expression.progressBlock = { result, progress in
+            updateProgress(progress.fractionCompleted)
+        }
+        
+        transferUtility?.downloadData(forKey: "uploads/\(filename)", expression: expression, completionHandler: { (task, url, data, error) in
             guard error == nil else {
                 log.error("S3 Download Error: \(error!.localizedDescription)")
                 completion(nil, error)
