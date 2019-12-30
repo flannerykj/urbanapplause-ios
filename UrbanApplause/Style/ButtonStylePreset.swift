@@ -8,8 +8,12 @@
 
 import Foundation
 import UIKit
-enum ButtonStyle {
-    case normal, link, icon(name: String?, size: CGFloat?), delete, smallTag, tag
+
+
+enum ButtonStylePreset {
+    var accentColor: UIColor { return .systemBlue }
+    
+    case primary, outlined, link, icon(name: String?, size: CGFloat?), delete, smallTag, tag
     
     var backgroundColor: UIColor {
         switch self {
@@ -17,12 +21,23 @@ enum ButtonStyle {
             return UIColor.clear
         case .delete:
             return UIColor.error
-        case .normal:
-            return UIColor.systemBlue
+        case .primary:
+            return accentColor
         case .smallTag:
+            return UIColor.clear
+        case .outlined:
             return UIColor.clear
         default:
             return UIColor.lightGray
+        }
+    }
+    
+    var highlightedBackgroundColor: UIColor? {
+        switch self {
+        case .outlined:
+            return accentColor.withAlphaComponent(0.5)
+        default:
+            return self.backgroundColor
         }
     }
     
@@ -53,18 +68,33 @@ enum ButtonStyle {
     
     var defaultTextColor: UIColor {
         switch self {
+        case .primary:
+            return UIColor.backgroundAccent
+        default:
+            return accentColor
+        }
+    }
+    var highlightedTextColor: UIColor {
+        switch self {
         case .link:
-            return UIColor.systemBlue
+            return accentColor
         default:
             return UIColor.systemGray6
         }
     }
-    var activeTextColor: UIColor {
+    var selectedTextColor: UIColor {
         switch self {
-        case .link:
-            return UIColor.systemBlue
         default:
-            return UIColor.systemGray6
+            return self.highlightedTextColor
+        }
+    }
+    
+    var selectedBackgroundColor: UIColor? {
+        switch self {
+        case .outlined:
+            return accentColor
+        default:
+            return self.highlightedBackgroundColor
         }
     }
     var contentEdgeInsets: UIEdgeInsets {
@@ -110,13 +140,28 @@ enum ButtonStyle {
             return nil
         }
     }
-    
-    var borderColor: UIColor? {
+    var defaultBorderWidth: CGFloat {
+        switch self {
+        case .link:
+            return 0
+        default:
+            return 1
+        }
+    }
+    var defaultBorderColor: UIColor? {
         switch self {
         case .smallTag:
             return UIColor.backgroundLight
+        case .outlined, .primary:
+            return accentColor
         default:
             return nil
+        }
+    }
+    var highlightedBorderColor: UIColor? {
+        switch self {
+        default:
+            return defaultBorderColor
         }
     }
 }

@@ -18,11 +18,7 @@ protocol PostCellDelegate: class {
 class PostCell: UITableViewCell {
     var indexPath: IndexPath?
     weak var delegate: PostCellDelegate?
-    var mainCoordinator: MainCoordinator? {
-        didSet {
-            toolbarVC.mainCoordinator = mainCoordinator
-        }
-    }
+    var mainCoordinator: MainCoordinator?
     var subscriber: FileDownloadSubscriber? {
         willSet {
             if let subscriber = self.subscriber { // remove previous subscriber before setting new
@@ -59,7 +55,6 @@ class PostCell: UITableViewCell {
     
     var post: Post? {
         didSet {
-            toolbarVC.post = post
             if post != nil {
                 isLoading = false
                 artistLabel.text = post?.title
@@ -122,8 +117,7 @@ class PostCell: UITableViewCell {
     }()
 
     lazy var rightContentStackView: UIStackView = {
-        toolbarVC.stackView.layoutMargins.left = 0
-        let stackView = UIStackView(arrangedSubviews: [usernameRow, locationLabel, dateLabel, toolbarVC.view])
+        let stackView = UIStackView(arrangedSubviews: [usernameRow, locationLabel, dateLabel])
         stackView.axis = .vertical
         stackView.translatesAutoresizingMaskIntoConstraints = false
         return stackView
@@ -140,9 +134,7 @@ class PostCell: UITableViewCell {
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
-    
-    lazy var toolbarVC = PostToolbarController(mainCoordinator: mainCoordinator)
-    
+        
     lazy var contentStackView: UIStackView = {
         let stackView = UIStackView(arrangedSubviews: [photoView, rightContentStackView])
         stackView.axis = .horizontal
@@ -162,8 +154,6 @@ class PostCell: UITableViewCell {
         backgroundColor = UIColor.backgroundMain
         // cardView constraints
         contentStackView.fill(view: contentView)
-        toolbarVC.delegate = self
-        
         addSubview(dividerView)
         
         NSLayoutConstraint.activate([
@@ -189,20 +179,5 @@ class PostCell: UITableViewCell {
         log.debug("press in clell")
         guard let user = post?.User else { return }
         delegate?.postCell(self, didSelectUser: user)
-    }
-}
-extension PostCell: PostToolbarDelegate {
-    func postToolbar(_ toolbar: PostToolbarController, didBlockUser user: User) {
-        delegate?.postCell(self, didBlockUser: user)
-    }
-    
-    func postToolbar(_ toolbar: PostToolbarController, didUpdatePost post: Post) {
-        guard let indexPath = self.indexPath else { log.error("no index path set"); return }
-        delegate?.postCell(self, didUpdatePost: post, atIndexPath: indexPath)
-    }
-    
-    func postToolbar(_ toolbar: PostToolbarController, didDeletePost post: Post) {
-        guard let indexPath = self.indexPath else { log.error("no index path set"); return }
-        delegate?.postCell(self, didDeletePost: post, atIndexPath: indexPath)
     }
 }

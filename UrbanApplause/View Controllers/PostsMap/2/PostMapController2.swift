@@ -317,6 +317,9 @@ extension PostMapViewController2: CLLocationManagerDelegate {
 extension PostMapViewController2: PostFormDelegate {
     func didCreatePost(post: Post) {
         self.updateMap(refreshCache: true)
+        if let location = post.Location?.clLocation {
+            self.zoomToLocation(location)
+        }
     }
     
     func didDeletePost(post: Post) {

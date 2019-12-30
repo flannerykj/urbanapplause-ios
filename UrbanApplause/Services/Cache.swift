@@ -26,6 +26,10 @@ final class Cache<Key: Hashable, Value> {
     func removeValue(forKey key: Key) {
         wrapped.removeObject(forKey: WrappedKey(key))
     }
+    
+    func clear() {
+        wrapped.removeAllObjects()
+    }
 }
 private extension Cache {
     final class WrappedKey: NSObject {
@@ -47,9 +51,11 @@ private extension Cache {
 private extension Cache {
     final class Entry {
         let value: Value
-
+        let createdAt: Date
+        
         init(value: Value) {
             self.value = value
+            self.createdAt = Date()
         }
     }
 }

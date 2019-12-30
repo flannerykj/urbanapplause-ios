@@ -29,4 +29,8 @@ class FileService: NSObject {
         let job = self.getJobForFile(file)
         job?.setLocalData(data)
     }
+    
+    public func clearUnusedImages() {
+        cache.clear()
+    }
 }

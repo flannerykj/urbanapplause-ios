@@ -20,6 +20,8 @@ class FileDownloadJob: NSObject {
     private var file: File
     private var subscribers: [FileDownloadSubscriber] = []
     private var spacesFileRepository: SpacesFileRepository
+    var initializedAt = Date()
+    var lastSubscriptionAt = Date()
     
     init(file: File, spacesFileRepository: SpacesFileRepository) {
         // setup
@@ -33,7 +35,7 @@ class FileDownloadJob: NSObject {
                           onError: @escaping (Error) -> Void = { _ in },
                           onUpdateProgress: @escaping (Float) -> Void = { _ in },
                           onSubscriptionRemoved: @escaping () -> Void = {}) -> FileDownloadSubscriber {
-        
+        self.lastSubscriptionAt = Date()
         let subscriber = FileDownloadSubscriber(subscriberID: UUID().uuidString,
                                                onSuccess: onSuccess,
                                                onError: onError,

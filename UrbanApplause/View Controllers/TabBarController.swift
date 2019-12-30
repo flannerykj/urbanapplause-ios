@@ -64,6 +64,7 @@ class TabBarController: UITabBarController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        delegate = self
         dhTabBar.frame = self.tabBar.frame
         dhTabBar.delegate = self
         self.setValue(dhTabBar, forKey: "tabBar")
@@ -96,8 +97,18 @@ class TabBarController: UITabBarController {
         nav.presentationController?.delegate = self
         self.present(nav, animated: true, completion: nil)
     }
+    
 }
-
+extension TabBarController: UITabBarControllerDelegate {
+    override func tabBar(_ tabBar: UITabBar, didSelect item: UITabBarItem) {
+        let indexOfSearchTab = 1
+        log.debug("current selected index: \(selectedIndex)")
+        if selectedIndex == indexOfSearchTab && item == listTabBarItem {
+            // search bar tab was double-tapped - focus the search bar
+            _ = listRootVC.searchController.searchBar.becomeFirstResponder()
+        }
+    }
+}
 class UATabBar: UITabBar {
     let diameter: CGFloat = 60
 
@@ -156,6 +167,8 @@ class UATabBar: UITabBar {
         middleButton.center = CGPoint(x: UIScreen.main.bounds.width - buttonOffset, y: -buttonOffset)
         addSubview(middleButton)
     }
+    
+    
 }
 extension TabBarController: PostFormDelegate {
     func didCreatePost(post: Post) {

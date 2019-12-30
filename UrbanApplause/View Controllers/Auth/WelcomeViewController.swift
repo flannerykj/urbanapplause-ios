@@ -24,7 +24,7 @@ class WelcomeViewController: UIViewController {
     }
     lazy var welcomeLabel = UILabel(type: .h1, text: "Welcome to Urban Applause")
     lazy var introLabel = UILabel(type: .h8, text: Copy.Marketing.intro, alignment: .center)
-    lazy var registerButton = UAButton(type: .normal,
+    lazy var registerButton = UAButton(type: .primary,
                                        title: "Register",
                                        target: self,
                                        action: #selector(goToRegistration(_:)))

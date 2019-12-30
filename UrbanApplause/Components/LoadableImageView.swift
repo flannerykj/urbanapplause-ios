@@ -9,30 +9,26 @@
 import Foundation
 import UIKit
 
-protocol LoadableImageViewProtocol: UIImageView {
+protocol LoadableImageViewProtocol {
     var state: LoadableImageState { get set }
-    var errorImageView: UIImageView { get set }
     var progressView: UIView { get }
     func setProgress(_ progress: Float)
+    func setImage(_ image: UIImage?)
 }
 extension LoadableImageViewProtocol {
     func updateViewForState() {
         switch self.state {
         case .empty:
-            self.image = nil
-            self.errorImageView.isHidden = true
+            self.setImage(nil)
             self.progressView.isHidden = true
         case .downloading(let progress):
-            self.errorImageView.isHidden = true
             self.progressView.isHidden = false
             setProgress(progress ?? 0)
         case .complete(let image):
-            self.image = image
-            self.errorImageView.isHidden = true
+            self.setImage(image)
             self.progressView.isHidden = true
-        case .error(_):
-            self.image = nil
-            self.errorImageView.isHidden = false
+        case .error:
+            self.setImage(UIImage(systemName: "exclamationamrk.triangle"))
             self.progressView.isHidden = true
         }
     }
@@ -49,23 +45,26 @@ class LoadableImageView: UIImageView, LoadableImageViewProtocol {
         }
     }
     
-    lazy var errorImageView: UIImageView = {
+    /* lazy var errorImageView: UIImageView = {
         let view = UIImageView(image: UIImage(systemName: "exclamationamrk.triangle"))
         view.isHidden = true
         return view
-    }()
+    }() */
     
     lazy var progressBar = UIProgressView()
     
-    init(initialState: LoadableImageState = .empty) {
+    init(initialState: LoadableImageState = .empty,
+         maskToBounds: Bool = true,
+         contentMode: UIImageView.ContentMode = .scaleAspectFill) {
+        
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
-        clipsToBounds = true
-        contentMode = .scaleAspectFill
-        layer.masksToBounds = true
-        image = UIImage(named: "placeholder")
+        clipsToBounds = maskToBounds
+        self.contentMode = contentMode
+        layer.masksToBounds = maskToBounds
+        // image = UIImage(named: "placeholder")
         addSubview(progressBar)
-        addSubview(errorImageView)
+        // addSubview(errorImageView)
         progressBar.translatesAutoresizingMaskIntoConstraints = false
         progressBar.tintColor = .systemPink
         progressBar.backgroundColor = UIColor.systemGray6.withAlphaComponent(0.2)
@@ -74,8 +73,8 @@ class LoadableImageView: UIImageView, LoadableImageViewProtocol {
             progressBar.rightAnchor.constraint(equalTo: self.rightAnchor),
             progressBar.bottomAnchor.constraint(equalTo: self.bottomAnchor),
             progressBar.heightAnchor.constraint(equalToConstant: 10),
-            errorImageView.centerXAnchor.constraint(equalTo: self.centerXAnchor),
-            errorImageView.centerYAnchor.constraint(equalTo: self.centerYAnchor)
+            // errorImageView.centerXAnchor.constraint(equalTo: self.centerXAnchor),
+            // errorImageView.centerYAnchor.constraint(equalTo: self.centerYAnchor)
         ])
         state = initialState
         updateViewForState()
@@ -87,6 +86,9 @@ class LoadableImageView: UIImageView, LoadableImageViewProtocol {
     
     func setProgress(_ progress: Float) {
         self.progressBar.progress = progress
+    }
+    func setImage(_ image: UIImage?) {
+        self.image = image
     }
     var progressView: UIView {
         return self.progressBar

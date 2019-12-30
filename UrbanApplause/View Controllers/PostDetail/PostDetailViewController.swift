@@ -29,14 +29,14 @@ class PostDetailViewController: UIViewController {
             }
             artistLabel.text = post.title
             locationLabel.text = post.Location?.description
-            usernameButton.setTitle(post.User?.username, for: .normal)
-            usernameButton.style(as: .link)
+            setUsername(post.User?.username)
             dateLabel.text = post.createdAt?.timeSince()
             
             mapView.addAnnotation(post)
             let span = MKCoordinateSpan(latitudeDelta: 0.2, longitudeDelta: 0.2)
             let region = MKCoordinateRegion(center: post.coordinate, span: span)
             mapView.setRegion(region, animated: true)
+            updateVisitedButton()
         }
     }
     var isLoading: Bool = false {
@@ -62,7 +62,7 @@ class PostDetailViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
         
         self.post = post
-        photoView.image = thumbImage
+        photoView.state = .complete(thumbImage)
         self.fetchPost(postID: postId)
     }
     
@@ -124,53 +124,83 @@ class PostDetailViewController: UIViewController {
     var dateLabel: UILabel = {
         let label = UILabel()
         label.style(as: .body)
-        label.textAlignment = .right
         label.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
         return label
     }()
-    lazy var usernameButton: UIButton = {
-        let button = UIButton()
-        button.titleLabel?.style(as: .link)
-        button.addTarget(self, action: #selector(didSelectUser(_:)), for: .touchUpInside)
-        return button
+    
+    lazy var postedByTextView: UATextView = {
+        let textView = UATextView()
+        textView.delegate = self
+        return textView
     }()
-    lazy var usernameRow: UIStackView = {
-        let postedBy = UILabel()
-        postedBy.text = "Posted by "
-        postedBy.style(as: .body)
-        let stackView = UIStackView(arrangedSubviews: [postedBy, usernameButton, NoFrameView()])
-        stackView.axis = .horizontal
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        return stackView
-    }()
+    
+    func setUsername(_ username: String?) {
+        let username = username ?? ""
+        let text = "Posted by \(username)"
+        let attributedText = NSMutableAttributedString(attributedString: NSAttributedString(string: text))
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.lineSpacing = 8
+        
+        attributedText.setAttributes([
+            NSAttributedString.Key.paragraphStyle: paragraphStyle,
+            NSAttributedString.Key.font: TypographyStyle.body.font,
+            NSAttributedString.Key.foregroundColor: TypographyStyle.body.color
+        ], range: NSRange(location: 0, length: text.count))
+        
+        attributedText.setAttributes([
+            NSAttributedString.Key.paragraphStyle: paragraphStyle,
+            NSAttributedString.Key.font: TypographyStyle.link.font,
+            NSAttributedString.Key.link: "",
+            NSAttributedString.Key.foregroundColor: TypographyStyle.link.color
+        ], range: NSRange(location: (text.count - username.count), length: username.count))
+        postedByTextView.attributedText = attributedText
+    }
     lazy var topContentLeftStackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [usernameRow, locationLabel])
+        let stackView = UIStackView(arrangedSubviews: [postedByTextView, dateLabel, locationLabel])
         stackView.axis = .vertical
-        stackView.spacing = -8
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        return stackView
-    }()
-    lazy var topContentStackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [topContentLeftStackView, NoFrameView(), dateLabel])
-        stackView.axis = .horizontal
-        stackView.alignment = .bottom
-        stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.spacing = 4
         stackView.isLayoutMarginsRelativeArrangement = true
-        stackView.layoutMargins = UIEdgeInsets(top: 0,
+        stackView.layoutMargins = UIEdgeInsets(top: StyleConstants.contentPadding,
                                                left: StyleConstants.contentPadding,
                                                bottom: StyleConstants.contentPadding,
                                                right: StyleConstants.contentPadding)
+        stackView.translatesAutoresizingMaskIntoConstraints = false
         return stackView
     }()
+
     lazy var toolbarVC = PostToolbarController(mainCoordinator: mainCoordinator)
+    
     lazy var dividerView: UIView = {
         let view = UIView()
         view.heightAnchor.constraint(equalToConstant: 12).isActive = true
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
+    
+    let visitsButton = UAButton(type: .outlined,
+                                title: "Visited",
+                                target: self,
+                                action: #selector(toggleVisited(_:)),
+                                rightImage: UIImage(systemName: "eye"))
+    
+    
+    lazy var optionsStackView: UIStackView = {
+        let stackView = UIStackView(arrangedSubviews: [visitsButton])
+        stackView.axis = .vertical
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.isLayoutMarginsRelativeArrangement = true
+        stackView.layoutMargins = UIEdgeInsets(top: StyleConstants.contentPadding,
+                                               left: StyleConstants.contentPadding,
+                                               bottom: StyleConstants.contentPadding,
+                                               right: StyleConstants.contentPadding)
+        return stackView
+    }()
     lazy var contentStackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [photoView, topContentStackView, toolbarVC.view, mapView])
+        let stackView = UIStackView(arrangedSubviews: [photoView,
+                                                       topContentLeftStackView,
+                                                       toolbarVC.view,
+                                                       optionsStackView,
+                                                       mapView])
         stackView.axis = .vertical
         stackView.translatesAutoresizingMaskIntoConstraints = false
         return stackView
@@ -211,7 +241,6 @@ class PostDetailViewController: UIViewController {
             scrollView.leftAnchor.constraint(equalTo: view.leftAnchor),
             scrollView.topAnchor.constraint(equalTo: view.layoutMarginsGuide.topAnchor),
             scrollView.bottomAnchor.constraint(equalTo: view.layoutMarginsGuide.bottomAnchor),
-            
             photoView.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.4),
             mapView.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.5)
         ])
@@ -219,6 +248,11 @@ class PostDetailViewController: UIViewController {
         view.addSubview(activityIndicator)
         activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
+        visitsButton.setLeftImage(UIImage(systemName: "checkmark")?.withRenderingMode(.alwaysTemplate))
+        
+        let thegrey = UIColor.systemGray
+        visitsButton.normalProperties.borderColor = thegrey
+        visitsButton.normalProperties.textColor = thegrey
     }
     
     @objc func showImageDetail(_: Any) {
@@ -236,6 +270,39 @@ class PostDetailViewController: UIViewController {
         guard let user = post?.User else { return }
         // let vc = ProfileViewController(user: user, mainCoordinator: mainCoordinator)
         // navigationController?.pushViewController(vc, animated: true)
+        
+    }
+    
+    @objc func toggleVisited(_ sender: UIButton) {
+        guard let user = mainCoordinator.store.user.data,
+            let post = self.post else {
+                return
+        }
+        let endpoint = PrivateRouter.addOrRemoveVisit(postId: post.id, userId: user.id)
+        _ = mainCoordinator.networkService.request(endpoint) { (result: UAResult<VisitInteractionContainer>) in
+            switch result {
+            case .success(let container):
+                DispatchQueue.main.async {
+                    if container.deleted {
+                        self.post?.Visits?.removeAll { interaction in
+                            interaction.id == container.visit.id
+                        }
+                    } else {
+                        self.post?.Visits?.append(container.visit)
+                    }
+                    self.updateVisitedButton()
+                }
+            case .failure(let error):
+                log.error(error)
+            }
+        }
+    }
+    
+    func updateVisitedButton() {
+        if let visited = self.post?.Visits?.contains(where: { $0.UserId == self.mainCoordinator.store.user.data?.id }) {
+            visitsButton.isSelected = visited
+            visitsButton.setTitle(visited ? "Visited" : "Mark as visited", for: .normal)
+        }
     }
 }
 
@@ -280,5 +347,12 @@ extension PostDetailViewController: PostToolbarDelegate {
         } else {
             self.dismiss(animated: true, completion: nil)
         }
+    }
+}
+extension PostDetailViewController: UITextViewDelegate {
+    func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
+        /// go to user profile
+        log.debug("go to user profile")
+        return false
     }
 }

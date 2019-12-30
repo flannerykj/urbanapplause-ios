@@ -12,7 +12,6 @@ import UIKit
 extension UIColor {
     static var backgroundLight: UIColor {
         return UIColor(hexString: "#FAFBFFFF").withDarkModeOption(UIColor.backgroundMain)
-        
     }
     static var backgroundMain: UIColor {
         if #available(iOS 13.0, *) {
@@ -26,7 +25,7 @@ extension UIColor {
     static var success = UIColor.systemGreen
     static var warning = UIColor.systemYellow
     static var error = UIColor.systemRed
-    static var customAccent = UIColor.white.withDarkModeOption(.black)
+    static var backgroundAccent = UIColor.white.withDarkModeOption(.black)
     static var customTextColor = UIColor.darkText.withDarkModeOption(.lightText)
 }
 extension UIColor {

@@ -38,7 +38,9 @@ class ImageCarouselViewController: UIViewController {
         self.files = files
         self.mainCoordinator = mainCoordinator
         self.imageDownloadJobs = files.map { mainCoordinator.fileCache.getJobForFile($0)! }
-        self.imageControllers = files.map { ImageDetailViewController(file: $0, mainCoordinator: mainCoordinator) }
+        self.imageControllers = files.map { ImageDetailViewController(file: $0,
+                                                                      placeholderImage: nil,
+                                                                      mainCoordinator: mainCoordinator) }
         super.init(nibName: nil, bundle: nil)
     }
     

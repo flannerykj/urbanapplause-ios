@@ -19,26 +19,23 @@ class ImageDetailViewController: UIViewController, UIScrollViewDelegate {
             }
         }
     }
-    init(file: File, mainCoordinator: MainCoordinator) {
+    init(file: File, placeholderImage: UIImage?, mainCoordinator: MainCoordinator) {
+        
         self.file = file
         self.mainCoordinator = mainCoordinator
         self.imageDownloadJob = mainCoordinator.fileCache.getJobForFile(file)
         
         super.init(nibName: nil, bundle: nil)
+        self.imageView.state = .complete(placeholderImage)
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    let activityIndicator = ActivityIndicator()
-        
-    var imageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.contentMode = .scaleAspectFit
-        return imageView
-    }()
+            
+    var imageView = LoadableImageView(initialState: .complete(nil),
+                                      maskToBounds: false,
+                                      contentMode: .scaleAspectFit)
         
     lazy var scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -51,10 +48,6 @@ class ImageDetailViewController: UIViewController, UIScrollViewDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.addSubview(activityIndicator)
-        activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
-
         view.addSubview(scrollView)
         scrollView.fill(view: view)
         view.backgroundColor = UIColor.backgroundLight
@@ -63,17 +56,22 @@ class ImageDetailViewController: UIViewController, UIScrollViewDelegate {
             self.subscriber = job.subscribe(onSuccess: { data in
                 DispatchQueue.main.async {
                     if let image = UIImage(data: data) {
+                        self.imageView.state = .complete(image)
                         self.updateZoomScale(for: image)
-                        self.imageView.image = image
                     } else {
                         log.error("invalid image data")
                     }
+                }
+            }, onUpdateProgress: { progress in
+                DispatchQueue.main.async {
+                    self.imageView.state = .downloading(progress)
                 }
             })
         }
     }
     
     func updateZoomScale(for image: UIImage) {
+        log.debug("image size: \(image.size)")
         scrollView.contentSize = image.size
         let scrollViewFrame = scrollView.frame
         let scaleWidth = scrollViewFrame.size.width / scrollView.contentSize.width

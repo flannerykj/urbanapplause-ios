@@ -47,7 +47,7 @@ class ForgotPasswordViewController: UIViewController {
         return field
     }()
     
-    lazy var submitButton = UAButton(type: .normal, title: "Submit", target: self, action: #selector(submit(_:)))
+    lazy var submitButton = UAButton(type: .primary, title: "Submit", target: self, action: #selector(submit(_:)))
     lazy var errorView = ErrorView()
     
     lazy var stackView: UIStackView = {

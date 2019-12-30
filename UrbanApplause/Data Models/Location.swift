@@ -37,4 +37,8 @@ extension Location {
        }
         return locationStrings.joined(separator: ", ")
     }
+    
+    var clLocation: CLLocation {
+        return CLLocation(latitude: self.coordinates.latitude, longitude: self.coordinates.longitude)
+    }
 }
