@@ -29,7 +29,19 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
     weak var delegate: PostFormDelegate?
     var initialPlacemark: CLPlacemark?
     lazy var networkService = self.mainCoordinator.networkService
-    
+    var showMoreOptions: Bool = false {
+        didSet {
+            log.debug("did set showMoreOptions: \(showMoreOptions) ")
+            if let toggleableSection = form.sectionBy(tag: "toggleable_fields") {
+                if let buttonRow = form.rowBy(tag: "toggle_fields_button") as? ButtonRow {
+                    buttonRow.title = showMoreOptions ? "Show fewer fields" : "Show more fields"
+                    buttonRow.updateCell()
+                }
+                toggleableSection.hidden = Condition(booleanLiteral: !showMoreOptions)
+                toggleableSection.evaluateHidden()
+            }
+        }
+    }
     var newPostState: NewPostState? {
         didSet {
             DispatchQueue.main.async {
@@ -233,21 +245,38 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
                                     }
             }
             +++ Section()
-            <<< TextRow { row in
-                row.tag = "title"
-                row.title = "Title of work"
-                row.placeholder = "Optional"
+            <<< ButtonRow {
+                $0.tag = "toggle_fields_button"
+                $0.title = "Show more fields"
+                $0.onCellSelection { _, _ in
+                    log.debug("show more")
+                    self.showMoreOptions = !self.showMoreOptions
+                }
+            }
+            +++ Section("") {
+                $0.tag = "toggleable_fields"
+                $0.hidden = Condition(booleanLiteral: !self.showMoreOptions)
             }
             <<< SwitchRow { row in
                 row.tag = "active"
                 row.value = true
                 row.title = "This piece is still visible"
             }
+            <<< SwitchRow { row in
+                row.tag = "is_location_fixed"
+                row.value = true
+                row.title = "Location is fixed"
+            }
+            <<< PushRow<String> { row in
+                row.title = "Surface type"
+                row.options = ["Wall", "Billboard", "Street sign", "Train", "Truck or car", "Sidewalk" /*, "Other" */]
+                row.value = "Wall"
+            }
+            
             <<< DateRow { row in
                 row.tag = "recordedAt"
                 row.title = "Photographed on"
                 row.value = Date()
-                
             }
             +++ Section()
     }
@@ -430,23 +459,26 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
             self.showAlert(message: "Please select a location")
             return
         }
-        if let description = formValues["description"] as? String {
-            payload["description"] = description
-        }
         guard let userId = mainCoordinator.store.user.data?.id else {
             log.error("no user id")
             return
+        }
+        if let description = formValues["description"] as? String {
+            payload["description"] = description
         }
         payload["UserId"] = userId
         
         if let active = formValues["active"] as? Bool {
             payload["active"] = active
         }
+        if let isLocationFixed = formValues["is_location_fixed"] as? Bool {
+           payload["is_location_fixed"] = isLocationFixed
+       }
+        if let surfaceType = formValues["surface_type"] as? Bool {
+            payload["surface_type"] = surfaceType
+        }
         let artistKeys: [String] = formValues.keys.filter { $0.contains("artist") }
-        log.debug(artistKeys)
-        
         var artists: [Artist] = []
-        
         for artistKey in artistKeys {
             if let artist = formValues[artistKey] as? Artist {
                 artists.append(artist)
@@ -470,28 +502,7 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
                                             }
         })
     }
-    /* func saveNewPost(body: Parameters) {
-     // Upload images to Digital Ocean space via CDN
-     self.newPostState = .uploadingImages
-     var unsavedImageData = [Data]()
-     var savedFilenames = [String]()
-     for data in self.imagesData {
-     self.spacesFileRepository.uploadFileData(data, completion: { (result: UAResult<String>) in
-     switch result {
-     case .success(let filename):
-     savedFilenames.append(filename)
-     case .failure:
-     unsavedImageData.append(data)
-     }
-     if (savedFilenames.count + unsavedImageData.count) == self.imagesData.count {
-     // all uploads completed
-     self.imagesData = unsavedImageData
-     self.saveImagesToPost(body: body, savedFilenames: savedFilenames)
-     }
-     })
-     }
-     } */
-    
+
     func savePost(body: Parameters) {
         self.newPostState = .savingPost
         // Create new Post and Post Images with filenames for uploaded images

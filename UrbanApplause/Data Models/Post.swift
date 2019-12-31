@@ -17,6 +17,8 @@ class Post: NSObject, Codable {
     var createdAt: Date?
     var updatedAt: Date?
     var UserId: Int
+    var is_location_fixed: Bool
+    var surface_type: String?
     
     var PostImages: [PostImage]?
     var Artists: [Artist]?
