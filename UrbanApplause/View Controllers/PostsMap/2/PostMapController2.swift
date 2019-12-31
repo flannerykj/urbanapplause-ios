@@ -102,7 +102,7 @@ class PostMapViewController2: UIViewController {
                 }
             }
         }
-        
+                
         let gr = UILongPressGestureRecognizer(target: self, action: #selector(longPressedMap(sender:)))
         mapView.addGestureRecognizer(gr)
         
@@ -204,7 +204,8 @@ class PostMapViewController2: UIViewController {
     }
     func handleError(_ error: Error) {
         log.error(error)
-        showAlert(message: error.localizedDescription)
+        let message = (error as? UAError)?.userMessage ?? error.localizedDescription
+        showAlert(message: message)
     }
 
     override func viewDidLayoutSubviews() {

@@ -288,7 +288,6 @@ enum PrivateRouter: EndpointConfiguration {
         do {
             let authTokens: AuthResponse =
                 try keychainService.load(itemAt: KeychainItem.tokens.userAccount)
-
             headers["Authorization"] = "Bearer \(authTokens.access_token)"
         } catch {
             log.warning(error)

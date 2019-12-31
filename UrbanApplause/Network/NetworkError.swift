@@ -18,6 +18,27 @@ enum NetworkError: UAError {
         }
     }
     
+    private var _message: String {
+        switch self {
+            
+        case .fourOhFour:
+            return "Network Error: 404"
+        case .noResponse:
+            return "Network Error: No response"
+        case .dataNotFound:
+            return "Network Error: Data not found"
+        case .decodingError(let error):
+            return "Network Error: Decoding failed. \(error)"
+        case .parameterEncodingFailed:
+            return "Network Error: Parameter encoding failed"
+        case .invalidURL:
+            return "Network Error: Invalid URL"
+        case .requestTimeout:
+            return "Network Error: Request Timeout"
+        case .invalidCode(let code):
+            return "Network Error: Invalid Response Code \(code)"
+        }
+    }
     var debugMessage: String {
         switch self {
             
@@ -44,7 +65,9 @@ enum NetworkError: UAError {
         switch self {
         case .requestTimeout:
             return "Your request timed out. Please check your network connection stability or try again later."
-        default: return "Something went wrong. We're working on fixing it."
+        case .noResponse:
+            return "Your Internet connection appears to be offline."
+        default: return _message
         }
     }
 }
