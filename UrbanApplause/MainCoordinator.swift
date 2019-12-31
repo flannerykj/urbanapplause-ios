@@ -28,7 +28,23 @@ class MainCoordinator: NSObject {
     private(set) var store = Store()
     lazy private(set) var authService = AuthService(keychainService: keychainService)
     lazy private(set) var fileCache: FileService = FileService()
-    lazy private(set) var networkService = NetworkService(mainCoordinator: self)
+    lazy private(set) var networkService: NetworkService = {
+        var headers: [String: String] = [:]
+        do {
+            let authTokens: AuthResponse =
+                try keychainService.load(itemAt: KeychainItem.tokens.userAccount)
+            headers["Authorization"] = "Bearer \(authTokens.access_token)"
+        } catch {
+            log.warning(error)
+        }
+        return NetworkService(customHeaders: headers, handleAuthError: { serverError in
+            var authContext: AuthContext = .entrypoint
+           if serverError.code == .tokenExpired {
+               authContext = .tokenExpiry
+           }
+           self.endSession(authContext: authContext)
+        })
+    }()
 
     init(keychainService: KeychainService = KeychainService(),
          userDefaults: UserDefaults = UserDefaults.standard) {

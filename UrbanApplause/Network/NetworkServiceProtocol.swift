@@ -9,7 +9,8 @@
 import Foundation
 
 protocol NetworkServiceProtocol: NSObject {
-    var mainCoordinator: MainCoordinator { get set }
+    func onReceiveAccessDeniedError(error: UAServerError)
+    func getCustomHeaders() -> [String: String]
     var session: URLSession { get set }
 }
 
@@ -36,11 +37,7 @@ extension NetworkServiceProtocol {
                 switch serverError.name {
                 case .AccessDeniedError:
                     DispatchQueue.main.async {
-                        var authContext: AuthContext = .entrypoint
-                        if serverError.code == .tokenExpired {
-                            authContext = .tokenExpiry
-                        }
-                        self.mainCoordinator.endSession(authContext: authContext)
+                        self.onReceiveAccessDeniedError(error: serverError)
                     }
                 default: break
                 }
@@ -115,7 +112,7 @@ extension NetworkServiceProtocol {
         
         request.httpMethod = route.httpMethod.rawValue
         do {
-            try addHeaders(headers: route.getRequiredHeaders(keychainService: mainCoordinator.keychainService),
+            try addHeaders(headers: self.getCustomHeaders(),
                            to: &request)
 
             switch route.task {
