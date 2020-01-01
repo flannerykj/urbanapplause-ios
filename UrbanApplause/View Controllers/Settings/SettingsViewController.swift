@@ -64,10 +64,16 @@ class SettingsViewController: UIViewController {
 // MARK: - Table view data source
 extension SettingsViewController: UITableViewDataSource, UITableViewDelegate {
     var sections: [[SettingsItem]] {
+        if mainCoordinator.authService.isAuthenticated {
+            return [
+                [.account],
+                [.termsOfService, .privacyPolicy],
+                [.logout]
+            ]
+        }
         return [
-            [.account],
+            [.createAccount, .login],
             [.termsOfService, .privacyPolicy],
-            [.logout]
         ]
     }
     func numberOfSections(in tableView: UITableView) -> Int {
@@ -104,10 +110,12 @@ extension SettingsViewController: UITableViewDataSource, UITableViewDelegate {
         let helpItem = sections[indexPath.section][indexPath.row]
         switch helpItem {
         case .logout:
-            mainCoordinator.endSession(authContext: .userInitiated)
+            mainCoordinator.endSession()
         case .account:
             let accountVC = AccountViewController(mainCoordinator: mainCoordinator)
             navigationController?.pushViewController(accountVC, animated: true)
+        case .createAccount, .login:
+            self.showAuth(isNewUser: helpItem == .createAccount, mainCoordinator: self.mainCoordinator)
         default:
             if let url = helpItem.url {
                 let vc = SFSafariViewController(url: url, configuration: SFSafariViewController.Configuration())

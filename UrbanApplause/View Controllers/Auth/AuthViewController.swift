@@ -13,8 +13,8 @@ class AuthViewController: UIViewController {
     private var viewModel: AuthViewModel
     var mainCoordinator: MainCoordinator
     
-    init(isNewUser: Bool, authContext: AuthContext = .entrypoint, mainCoordinator: MainCoordinator) {
-        self.viewModel = AuthViewModel(isNewUser: isNewUser, authContext: authContext, mainCoordinator: mainCoordinator)
+    init(isNewUser: Bool, mainCoordinator: MainCoordinator) {
+        self.viewModel = AuthViewModel(isNewUser: isNewUser, mainCoordinator: mainCoordinator)
         self.mainCoordinator = mainCoordinator
         super.init(nibName: nil, bundle: nil)
     }
@@ -132,6 +132,44 @@ class AuthViewController: UIViewController {
         ]
         return textView
     }()
+    
+    lazy var toggleAuthText: UITextView = {
+        let textView = UITextView()
+        textView.isSelectable = true // prevents delay in responding to tap on linked text
+        let prependText = viewModel.isNewUser ? "Already have an account? " : "Don't have an account? "
+        let linkText = viewModel.isNewUser ? "Log in" : "Sign up"
+        let appendText = "."
+        let attributedString = NSMutableAttributedString(string: "\(prependText)\(linkText)\(appendText)")
+        
+        // Set the 'click here' substring to be the link
+        var nextURLIndex = prependText.count
+        
+        attributedString.setAttributes([.link: ""],
+                                       range: NSRange(location: prependText.count, length: linkText.count))
+        var style = NSMutableParagraphStyle()
+        style.lineSpacing = 8
+        
+        attributedString.addAttributes([
+            .font: TypographyStyle.body.font,
+            .foregroundColor: UIColor.customTextColor,
+            .paragraphStyle: style,
+            .backgroundColor: UIColor.backgroundMain
+        ], range: NSRange(location: 0, length: attributedString.length))
+        
+        textView.attributedText = attributedString
+        textView.isUserInteractionEnabled = true
+        textView.isScrollEnabled = false
+        textView.isEditable = false
+        textView.delegate = self
+        textView.backgroundColor = UIColor.backgroundMain
+        textView.textAlignment = .center
+        textView.translatesAutoresizingMaskIntoConstraints = true
+        // Set how links should appear
+        textView.linkTextAttributes = [
+            .foregroundColor: UIColor.systemBlue
+        ]
+        return textView
+    }()
 
     lazy var submitButton = UAButton(type: .primary, title: "Submit", target: self, action: #selector(submit(_:)))
     lazy var errorView = ErrorView()
@@ -155,7 +193,7 @@ class AuthViewController: UIViewController {
         if !viewModel.isNewUser {
             stackView.addArrangedSubview(resetPasswordButton)
         }
-        
+        stackView.addArrangedSubview(toggleAuthText)
         stackView.layoutMargins = StyleConstants.defaultMarginInsets
         stackView.isLayoutMarginsRelativeArrangement = true
         stackView.axis = .vertical
@@ -259,6 +297,14 @@ extension AuthViewController: UITextFieldDelegate {
 }
 extension AuthViewController: UITextViewDelegate {
     func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange) -> Bool {
+        if URL.absoluteString == "" {
+            if navigationController?.viewControllers.first == self {
+                let controller = AuthViewController(isNewUser: !viewModel.isNewUser, mainCoordinator: mainCoordinator)
+                navigationController?.pushViewController(controller, animated: true)
+            } else {
+                navigationController?.popViewController(animated: true)
+            }
+        }
         var allowedHosts: [String] = ["github.com", "urbanapplause.com"]
         #if DEBUG
         allowedHosts.append(contentsOf: ["ngrok.com", "localhost"])

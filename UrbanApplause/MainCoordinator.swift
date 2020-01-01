@@ -38,11 +38,7 @@ class MainCoordinator: NSObject {
             log.warning(error)
         }
         return NetworkService(customHeaders: headers, handleAuthError: { serverError in
-            var authContext: AuthContext = .entrypoint
-           if serverError.code == .tokenExpired {
-               authContext = .tokenExpiry
-           }
-           self.endSession(authContext: authContext)
+           self.endSession()
         })
     }()
 
@@ -66,52 +62,20 @@ class MainCoordinator: NSObject {
         }
         navigateToApp()
     }
-    public func endSession(authContext: AuthContext) {
+    public func endSession() {
         // Called when user logs out, or session ends and logs out forcefully.
         authService.endSession()
         store = Store()
-        navigateToAuthentication(authContext: authContext)
     }
     
     // MARK: - Private Methods
     private func navigateToApp() {
-        if authService.isAuthenticated, let user = authService.authUser {
-            store.user.data = user
-            let root = TabBarController(store: store, mainCoordinator: self)
-            switchRootViewController(viewController: root)
-        } else {
-            navigateToAuthentication(authContext: .entrypoint)
-            return
-        }
+        store.user.data = authService.authUser
+        let root = TabBarController(store: store, mainCoordinator: self)
+        switchRootViewController(viewController: root)
     }
     
     private func switchRootViewController(viewController: UIViewController) {
         self.rootController = viewController
     }
-    
-    private func navigateToAuthentication(authContext: AuthContext) {
-        let nav = UINavigationController(rootViewController: WelcomeViewController(store: store, mainCoordinator: self))
-        switch authContext {
-        case .userInitiated, .tokenExpiry:
-            let authVC = AuthViewController(isNewUser: false, authContext: authContext, mainCoordinator: self)
-            authVC.mainCoordinator = self
-            nav.pushViewController(authVC, animated: false)
-        case .entrypoint:
-            if UserDefaults.getHasOpenedApp() {
-                let authVC = AuthViewController(isNewUser: false, mainCoordinator: self)
-                authVC.mainCoordinator = self
-                nav.pushViewController(authVC, animated: false)
-            } else {
-                UserDefaults.setHasOpenedApp(true)
-            }
-        }
-        switchRootViewController(viewController: nav)
-    }
-}
-enum AuthDestination {
-    case welcome, login, register
-}
-
-enum AuthContext {
-    case entrypoint, userInitiated, tokenExpiry
 }

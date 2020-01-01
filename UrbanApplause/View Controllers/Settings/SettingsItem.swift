@@ -10,12 +10,16 @@ import Foundation
 import UIKit
 
 enum SettingsItem {
-    case account, termsOfService, privacyPolicy, logout
+    case account, createAccount, login, termsOfService, privacyPolicy, logout
     
     var title: String {
         switch self {
         case .account:
             return "Account"
+        case .createAccount:
+            return "Create an account"
+        case .login:
+            return "Log in"
         case .termsOfService:
             return "Terms of Service"
         case .privacyPolicy:
@@ -31,7 +35,7 @@ enum SettingsItem {
             return Config.tosURL
         case .privacyPolicy:
             return Config.privacyURL
-        case .logout, .account:
+        default:
             return nil
         }
     }
@@ -43,13 +47,13 @@ enum SettingsItem {
     
     var image: UIImage? {
         switch self {
-        case .account:
+        case .account, .createAccount:
             return UIImage(systemName: "person")
         case .termsOfService:
             return UIImage(systemName: "doc.plaintext")
         case .privacyPolicy:
             return UIImage(systemName: "hand.raised")
-        case .logout:
+        case .logout, .login:
             return UIImage(systemName: "lock")
         }
     }

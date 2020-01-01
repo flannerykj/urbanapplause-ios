@@ -89,20 +89,31 @@ class TabBarController: UITabBarController {
 
     }
     @objc func createNewPressed(_: Any) {
-        let vc = NewPostViewController(mainCoordinator: self.mainCoordinator)
-        vc.delegate = self
-        let nav = UINavigationController(rootViewController: vc)
-        // prevent swipe to dismiss so we can check for unsaved changes in didAttemptToDismiss.
-        nav.isModalInPresentation = true
-        nav.presentationController?.delegate = self
-        self.present(nav, animated: true, completion: nil)
+        if mainCoordinator.authService.isAuthenticated {
+            let vc = NewPostViewController(mainCoordinator: self.mainCoordinator)
+            vc.delegate = self
+            let nav = UINavigationController(rootViewController: vc)
+            // prevent swipe to dismiss so we can check for unsaved changes in didAttemptToDismiss.
+            nav.isModalInPresentation = true
+            nav.presentationController?.delegate = self
+            self.present(nav, animated: true, completion: nil)
+        } else {
+            let alert = UIAlertController(title: "You must be logged in to post.", message: nil, preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "Create an account", style: .default, handler: { _ in
+                self.showAuth(isNewUser: true, mainCoordinator: self.mainCoordinator)
+            }))
+            alert.addAction(UIAlertAction(title: "Log in", style: .default, handler: { _ in
+                self.showAuth(isNewUser: false, mainCoordinator: self.mainCoordinator)
+            }))
+            alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+            present(alert, animated: true, completion: nil)
+        }
     }
     
 }
 extension TabBarController: UITabBarControllerDelegate {
     override func tabBar(_ tabBar: UITabBar, didSelect item: UITabBarItem) {
         let indexOfSearchTab = 1
-        log.debug("current selected index: \(selectedIndex)")
         if selectedIndex == indexOfSearchTab && item == listTabBarItem {
             // search bar tab was double-tapped - focus the search bar
             _ = listRootVC.searchController.searchBar.becomeFirstResponder()

@@ -8,7 +8,13 @@
 
 import UIKit
 
+
 extension UIViewController {
+    func showAuth(isNewUser: Bool, mainCoordinator: MainCoordinator) {
+        let controller = AuthViewController(isNewUser: isNewUser, mainCoordinator: mainCoordinator)
+        self.present(UINavigationController(rootViewController: controller), animated: true, completion: nil)
+    }
+    
     fileprivate var alertCenterSourceRect: CGRect {
         return CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
     }

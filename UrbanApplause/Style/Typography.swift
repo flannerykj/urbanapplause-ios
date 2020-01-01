@@ -63,12 +63,10 @@ enum TypographyStyle {
             return 20
         case .h6, .h7:
             return 18
-        case .h8, .link:
-            return 16
         case .small:
             return 14
         default:
-            return 15
+            return 17
         }
     }
     

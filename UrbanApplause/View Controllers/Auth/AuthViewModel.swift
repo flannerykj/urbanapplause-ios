@@ -27,13 +27,9 @@ class AuthViewModel {
     var didSetLoading: ((Bool) -> Void)?
     var didSetErrorMessage: ((String?) -> Void)?
     
-    init(isNewUser: Bool, authContext: AuthContext, mainCoordinator: MainCoordinator) {
+    init(isNewUser: Bool, mainCoordinator: MainCoordinator) {
         self.mainCoordinator = mainCoordinator
         self.isNewUser = isNewUser
-        if authContext == .tokenExpiry {
-            self.errorMessage = "Your session has expired. Please log in again."
-            self.didSetErrorMessage?(errorMessage)
-        }
     }
 
     func submit(username: String?, email: String?, password: String?) {

@@ -46,11 +46,7 @@ class NetworkService: NSObject, NetworkServiceProtocol {
         return self.customHeaders
     }
     func onReceiveAccessDeniedError(error serverError: UAServerError) {
-        var authContext: AuthContext = .entrypoint
-        if serverError.code == .tokenExpired {
-            authContext = .tokenExpiry
-        }
-        // self.mainCoordinator.endSession(authContext: authContext)
+        // self.mainCoordinator.endSession()
     }
     
     // Data task (use for uploads as well as get, post etc.)

@@ -80,31 +80,57 @@ class CommentListViewController: UIViewController {
     lazy var tableFooterView: UIView = {
         let view = UIView(frame: CGRect(x: 0, y: 0, width: 1, height: 150))
         view.backgroundColor = .systemGray5
-        view.accessibilityIdentifier = "commentList-tableHeaderView"
-        saveCommentButton.titleLabel?.textAlignment = .right
-        view.addSubview(newCommentTextArea)
-        view.addSubview(saveCommentButton)
-        view.layoutMargins = StyleConstants.defaultMarginInsets
-        newCommentTextArea.backgroundColor = UIColor.systemGray5
         let dividerView = UIView()
         dividerView.translatesAutoresizingMaskIntoConstraints = false
         dividerView.backgroundColor = .clear
-        
         view.addSubview(dividerView)
-        NSLayoutConstraint.activate([
-            dividerView.topAnchor.constraint(equalTo: view.topAnchor),
-            dividerView.leftAnchor.constraint(equalTo: view.leftAnchor),
-            dividerView.rightAnchor.constraint(equalTo: view.rightAnchor),
-            dividerView.heightAnchor.constraint(equalToConstant: 1),
-            
-            newCommentTextArea.topAnchor.constraint(equalTo: dividerView.bottomAnchor, constant: 24),
-            newCommentTextArea.rightAnchor.constraint(equalTo: view.layoutMarginsGuide.rightAnchor),
-            newCommentTextArea.leftAnchor.constraint(equalTo: view.layoutMarginsGuide.leftAnchor),
-            
-            saveCommentButton.topAnchor.constraint(equalTo: newCommentTextArea.bottomAnchor),
-            saveCommentButton.rightAnchor.constraint(equalTo: view.layoutMarginsGuide.rightAnchor),
-            saveCommentButton.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        view.layoutMargins = StyleConstants.defaultMarginInsets
+
+       NSLayoutConstraint.activate([
+           dividerView.topAnchor.constraint(equalTo: view.topAnchor),
+           dividerView.leftAnchor.constraint(equalTo: view.leftAnchor),
+           dividerView.rightAnchor.constraint(equalTo: view.rightAnchor),
+           dividerView.heightAnchor.constraint(equalToConstant: 1)
         ])
+        if mainCoordinator.authService.isAuthenticated {
+            saveCommentButton.titleLabel?.textAlignment = .right
+            view.addSubview(newCommentTextArea)
+            view.addSubview(saveCommentButton)
+            newCommentTextArea.backgroundColor = UIColor.systemGray5
+           NSLayoutConstraint.activate([
+                newCommentTextArea.topAnchor.constraint(equalTo: dividerView.bottomAnchor, constant: 24),
+                newCommentTextArea.rightAnchor.constraint(equalTo: view.layoutMarginsGuide.rightAnchor),
+                newCommentTextArea.leftAnchor.constraint(equalTo: view.layoutMarginsGuide.leftAnchor),
+                
+                saveCommentButton.topAnchor.constraint(equalTo: newCommentTextArea.bottomAnchor),
+                saveCommentButton.rightAnchor.constraint(equalTo: view.layoutMarginsGuide.rightAnchor),
+                saveCommentButton.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            ])
+        } else {
+            view.frame.size.height = 80
+            let textView = UATextView()
+            textView.isSelectable = true // prevents delay in responding to tap on linked text
+            textView.delegate = self
+            let prepend = "You must "
+            let linkText = "log in"
+            let appendText = " to comment."
+            let text = NSMutableAttributedString(attributedString: NSAttributedString(string: prepend + linkText + appendText))
+            var style = NSMutableParagraphStyle()
+            style.lineSpacing = 8
+            text.addAttributes([
+                .font: TypographyStyle.body.font,
+                .foregroundColor: UIColor.customTextColor,
+                .paragraphStyle: style,
+                .backgroundColor: UIColor.clear
+            ], range: NSRange(location: 0, length: text.length))
+            text.addAttributes([.link: ""], range: NSRange(location: prepend.count, length: linkText.count))
+            textView.linkTextAttributes = [
+                .foregroundColor: UIColor.systemBlue
+            ]
+            textView.attributedText = text
+            view.addSubview(textView)
+            textView.fillWithinMargins(view: view)
+        }
         return view
     }()
     
@@ -247,13 +273,25 @@ class CommentListViewController: UIViewController {
 extension CommentListViewController: UITableViewDataSource, UITableViewDelegate {
     // MARK: - Table view data source
     func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
+        return 2
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if section == 0 {
+            // meta - messages
+            if self.viewModel.comments.count == 0 {
+                return 1
+            }
+        }
         return viewModel.comments.count
     }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        if indexPath.section == 0 {
+            let cell = UITableViewCell()
+            cell.textLabel?.text = "No comments have been added."
+            cell.textLabel?.style(as: .placeholder)
+            return cell
+        }
         guard let cell = tableView.dequeueReusableCell(withIdentifier: CommentCell.reuseIdentifier,
                                                        for: indexPath) as? CommentCell else { fatalError() }
         let comment = viewModel.comments[indexPath.row]
@@ -312,5 +350,11 @@ extension CommentListViewController: CommentCellDelegate {
         alertController.addAction(cancelAction)
         alertController.addAction(deleteAction)
         presentAlertInCenter(alertController)
+    }
+}
+extension CommentListViewController: UITextViewDelegate {
+    func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
+        self.showAuth(isNewUser: false, mainCoordinator: mainCoordinator)
+        return false
     }
 }

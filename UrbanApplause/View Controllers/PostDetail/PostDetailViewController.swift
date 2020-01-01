@@ -30,6 +30,7 @@ class PostDetailViewController: UIViewController {
             artistLabel.text = post.title
             locationLabel.text = post.Location?.description
             setUsername(post.User?.username)
+            setArtists(post.Artists ?? [])
             dateLabel.text = post.createdAt?.timeSince()
             
             mapView.addAnnotation(post)
@@ -155,8 +156,38 @@ class PostDetailViewController: UIViewController {
         ], range: NSRange(location: (text.count - username.count), length: username.count))
         postedByTextView.attributedText = attributedText
     }
+    
+    lazy var artistsTextView: UATextView = {
+        let textView = UATextView()
+        textView.delegate = self
+        return textView
+    }()
+    
+    func setArtists(_ artists: [Artist]) {
+        var text = "Artists: "
+        let artistNames = artists.filter { $0.signing_name != nil }.map { $0.signing_name ?? "" }.joined(separator: ", ")
+        text += artistNames
+        
+        let attributedText = NSMutableAttributedString(attributedString: NSAttributedString(string: text))
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.lineSpacing = 8
+        
+        attributedText.setAttributes([
+            NSAttributedString.Key.paragraphStyle: paragraphStyle,
+            NSAttributedString.Key.font: TypographyStyle.body.font,
+            NSAttributedString.Key.foregroundColor: TypographyStyle.body.color
+        ], range: NSRange(location: 0, length: text.count))
+        
+        attributedText.setAttributes([
+            NSAttributedString.Key.paragraphStyle: paragraphStyle,
+            NSAttributedString.Key.font: TypographyStyle.link.font,
+            NSAttributedString.Key.link: "",
+            NSAttributedString.Key.foregroundColor: TypographyStyle.link.color
+        ], range: NSRange(location: (text.count - artistNames.count), length: artistNames.count))
+        artistsTextView.attributedText = attributedText
+    }
     lazy var topContentLeftStackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [postedByTextView, dateLabel, locationLabel])
+        let stackView = UIStackView(arrangedSubviews: [postedByTextView, dateLabel, locationLabel, artistsTextView])
         stackView.axis = .vertical
         stackView.spacing = 4
         stackView.isLayoutMarginsRelativeArrangement = true
@@ -270,7 +301,6 @@ class PostDetailViewController: UIViewController {
         guard let user = post?.User else { return }
         // let vc = ProfileViewController(user: user, mainCoordinator: mainCoordinator)
         // navigationController?.pushViewController(vc, animated: true)
-        
     }
     
     @objc func toggleVisited(_ sender: UIButton) {
