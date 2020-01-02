@@ -10,7 +10,7 @@ import Foundation
 
 class CommentListViewModel {
     private var mainCoordinator: MainCoordinator
-    private var post: Post
+    private var post: Post?
     
     private(set) var isLoading = false {
         didSet {
@@ -39,18 +39,23 @@ class CommentListViewModel {
     var didCreateComment: ((Comment) -> Void)?
     var didBlockUser: ((User) -> Void)?
     
-    init(post: Post, mainCoordinator: MainCoordinator) {
+    init(post: Post?, mainCoordinator: MainCoordinator) {
         self.post = post
         self.mainCoordinator = mainCoordinator
     }
     
+    func setPost(_ post: Post?) {
+        self.post = post
+        getComments()
+    }
+    
     func getComments() {
-        guard !isLoading else {
+        guard !isLoading, let postId = post?.id else {
             return
         }
         errorMessage = nil
         isLoading = true
-        let endpoint = PrivateRouter.getComments(postId: post.id)
+        let endpoint = PrivateRouter.getComments(postId: postId)
         _ = mainCoordinator.networkService.request(endpoint) { [weak self] (result: UAResult<CommentsContainer>) in
             
             DispatchQueue.main.async {
@@ -70,7 +75,7 @@ class CommentListViewModel {
     }
     
     func submitComment(contents: String?) {
-        guard !isSubmitting else {
+        guard !isSubmitting, let postId = post?.id else {
             return
         }
         guard let content = contents else {
@@ -83,7 +88,7 @@ class CommentListViewModel {
         }
         self.errorMessage = nil
         self.isSubmitting = true
-        _ = mainCoordinator.networkService.request(PrivateRouter.createComment(postId: post.id,
+        _ = mainCoordinator.networkService.request(PrivateRouter.createComment(postId: postId,
                                                                                    userId: user.id,
                                                                                    content: content),
                                                        completion: { (result: UAResult<CommentContainer>) in

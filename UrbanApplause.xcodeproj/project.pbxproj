@@ -152,6 +152,7 @@
 		3ADD72C92383269A0007CAEF /* SettingsItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ADD72C82383269A0007CAEF /* SettingsItem.swift */; };
 		3ADEA8032391EA1D006B4EFF /* PostGISClusterAnnotationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ADEA8022391EA1D006B4EFF /* PostGISClusterAnnotationView.swift */; };
 		3AE80DB7236F77BC0081A854 /* BaseTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AE80DB6236F77BC0081A854 /* BaseTestCase.swift */; };
+		3AE86ADD23BE30910097DB1A /* NSMutableAttributedString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AE86ADC23BE30910097DB1A /* NSMutableAttributedString.swift */; };
 		3AEA3374235137FD00ECBF8C /* WelcomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AEA3373235137FD00ECBF8C /* WelcomeViewController.swift */; };
 		3AEA33772352003400ECBF8C /* DynamicPostListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AEA33762352003400ECBF8C /* DynamicPostListViewModel.swift */; };
 		3AED042F235614C200383982 /* MapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AED042E235614C200383982 /* MapViewController.swift */; };
@@ -334,6 +335,7 @@
 		3ADD72C82383269A0007CAEF /* SettingsItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsItem.swift; sourceTree = "<group>"; };
 		3ADEA8022391EA1D006B4EFF /* PostGISClusterAnnotationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostGISClusterAnnotationView.swift; sourceTree = "<group>"; };
 		3AE80DB6236F77BC0081A854 /* BaseTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseTestCase.swift; sourceTree = "<group>"; };
+		3AE86ADC23BE30910097DB1A /* NSMutableAttributedString.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSMutableAttributedString.swift; sourceTree = "<group>"; };
 		3AEA3373235137FD00ECBF8C /* WelcomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeViewController.swift; sourceTree = "<group>"; };
 		3AEA33762352003400ECBF8C /* DynamicPostListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicPostListViewModel.swift; sourceTree = "<group>"; };
 		3AED042E235614C200383982 /* MapViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewController.swift; sourceTree = "<group>"; };
@@ -573,6 +575,7 @@
 				3A2C8D1B238FE4BF000C3122 /* CGRect.swift */,
 				3A22218E23AD4B5900FE9262 /* Publisher.swift */,
 				3A0C8FB923B8FC8C0068AECA /* UIEdgeInsets.swift */,
+				3AE86ADC23BE30910097DB1A /* NSMutableAttributedString.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -592,7 +595,6 @@
 				3A33AA25237F3BE0007B4DD7 /* Settings */,
 				3A33AA24237F3BD5007B4DD7 /* ReportContent */,
 				3A2E1B7523773234007F4AF5 /* Camera */,
-				3A7553AA2365D98000634C32 /* Comments */,
 				3AF60D9A234A1AC5002A1DBD /* Galleries */,
 			);
 			path = "View Controllers";
@@ -642,6 +644,7 @@
 				3A28764D226B83A300BCAE61 /* ImageDetailViewController.swift */,
 				3ACB5B40236CED7E0004FA31 /* ImageCarouselViewController.swift */,
 				3AFAB6BE2365CC74000EC360 /* PostToolbarController.swift */,
+				3A7553AA2365D98000634C32 /* Comments */,
 			);
 			path = PostDetail;
 			sourceTree = "<group>";
@@ -1128,6 +1131,7 @@
 				3ACB5B31236C64850004FA31 /* ForgotPasswordViewController.swift in Sources */,
 				3A22219823B0AF4300FE9262 /* GalleryCell.swift in Sources */,
 				3A56B42323635C82000F2A42 /* GalleryDetailViewController.swift in Sources */,
+				3AE86ADD23BE30910097DB1A /* NSMutableAttributedString.swift in Sources */,
 				3A5EA3D02369FF6E006A3F27 /* Copy.swift in Sources */,
 				3ACB5B2F236C42140004FA31 /* BlockedUser.swift in Sources */,
 				3A3187242353208500D59F79 /* NetworkServiceJob.swift in Sources */,

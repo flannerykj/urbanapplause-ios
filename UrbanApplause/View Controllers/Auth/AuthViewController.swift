@@ -108,15 +108,12 @@ class AuthViewController: UIViewController {
                                        range: NSRange(location: nextURLIndex, length: cookieUseLinkText.count))
         nextURLIndex += cookieUseLinkText.count + appendText.count
         
-        var style = NSMutableParagraphStyle()
-        style.lineSpacing = 8
-        
+        let range = NSRange(location: 0, length: nextURLIndex)
+        attributedString.style(as: .body, for: range)
         attributedString.addAttributes([
-            .font: TypographyStyle.body.font,
             .foregroundColor: UIColor.customTextColor,
-            .paragraphStyle: style,
             .backgroundColor: UIColor.backgroundMain
-        ], range: NSRange(location: 0, length: nextURLIndex))
+        ], range: range)
         
         textView.attributedText = attributedString
         textView.isUserInteractionEnabled = true

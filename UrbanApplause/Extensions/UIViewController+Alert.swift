@@ -7,9 +7,18 @@
 //
 
 import UIKit
-
-
 extension UIViewController {
+    func showAlertForLoginRequired(desiredAction: String, mainCoordinator: MainCoordinator) {
+        let alert = UIAlertController(title: "You must be logged in to \(desiredAction).", message: nil, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Create an account", style: .default, handler: { _ in
+            self.showAuth(isNewUser: true, mainCoordinator: mainCoordinator)
+        }))
+        alert.addAction(UIAlertAction(title: "Log in", style: .default, handler: { _ in
+            self.showAuth(isNewUser: false, mainCoordinator: mainCoordinator)
+        }))
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        present(alert, animated: true, completion: nil)
+    }
     func showAuth(isNewUser: Bool, mainCoordinator: MainCoordinator) {
         let controller = AuthViewController(isNewUser: isNewUser, mainCoordinator: mainCoordinator)
         self.present(UINavigationController(rootViewController: controller), animated: true, completion: nil)

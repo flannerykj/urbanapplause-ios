@@ -17,39 +17,13 @@ class CommentListViewController: UIViewController {
     var mainCoordinator: MainCoordinator
     var viewModel: CommentListViewModel
     weak var delegate: CommentListDelegate?
-    var subscriber: FileDownloadSubscriber? {
-        willSet {
-            if let subscriber = self.subscriber { // remove previous subscriber before setting new
-                self.downloadJob?.removeSubscriber(subscriber)
-            }
-        }
-    }
+
     var post: Post? {
         didSet {
-            if let firstFile = post?.PostImages?.first {
-               if let thumb = firstFile.thumbnail {
-                   let imageJob = mainCoordinator.fileCache.getJobForFile(thumb)
-                   self.downloadJob = imageJob
-               } else {
-                   let imageJob = mainCoordinator.fileCache.getJobForFile(firstFile)
-                   self.downloadJob = imageJob
-               }
-           }
+            viewModel.setPost(post)
         }
     }
-    var downloadJob: FileDownloadJob? {
-        didSet {
-            guard let job = downloadJob else {
-                return
-            }
-            self.subscriber = job.subscribe(onSuccess: { data in
-                DispatchQueue.main.async {
-                    self.tableHeaderView.image = UIImage(data: data)
-                }
-            })
-        }
-    }
-    
+
     init(viewModel: CommentListViewModel,
          mainCoordinator: MainCoordinator) {
         self.mainCoordinator = mainCoordinator
@@ -70,13 +44,7 @@ class CommentListViewController: UIViewController {
     
     let newCommentTextArea = UATextArea(placeholder: "Add a comment", value: nil)
 
-    lazy var tableHeaderView: UIImageView = {
-        let view = UIImageView(frame: CGRect(x: 0, y: 0, width: 1, height: 200))
-        view.contentMode = .scaleAspectFill
-        view.clipsToBounds = true
-        return view
-    }()
-    
+
     lazy var tableFooterView: UIView = {
         let view = UIView(frame: CGRect(x: 0, y: 0, width: 1, height: 150))
         view.backgroundColor = .systemGray5
@@ -141,7 +109,6 @@ class CommentListViewController: UIViewController {
         tableView.delegate = self
         tableView.dataSource = self
         tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.tableHeaderView = tableHeaderView
         tableView.tableFooterView = tableFooterView
         tableView.backgroundColor = UIColor.backgroundMain
         tableView.separatorColor = .systemGray

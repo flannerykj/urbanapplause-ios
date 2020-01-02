@@ -98,15 +98,8 @@ class TabBarController: UITabBarController {
             nav.presentationController?.delegate = self
             self.present(nav, animated: true, completion: nil)
         } else {
-            let alert = UIAlertController(title: "You must be logged in to post.", message: nil, preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "Create an account", style: .default, handler: { _ in
-                self.showAuth(isNewUser: true, mainCoordinator: self.mainCoordinator)
-            }))
-            alert.addAction(UIAlertAction(title: "Log in", style: .default, handler: { _ in
-                self.showAuth(isNewUser: false, mainCoordinator: self.mainCoordinator)
-            }))
-            alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-            present(alert, animated: true, completion: nil)
+            self.showAlertForLoginRequired(desiredAction: "post",
+                                           mainCoordinator: self.mainCoordinator)
         }
     }
     

@@ -18,8 +18,13 @@ class UATextView: UITextView {
         self.translatesAutoresizingMaskIntoConstraints = false
         self.isEditable = false
         self.isScrollEnabled = false
+        self.isUserInteractionEnabled = true
+        self.isSelectable = true
         self.backgroundColor = UIColor.clear
         self.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+        self.linkTextAttributes = [
+            .foregroundColor: UIColor.systemBlue
+        ]
     }
     
     required init?(coder: NSCoder) {

@@ -23,12 +23,11 @@ class PostDetailViewController: UIViewController {
         didSet {
             guard let post = post else { return }
             title = post.title
-            toolbarVC.post = post
             if let file = post.PostImages?.first {
                 downloadJob = mainCoordinator.fileCache.getJobForFile(file)
             }
             artistLabel.text = post.title
-            locationLabel.text = post.Location?.description
+            setLocation(post.Location)
             setUsername(post.User?.username)
             setArtists(post.Artists ?? [])
             dateLabel.text = post.createdAt?.timeSince()
@@ -38,6 +37,8 @@ class PostDetailViewController: UIViewController {
             let region = MKCoordinateRegion(center: post.coordinate, span: span)
             mapView.setRegion(region, animated: true)
             updateVisitedButton()
+            updateApplaudedButton()
+            self.updateContentView()
         }
     }
     var isLoading: Bool = false {
@@ -116,11 +117,10 @@ class PostDetailViewController: UIViewController {
         label.style(as: .h2)
         return label
     }()
-    var locationLabel: UILabel = {
-        let label = UILabel(type: .body)
-        label.font = TypographyStyle.strong.font
-        label.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
-        return label
+    lazy var locationLabel: UITextView = {
+        let textView = UATextView()
+        textView.delegate = self
+        return textView
     }()
     var dateLabel: UILabel = {
         let label = UILabel()
@@ -139,21 +139,10 @@ class PostDetailViewController: UIViewController {
         let username = username ?? ""
         let text = "Posted by \(username)"
         let attributedText = NSMutableAttributedString(attributedString: NSAttributedString(string: text))
-        let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.lineSpacing = 8
-        
-        attributedText.setAttributes([
-            NSAttributedString.Key.paragraphStyle: paragraphStyle,
-            NSAttributedString.Key.font: TypographyStyle.body.font,
-            NSAttributedString.Key.foregroundColor: TypographyStyle.body.color
-        ], range: NSRange(location: 0, length: text.count))
-        
-        attributedText.setAttributes([
-            NSAttributedString.Key.paragraphStyle: paragraphStyle,
-            NSAttributedString.Key.font: TypographyStyle.link.font,
-            NSAttributedString.Key.link: "",
-            NSAttributedString.Key.foregroundColor: TypographyStyle.link.color
-        ], range: NSRange(location: (text.count - username.count), length: username.count))
+        attributedText.style(as: .body)
+        attributedText.style(as: .link,
+                             withLink: "www.urbanapplause.com/app/users/\(username)",
+            for: NSRange(location: (text.count - username.count), length: username.count))
         postedByTextView.attributedText = attributedText
     }
     
@@ -164,30 +153,59 @@ class PostDetailViewController: UIViewController {
     }()
     
     func setArtists(_ artists: [Artist]) {
-        var text = "Artists: "
-        let artistNames = artists.filter { $0.signing_name != nil }.map { $0.signing_name ?? "" }.joined(separator: ", ")
-        text += artistNames
+        let prependText = "Artists: "
         
-        let attributedText = NSMutableAttributedString(attributedString: NSAttributedString(string: text))
-        let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.lineSpacing = 8
+        let artistNames = artists.filter {
+            $0.signing_name != nil
+        }.map { $0.signing_name ?? "" }
+        let artistNameSeperator = ", "
+
+        var allText = prependText
+        let noneAddedText = "None added"
+        if artistNames.count > 0 {
+            allText += artistNames.joined(separator: artistNameSeperator)
+        } else {
+            allText += noneAddedText
+        }
+        let attributedString = NSAttributedString(string: allText)
+        let attributedText = NSMutableAttributedString(attributedString: attributedString)
         
-        attributedText.setAttributes([
-            NSAttributedString.Key.paragraphStyle: paragraphStyle,
-            NSAttributedString.Key.font: TypographyStyle.body.font,
-            NSAttributedString.Key.foregroundColor: TypographyStyle.body.color
-        ], range: NSRange(location: 0, length: text.count))
+        attributedText.style(as: .body)
         
-        attributedText.setAttributes([
-            NSAttributedString.Key.paragraphStyle: paragraphStyle,
-            NSAttributedString.Key.font: TypographyStyle.link.font,
-            NSAttributedString.Key.link: "",
-            NSAttributedString.Key.foregroundColor: TypographyStyle.link.color
-        ], range: NSRange(location: (text.count - artistNames.count), length: artistNames.count))
+        
+        var charIndex: Int = prependText.count
+        for name in artistNames {
+            attributedText.style(as: .link,
+                                 withLink: "www.urbanapplause.com/app/artists/\(name)",
+                for: NSRange(location: charIndex, length: name.count))
+            charIndex += name.count + artistNameSeperator.count
+        }
+        
+        if artistNames.count == 0 {
+            attributedText.style(as: .placeholder,
+                                 for: NSRange(location: prependText.count, length: noneAddedText.count))
+        }
+        
         artistsTextView.attributedText = attributedText
     }
-    lazy var topContentLeftStackView: UIStackView = {
+    
+    func setLocation(_ optionalLocation: Location?) {
+        guard let location = optionalLocation else { locationLabel.text = ""; return }
+        let prependText = "Location: "
+        let attributedText = NSMutableAttributedString(attributedString: NSAttributedString(string: prependText + location.description))
+        attributedText.style(as: .body)
+        attributedText.addAttributes([.link: "www.urbanapplause.com/app/locations/\(location.id)"],
+                                     range: NSRange(location: prependText.count, length: location.description.count))
+        locationLabel.attributedText = attributedText
+    
+    }
+    lazy var metadataStackView: UIStackView = {
         let stackView = UIStackView(arrangedSubviews: [postedByTextView, dateLabel, locationLabel, artistsTextView])
+        postedByTextView.setContentCompressionResistancePriority(.required, for: .vertical)
+        dateLabel.setContentCompressionResistancePriority(.required, for: .vertical)
+        locationLabel.setContentCompressionResistancePriority(.required, for: .vertical)
+        artistsTextView.setContentCompressionResistancePriority(.required, for: .vertical)
+
         stackView.axis = .vertical
         stackView.spacing = 4
         stackView.isLayoutMarginsRelativeArrangement = true
@@ -198,15 +216,6 @@ class PostDetailViewController: UIViewController {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         return stackView
     }()
-
-    lazy var toolbarVC = PostToolbarController(mainCoordinator: mainCoordinator)
-    
-    lazy var dividerView: UIView = {
-        let view = UIView()
-        view.heightAnchor.constraint(equalToConstant: 12).isActive = true
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
     
     let visitsButton = UAButton(type: .outlined,
                                 title: "Visited",
@@ -214,9 +223,14 @@ class PostDetailViewController: UIViewController {
                                 action: #selector(toggleVisited(_:)),
                                 rightImage: UIImage(systemName: "eye"))
     
+    let applaudedButton = UAButton(type: .outlined,
+                                        title: "Applauded",
+                                        target: self,
+                                        action: #selector(toggleApplause(_:)),
+                                        rightImage: UIImage(named: "applause"))
     
     lazy var optionsStackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [visitsButton])
+        let stackView = UIStackView(arrangedSubviews: [visitsButton, applaudedButton])
         stackView.axis = .vertical
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.isLayoutMarginsRelativeArrangement = true
@@ -228,24 +242,14 @@ class PostDetailViewController: UIViewController {
     }()
     lazy var contentStackView: UIStackView = {
         let stackView = UIStackView(arrangedSubviews: [photoView,
-                                                       topContentLeftStackView,
-                                                       toolbarVC.view,
+                                                       metadataStackView,
                                                        optionsStackView,
                                                        mapView])
-        stackView.axis = .vertical
         stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.axis = .vertical
         return stackView
     }()
-    
-    lazy var scrollView: UIScrollView = {
-        let scrollView = UIScrollView()
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
-        scrollView.addSubview(contentStackView)
-        contentStackView.fill(view: scrollView)
-        contentStackView.widthAnchor.constraint(equalTo: scrollView.widthAnchor).isActive = true
-        return scrollView
-    }()
-    
+
     lazy var mapView: MKMapView = {
        let mapView = MKMapView()
         mapView.delegate = self
@@ -253,39 +257,61 @@ class PostDetailViewController: UIViewController {
         return mapView
     }()
 
+    lazy var commentListViewModel = CommentListViewModel(post: self.post,
+                                                         mainCoordinator: mainCoordinator)
+    
+    lazy var commentsVC = CommentListViewController(viewModel: commentListViewModel,
+                                                    mainCoordinator: mainCoordinator)
     override func viewDidLoad() {
         super.viewDidLoad()
         
         let gr = UITapGestureRecognizer(target: self, action: #selector(showImageDetail(_:)))
         photoView.isUserInteractionEnabled = true
         photoView.addGestureRecognizer(gr)
-        toolbarVC.delegate = self
-        toolbarVC.mainCoordinator = mainCoordinator
         // nav setup
         view.backgroundColor = UIColor.backgroundMain
         // let editButton = UIBarButtonItem(barButtonSystemItem: .edit, target: self, action: #selector(edit))
         // navigationItem.rightBarButtonItem = editButton
         
-        view.addSubview(scrollView)
+        let tableView = commentsVC.tableView
+
+        view.addSubview(tableView)
+        
         NSLayoutConstraint.activate([
-            scrollView.rightAnchor.constraint(equalTo: view.rightAnchor),
-            scrollView.leftAnchor.constraint(equalTo: view.leftAnchor),
-            scrollView.topAnchor.constraint(equalTo: view.layoutMarginsGuide.topAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: view.layoutMarginsGuide.bottomAnchor),
-            photoView.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.4),
-            mapView.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.5)
+            tableView.rightAnchor.constraint(equalTo: view.rightAnchor),
+            tableView.leftAnchor.constraint(equalTo: view.leftAnchor),
+            tableView.topAnchor.constraint(equalTo: view.layoutMarginsGuide.topAnchor),
+            tableView.bottomAnchor.constraint(equalTo: view.layoutMarginsGuide.bottomAnchor),
+            photoView.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.height * 0.4),
+            mapView.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.height * 0.5)
         ])
         
         view.addSubview(activityIndicator)
         activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
         visitsButton.setLeftImage(UIImage(systemName: "checkmark")?.withRenderingMode(.alwaysTemplate))
-        
+        applaudedButton.setLeftImage(UIImage(named: "applause")?.withRenderingMode(.alwaysTemplate))
+
         let thegrey = UIColor.systemGray
         visitsButton.normalProperties.borderColor = thegrey
         visitsButton.normalProperties.textColor = thegrey
+        applaudedButton.normalProperties.borderColor = thegrey
+        applaudedButton.normalProperties.textColor = thegrey
+    }
+    func updateContentView() {
+        let tableView = commentsVC.tableView
+        let sizeThatFits = contentStackView.systemLayoutSizeFitting(CGSize(width: self.view.frame.width, height: 1), withHorizontalFittingPriority: .required, verticalFittingPriority: .defaultLow)
+        let tableHeaderView = UIView(frame: CGRect(x: 0, y: 0, width: 1, height: sizeThatFits.height))
+        tableView.backgroundColor = .clear
+        tableHeaderView.addSubview(contentStackView)
+        contentStackView.fill(view: tableHeaderView)
+        tableView.tableHeaderView = tableHeaderView
     }
     
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        updateContentView()
+    }
     @objc func showImageDetail(_: Any) {
         let vc = ImageCarouselViewController(files: self.post?.PostImages ?? [], mainCoordinator: mainCoordinator)
         navigationController?.pushViewController(vc, animated: true)
@@ -297,13 +323,13 @@ class PostDetailViewController: UIViewController {
         // editVc.delegate = self
         present(UINavigationController(rootViewController: editVc), animated: true)
     }
-    @objc func didSelectUser(_: Any) {
-        guard let user = post?.User else { return }
-        // let vc = ProfileViewController(user: user, mainCoordinator: mainCoordinator)
-        // navigationController?.pushViewController(vc, animated: true)
-    }
-    
+
     @objc func toggleVisited(_ sender: UIButton) {
+        guard self.mainCoordinator.authService.isAuthenticated else {
+            self.showAlertForLoginRequired(desiredAction: "save a visit",
+                                           mainCoordinator: self.mainCoordinator)
+            return
+        }
         guard let user = mainCoordinator.store.user.data,
             let post = self.post else {
                 return
@@ -329,9 +355,50 @@ class PostDetailViewController: UIViewController {
     }
     
     func updateVisitedButton() {
-        if let visited = self.post?.Visits?.contains(where: { $0.UserId == self.mainCoordinator.store.user.data?.id }) {
+        if let userId = self.mainCoordinator.store.user.data?.id,
+            let visited = self.post?.Visits?.contains(where: { $0.UserId == userId }) {
+            
             visitsButton.isSelected = visited
             visitsButton.setTitle(visited ? "Visited" : "Mark as visited", for: .normal)
+        }
+    }
+    
+    @objc func toggleApplause(_: Any) {
+        guard self.mainCoordinator.authService.isAuthenticated else {
+            self.showAlertForLoginRequired(desiredAction: "applaud",
+                                           mainCoordinator: self.mainCoordinator)
+            return
+        }
+        
+        guard let post = self.post,
+            let userId = mainCoordinator.store.user.data?.id else {
+                log.error("missing data for creating applause")
+                return
+        }
+        _ = mainCoordinator.networkService.request(PrivateRouter.addOrRemoveClap(postId: post.id, userId: userId),
+                                                   completion: { (result: UAResult<ApplauseInteractionContainer>) in
+                                                    switch result {
+                                                    case .success(let container):
+                                                        DispatchQueue.main.async {
+                                                            if container.deleted {
+                                                                self.post?.Claps?.removeAll { interaction in
+                                                                    interaction.id == container.clap.id
+                                                                }
+                                                            } else {
+                                                                self.post?.Claps?.append(container.clap)
+                                                            }
+                                                            self.updateApplaudedButton()
+                                                        }
+                                                    case .failure(let error):
+                                                        log.error(error)
+                                                    }
+        })
+    }
+    func updateApplaudedButton() {
+        if let userId = self.mainCoordinator.store.user.data?.id,
+            let applauded = self.post?.Claps?.contains(where: { $0.UserId == userId }) {
+            applaudedButton.isSelected = applauded
+            applaudedButton.setTitle(applauded ? "Applauded" : "Applaud", for: .normal)
         }
     }
 }
@@ -381,8 +448,30 @@ extension PostDetailViewController: PostToolbarDelegate {
 }
 extension PostDetailViewController: UITextViewDelegate {
     func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
-        /// go to user profile
-        log.debug("go to user profile")
+        if URL.pathComponents.contains("artists") {
+            log.debug("got to profile for artist \(URL.pathComponents.last)")
+        }
+        if URL.pathComponents.contains("users") {
+            log.debug("got to profile for user \(URL.pathComponents.last)")
+            
+        }
+        if URL.pathComponents.contains("locations") {
+            guard let location = self.post?.Location else {
+                return false
+            }
+            let ac = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+            ac.addAction(UIAlertAction(title: "Get directions", style: .default, handler: { _ in
+                let placemark = MKPlacemark(coordinate: location.clLocation.coordinate)
+                let mapItem = MKMapItem(placemark: placemark)
+
+                mapItem.name = location.description
+                let launchOptions = [MKLaunchOptionsDirectionsModeKey : MKLaunchOptionsDirectionsModeWalking]
+                mapItem.openInMaps(launchOptions: launchOptions)
+            }))
+            ac.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+            present(ac, animated: true, completion: nil)
+        }
+        
         return false
     }
 }
