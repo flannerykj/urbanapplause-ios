@@ -10,6 +10,7 @@ import UIKit
 class ProfileViewController: UIViewController {
     var mainCoordinator: MainCoordinator
     var user: User
+    
     var isAuthUser: Bool {
         if let userId = self.mainCoordinator.store.user.data?.id,
             userId == user.id {
@@ -126,9 +127,11 @@ class ProfileViewController: UIViewController {
     func updateLabels() {
         nameLabel.text = user.username
         if let bio = user.bio, bio.count > 0 {
+            bioLabel.isHidden = false
             bioLabel.text = bio
             bioLabel.font = TypographyStyle.body.font
         } else {
+            bioLabel.isHidden = !isAuthUser
             bioLabel.text = "No bio added"
             bioLabel.font = TypographyStyle.placeholder.font
         }

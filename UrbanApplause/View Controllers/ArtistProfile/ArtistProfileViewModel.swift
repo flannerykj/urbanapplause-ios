@@ -8,7 +8,6 @@
 
 import Foundation
 
-
 class ArtistProfileViewModel: NSObject {
     var didUpdateData: ((Artist?) -> Void)?
     var didSetLoading: ((Bool) -> Void)?

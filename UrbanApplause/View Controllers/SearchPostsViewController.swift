@@ -19,6 +19,7 @@ class SearchPostsViewController: UIViewController {
             self.postListViewModel.getPosts(forceReload: true)
         }
     }
+    
     lazy var postListVC: PostListViewController = PostListViewController(listTitle: "Recently added",
                                                                          viewModel: postListViewModel,
                                                                          mainCoordinator: mainCoordinator)
@@ -26,6 +27,7 @@ class SearchPostsViewController: UIViewController {
     lazy var searchResultsVC = PostListViewController(viewModel: searchResultsViewModel,
                                                       requestOnLoad: false,
                                                       mainCoordinator: mainCoordinator)
+    
     lazy var searchController: UISearchController = {
         let controller = UISearchController(searchResultsController: searchResultsVC)
         controller.obscuresBackgroundDuringPresentation = false
@@ -45,10 +47,12 @@ class SearchPostsViewController: UIViewController {
                                                    filterForArtist: nil,
                                                    filterForQuery: nil,
                                                    mainCoordinator: mainCoordinator)
+        
         self.searchResultsViewModel = DynamicPostListViewModel(filterForPostedBy: nil,
                                                     filterForArtist: nil,
                                                     filterForQuery: nil,
                                                     mainCoordinator: mainCoordinator)
+        
         self.postMapViewModel = PostMapViewModel2(mainCoordinator: mainCoordinator)
         super.init(nibName: nil, bundle: nil)
     }
@@ -75,7 +79,13 @@ class SearchPostsViewController: UIViewController {
 }
 
 extension SearchPostsViewController: UISearchResultsUpdating {
-    func updateSearchResults(for searchController: UISearchController) {}
+    func updateSearchResults(for searchController: UISearchController) {
+        guard let query = searchController.searchBar.text, query.count > 0 else {
+            searchController.view.isHidden = true
+            return
+        }
+        searchController.view.isHidden = false
+    }
 }
 
 extension SearchPostsViewController: UISearchControllerDelegate {

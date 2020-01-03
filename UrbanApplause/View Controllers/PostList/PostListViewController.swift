@@ -65,6 +65,7 @@ class PostListViewController: UIViewController {
                                        title: "Load more posts",
                                        target: self,
                                        action: #selector(pressedLoadMorePosts(_:)))
+    
     let loadMoreSpinner = ActivityIndicator()
 
     lazy var tableFooterView: UIView = {

@@ -653,12 +653,7 @@ extension PostDetailViewController: UITextViewDelegate {
             guard let artist = self.post?.Artists?.first(where: {
                 return $0.id == Int(idString)
             }) else { return false }
-
-            let viewModel = ArtistProfileViewModel(artistId: artist.id,
-                                                   artist: artist,
-                                                   mainCoordinator: mainCoordinator)
-            
-            let vc = ArtistProfileViewController(viewModel: viewModel,
+            let vc = ArtistProfileViewController(artist: artist,
                                                  mainCoordinator: mainCoordinator)
             navigationController?.pushViewController(vc, animated: true)
         }

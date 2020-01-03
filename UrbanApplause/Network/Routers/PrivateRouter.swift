@@ -80,8 +80,8 @@ enum PrivateRouter: EndpointConfiguration {
             return .delete
         case .editPost, .updateUser, .updateCollection, .updateCollectionPost:
             return .put
-        case .authenticate, .createPost, .createUser, .addOrRemoveClap, .addOrRemoveVisit, .createCollection, .addToCollection,
-             .uploadImages, .createArtist, .createComment, .createPostFlag, .blockUser:
+        case .authenticate, .createPost, .createUser, .addOrRemoveClap, .addOrRemoveVisit, .createCollection,
+             .addToCollection, .uploadImages, .createArtist, .createComment, .createPostFlag, .blockUser:
             return .post
         default:
             return .get
@@ -166,6 +166,8 @@ enum PrivateRouter: EndpointConfiguration {
             return .requestParameters(bodyParameters: body, urlParameters: nil)
         case .getArtists(let queryParams):
             return .requestParameters(bodyParameters: nil, urlParameters: queryParams)
+        case .getArtist:
+            return .requestParameters(bodyParameters: nil, urlParameters: ["include": "posts"])
         case .createArtist(let values):
             return .requestParameters(bodyParameters: ["artist": values], urlParameters: nil)
         case .createPost(let values), .editPost(_, let values):

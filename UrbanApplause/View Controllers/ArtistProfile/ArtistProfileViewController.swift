@@ -14,22 +14,26 @@ protocol ArtistProfileDelegate: AnyObject {
 }
 
 class ArtistProfileViewController: UIViewController {
-    
-    
- var mainCoordinator: MainCoordinator
-    var viewModel: ArtistProfileViewModel
-    weak var delegate: ArtistProfileDelegate?
+    var mainCoordinator: MainCoordinator
+    var artist: Artist
 
-    var artist: Artist? {
-        didSet {
-            viewModel.setArtist(artist)
+    lazy var tabItems: [ToolbarTabItem] = {
+        let postsViewModel = DynamicPostListViewModel(filterForArtist: artist, filterForQuery: nil,
+                                                   mainCoordinator: mainCoordinator)
+        let postsVC = PostListViewController(viewModel: postsViewModel, mainCoordinator: mainCoordinator)
+
+        var title = "Work"
+        if let name = artist.signing_name {
+            title += " by \(name)"
         }
-    }
-
-    init(viewModel: ArtistProfileViewModel,
-         mainCoordinator: MainCoordinator) {
+        return [
+            ToolbarTabItem(title: title, viewController: postsVC, delegate: self),
+        ]
+    }()
+    
+    init(artist: Artist, mainCoordinator: MainCoordinator) {
         self.mainCoordinator = mainCoordinator
-        self.viewModel = viewModel
+        self.artist = artist
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -37,139 +41,87 @@ class ArtistProfileViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    lazy var refreshControl = UIRefreshControl()
+    // MARK: Views
+    lazy var nameLabel: UILabel = UILabel(type: .h8)
+    lazy var bioLabel: UILabel = UILabel(type: .body)
+    lazy var memberSinceLabel: UILabel = UILabel(type: .body)
+    
+    let refreshControl: UIRefreshControl = {
+        let control = UIRefreshControl()
+        control.addTarget(self, action: #selector(refreshUserProfile(sender:)), for: .valueChanged)
+        control.backgroundColor = UIColor.backgroundMain
+        return control
+    }()
 
-    lazy var tableFooterView: UIView = {
-        let view = UIView(frame: CGRect(x: 0, y: 0, width: 1, height: 150))
-        view.backgroundColor = .systemGray5
-        let dividerView = UIView()
-        dividerView.translatesAutoresizingMaskIntoConstraints = false
-        dividerView.backgroundColor = .clear
-        view.addSubview(dividerView)
-        view.layoutMargins = StyleConstants.defaultMarginInsets
-
-       NSLayoutConstraint.activate([
-           dividerView.topAnchor.constraint(equalTo: view.topAnchor),
-           dividerView.leftAnchor.constraint(equalTo: view.leftAnchor),
-           dividerView.rightAnchor.constraint(equalTo: view.rightAnchor),
-           dividerView.heightAnchor.constraint(equalToConstant: 1)
-        ])
-
-        return view
+    lazy var headerTextStackView: UIStackView = {
+        let stackView = UIStackView(arrangedSubviews: [nameLabel, bioLabel, memberSinceLabel])
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.alignment = .leading
+        stackView.axis = .vertical
+        stackView.spacing = 6
+        return stackView
     }()
     
-    lazy var tableView: UITableView = {
-       let tableView = UITableView()
-        tableView.refreshControl = refreshControl
-        tableView.register(PostCell.self, forCellReuseIdentifier: PostCell.reuseIdentifier)
-        tableView.delegate = self
-        tableView.dataSource = self
-        tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.tableFooterView = tableFooterView
-        tableView.backgroundColor = UIColor.backgroundMain
-        tableView.separatorColor = .systemGray
-        return tableView
+    lazy var headerStackView: UIStackView = {
+        let stackView = UIStackView(arrangedSubviews: [headerTextStackView])
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.alignment = .top
+        stackView.axis = .horizontal
+        stackView.distribution = .fill
+        stackView.spacing = StyleConstants.contentMargin
+        return stackView
     }()
-
+    
+    lazy var tabsViewController = TabbedToolbarViewController(headerContent: headerStackView,
+                                                              tabItems: self.tabItems,
+                                                              mainCoordinator: mainCoordinator)
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.addSubview(tableView)
-        tableView.fill(view: self.view)
-        let closeButton = UIBarButtonItem(barButtonSystemItem: .close, target: self, action: #selector(cancel(_:)))
-        navigationItem.leftBarButtonItem = closeButton
-        tableView.scrollViewAvoidKeyboard()
         view.backgroundColor = UIColor.backgroundMain
-        viewModel.fetchArtist()
-        setModelCallbacks()
-        refreshControl.addTarget(self, action: #selector(refreshData(_:)), for: .valueChanged)
+        navigationItem.title = artist.signing_name
+        view.addSubview(tabsViewController.view!)
+        tabsViewController.view!.fill(view: view)
+        addChild(tabsViewController)
+        tabsViewController.didMove(toParent: self)
+        updateLabels()
     }
-    func setModelCallbacks() {
-        viewModel.didSetLoading = { isLoading in
+    
+    @objc func refreshUserProfile(sender: UIRefreshControl) {
+        let endpoint = PrivateRouter.getArtist(artistId: artist.id)
+        _ = mainCoordinator.networkService.request(endpoint) { (result: UAResult<ArtistContainer>) in
+            
             DispatchQueue.main.async {
-                if isLoading {
-                    self.refreshControl.beginRefreshing()
-                } else {
-                    self.refreshControl.endRefreshing()
+                sender.endRefreshing()
+                switch result {
+                case .success(let container):
+                    self.artist = container.artist
+                    self.updateLabels()
+                case .failure(let error):
+                    log.error(error)
                 }
             }
         }
-        viewModel.didSetErrorMessage = { message in
-            guard message != nil else { return }
-            DispatchQueue.main.async {
-                self.showAlert(message: message)
-            }
-        }
-        viewModel.didUpdateData = { artist in
-            DispatchQueue.main.async {
-                self.tableView.reloadData()
-                // Todo - update artist proile info
-            }
-        }
     }
     
-
-    @objc func refreshData(_: Any) {
-        viewModel.fetchArtist()
-    }
-    
-    @objc func cancel(_: UIBarButtonItem) {
-        self.dismiss(animated: true, completion: nil)
+    func updateLabels() {
+        nameLabel.text = artist.signing_name
+        if let bio = artist.bio, bio.count > 0 {
+            bioLabel.isHidden = false
+            bioLabel.text = bio
+            bioLabel.font = TypographyStyle.body.font
+        } else {
+            bioLabel.isHidden = true
+            bioLabel.text = "No bio added"
+            bioLabel.font = TypographyStyle.placeholder.font
+        }
+        if let dateString = artist.createdAt?.justTheDate {
+            memberSinceLabel.text = "Profile created on \(dateString)"
+        }
     }
 }
 
-extension ArtistProfileViewController: UITableViewDataSource, UITableViewDelegate {
-    // MARK: - Table view data source
-    func numberOfSections(in tableView: UITableView) -> Int {
-        return 2
-    }
-
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if section == 0 {
-            // meta - messages
-            return 0
-        }
-        return  0
-    }
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if indexPath.section == 0 {
-            let cell = UITableViewCell()
-            cell.textLabel?.text = "This artist hasn't been tagged in any posts."
-            cell.textLabel?.style(as: .placeholder)
-            return cell
-        }
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: PostCell.reuseIdentifier,
-                                                       for: indexPath) as? PostCell else { fatalError() }
-        guard let post = viewModel.artist?.Posts?[indexPath.row] else { fatalError() }
-        cell.post = post
-        cell.delegate = self
-        cell.indexPath = indexPath
-        cell.contentView.backgroundColor = UIColor.backgroundMain
-        return cell
-    }
+extension ArtistProfileViewController: ToolbarTabItemDelegate {
+    
 }
 
-extension ArtistProfileViewController: UITextViewDelegate {
-    func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
-        self.showAuth(isNewUser: false, mainCoordinator: mainCoordinator)
-        return false
-    }
-}
-extension ArtistProfileViewController: PostCellDelegate {
-    func postCell(_ cell: PostCell, didUpdatePost post: Post, atIndexPath indexPath: IndexPath) {
-        
-    }
-    
-    func postCell(_ cell: PostCell, didSelectUser user: User) {
-        
-    }
-    
-    func postCell(_ cell: PostCell, didBlockUser user: User) {
-        
-    }
-    
-    func postCell(_ cell: PostCell, didDeletePost post: Post, atIndexPath indexPath: IndexPath) {
-        
-    }
-    
-    
-}

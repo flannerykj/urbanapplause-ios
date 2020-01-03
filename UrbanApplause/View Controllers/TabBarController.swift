@@ -70,7 +70,7 @@ class TabBarController: UITabBarController {
         self.setValue(dhTabBar, forKey: "tabBar")
         
         mapTab.tabBarItem = mapTabBarItem
-        listTab.tabBarItem = listTabBarItem
+        // listTab.tabBarItem = listTabBarItem
         collectionsTab.tabBarItem = collectionsTabBarItem
         // addTab.tabBarItem = addTabBarItem
         profileTab?.tabBarItem = profileTabBarItem
@@ -78,7 +78,7 @@ class TabBarController: UITabBarController {
 
         var controllers = [
             mapTab,
-            listTab
+            // listTab
         ]
         
         if self.mainCoordinator.authService.isAuthenticated {
@@ -92,8 +92,8 @@ class TabBarController: UITabBarController {
         
         self.viewControllers = controllers
         dhTabBar.middleButton.addTarget(self, action: #selector(createNewPressed(_:)), for: .touchUpInside)
-
     }
+    
     @objc func createNewPressed(_: Any) {
         if mainCoordinator.authService.isAuthenticated {
             let vc = NewPostViewController(mainCoordinator: self.mainCoordinator)
