@@ -484,6 +484,8 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
                 artists.append(artist)
             }
         }
+        payload["artists"] = artists.map { String($0.id) }.joined(separator: ",")
+        log.debug("payload: \(payload)")
         let geocoder = CLGeocoder()
         // Look up the location to get user-friendly location info from coords
         self.isLoading = true

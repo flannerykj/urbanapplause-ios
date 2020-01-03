@@ -105,7 +105,6 @@ class PostMapViewController2: UIViewController {
                 
         let gr = UILongPressGestureRecognizer(target: self, action: #selector(longPressedMap(sender:)))
         mapView.addGestureRecognizer(gr)
-        
     }
     
     @objc func longPressedMap(sender: UILongPressGestureRecognizer) {
@@ -166,13 +165,12 @@ class PostMapViewController2: UIViewController {
 
         if let annotation = annotationView.annotation as? MKClusterAnnotation {
             if let members = annotation.memberAnnotations as? [Post] {
-            
                 if viewModel.isAtMaxZoom(visibleMapRect: mapView.visibleMapRect,
                                          mapPixelWidth: Double(mapView.bounds.width)) {
                     
                     let wallViewModel = StaticPostListViewModel(posts: members, mainCoordinator: mainCoordinator)
                     let wallController = PostListViewController(viewModel: wallViewModel,
-                                                    mainCoordinator: mainCoordinator)
+                                                                mainCoordinator: mainCoordinator)
                     wallController.postListDelegate = self
                     navigationController?.pushViewController(wallController, animated: true)
                 } else {
@@ -195,7 +193,6 @@ class PostMapViewController2: UIViewController {
     }
     
     func showDetailForPostWithID(_ postID: Int, post: Post?, thumbImage: UIImage?) {
-        log.debug("thumb image: \(thumbImage)")
         let viewController = PostDetailViewController(postId: postID,
                                                       post: post,
                                                       thumbImage: thumbImage,
@@ -286,6 +283,8 @@ extension PostMapViewController2: MKMapViewDelegate {
         // called as soon as map stops moving.
         // self.updatePostsForVisibleRegion()
     }
+    
+    
 }
 
 extension PostMapViewController2: CLLocationManagerDelegate {

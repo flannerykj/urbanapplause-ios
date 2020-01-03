@@ -251,10 +251,19 @@ class PostMapViewModel2 {
         onUpdateMarkers?(cached, true)
     }
     
+    func getZoomLevel(visibleMapRect: MKMapRect, mapPixelWidth: Double) -> Int {
+        let maxZoom: Double = 20
+        let zoomScale = visibleMapRect.size.width / Double(mapPixelWidth)
+        let zoomExponent = log2(zoomScale)
+        return Int(maxZoom - ceil(zoomExponent))
+    }
+    
     func isAtMaxZoom(visibleMapRect: MKMapRect, mapPixelWidth: Double) -> Bool {
         let zoomScale = mapPixelWidth / visibleMapRect.size.width // This number increases as you zoom in.
+        log.debug("zoom scale: \(zoomScale)")
         let maxZoomScale: Double = 0.194138880976604 // This is the greatest zoom scale Map Kit lets you get to,
         // i.e. the most you can zoom in.
+        log.debug("is at max zoom: \(zoomScale >= maxZoomScale)")
         return zoomScale >= maxZoomScale
     }
     private func isRectCovered(_ rect: CGRect, by rects: [CGRect]) -> Bool {

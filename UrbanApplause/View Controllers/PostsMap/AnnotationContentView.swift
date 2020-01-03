@@ -12,7 +12,18 @@ import UIKit
 class AnnotationContentView: UIView {
     static let width: CGFloat = 75
     static let height: CGFloat = 75
-
+    
+    var errorMessage: String? {
+        didSet {
+            if errorMessage == nil {
+                errorImageView.isHidden = true
+                activityIndicator.startAnimating()
+            } else {
+                errorImageView.isHidden = false
+                activityIndicator.stopAnimating()
+            }
+        }
+    }
     var cornerRadius: CGFloat = 8
     var imagePadding: CGFloat = 3
     var arrowHeight: CGFloat = 10
@@ -29,14 +40,39 @@ class AnnotationContentView: UIView {
     public func getImage() -> UIImage? {
         return imageView.image
     }
-    private lazy var imageView = UIImageView(frame: self.frame.inset(by: imageInsets))
+    private var errorImageView: UIImageView = {
+        let imageView = UIImageView(image: UIImage(systemName: "exclamationmark.triangle.fill"))
+        imageView.isHidden = true // hidden until error message is set
+        imageView.tintColor = UIColor.systemRed
+        imageView.contentMode = .scaleAspectFit
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        return imageView
+    }()
+    private var activityIndicator: UIActivityIndicatorView = {
+        let indicator = UIActivityIndicatorView()
+        indicator.translatesAutoresizingMaskIntoConstraints = false
+        return indicator
+    }()
     
+    private lazy var imageView = UIImageView(frame: self.frame.inset(by: imageInsets))
     var shadowLayer: CAShapeLayer?
     
     init() {
         super.init(frame: CGRect(x: 0, y: 0, width: AnnotationContentView.width, height: AnnotationContentView.height))
         self.imageView.contentMode = .scaleAspectFill
+        self.addSubview(activityIndicator)
+        self.addSubview(errorImageView)
+        activityIndicator.hidesWhenStopped = true
+        activityIndicator.startAnimating()
         self.addSubview(imageView)
+
+        NSLayoutConstraint.activate([
+            activityIndicator.centerYAnchor.constraint(equalTo: imageView.centerYAnchor),
+            activityIndicator.centerXAnchor.constraint(equalTo: imageView.centerXAnchor),
+            errorImageView.centerYAnchor.constraint(equalTo: imageView.centerYAnchor),
+            errorImageView.centerXAnchor.constraint(equalTo: imageView.centerXAnchor)
+        ])
+
         self.layer.cornerRadius = 8
         self.clipsToBounds = true
         self.backgroundColor = UIColor.clear
