@@ -14,7 +14,7 @@ struct Config {
     static let awsAccessKeyId = Environment.current.variables["AWS_ACCESS_KEY_ID"]! as String
     static let awsSecretAccessKey = Environment.current.variables["AWS_SECRET_ACCESS_KEY"]! as String
     static let awsBucketName = Environment.current.variables["AWS_BUCKET_NAME"]! as String
-
+    static let appGroupIdentifier = "group.com.urbanapplause.ios"
     static let iso = "yyyy-MM-dd'T'HH:mm:ss.SSSXXXXX"
     static let tosURL = URL(string: "\(Config.webEndpoint)/terms-of-service")!
     static let privacyURL = URL(string: "\(Config.webEndpoint)/privacy-policy")!
