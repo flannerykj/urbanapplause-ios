@@ -174,7 +174,6 @@ class PostDetailViewController: UIViewController {
         
         attributedText.style(as: .body)
         
-        
         var charIndex: Int = prependText.count
         for artist in artists {
             guard let name = artist.signing_name else { continue }
@@ -197,8 +196,7 @@ class PostDetailViewController: UIViewController {
         let prependText = "Location: "
         let attributedText = NSMutableAttributedString(attributedString: NSAttributedString(string: prependText + location.description))
         attributedText.style(as: .body)
-        attributedText.addAttributes([.link: "www.urbanapplause.com/app/locations/\(location.id)"],
-                                     range: NSRange(location: prependText.count, length: location.description.count))
+        attributedText.style(as: .link, withLink: "www.urbanapplause.com/app/locations/\(location.id)", for: NSRange(location: prependText.count, length: location.description.count))
         locationLabel.attributedText = attributedText
     
     }

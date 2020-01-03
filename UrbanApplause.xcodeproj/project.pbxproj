@@ -89,10 +89,6 @@
 		3A91DF162368733C0074E627 /* AuthRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A91DF152368733C0074E627 /* AuthRouter.swift */; };
 		3A9467F823623E0200C446F7 /* Filter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A9467F723623E0200C446F7 /* Filter.swift */; };
 		3A9467FA23631F8200C446F7 /* SearchPostsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A9467F923631F8200C446F7 /* SearchPostsViewController.swift */; };
-		3A9C1FE423ABC9740024613E /* PostMapController3.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A9C1FE323ABC9740024613E /* PostMapController3.swift */; };
-		3A9C1FE623ABC9AC0024613E /* PostMapViewModel3.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A9C1FE523ABC9AC0024613E /* PostMapViewModel3.swift */; };
-		3A9C1FE823ABCC170024613E /* PostAnnotationView3.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A9C1FE723ABCC170024613E /* PostAnnotationView3.swift */; };
-		3A9C1FEA23ABCCC30024613E /* PostClusterAnnotationView3.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A9C1FE923ABCCC30024613E /* PostClusterAnnotationView3.swift */; };
 		3A9C58712350BBAF002E36A3 /* ErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A9C58702350BBAF002E36A3 /* ErrorView.swift */; };
 		3A9C58792350BD1A002E36A3 /* UADimensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A9C58782350BD1A002E36A3 /* UADimensions.swift */; };
 		3A9C587B2350BE8C002E36A3 /* UserDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A9C587A2350BE8C002E36A3 /* UserDefaults.swift */; };
@@ -278,10 +274,6 @@
 		3A91DF152368733C0074E627 /* AuthRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthRouter.swift; sourceTree = "<group>"; };
 		3A9467F723623E0200C446F7 /* Filter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Filter.swift; sourceTree = "<group>"; };
 		3A9467F923631F8200C446F7 /* SearchPostsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchPostsViewController.swift; sourceTree = "<group>"; };
-		3A9C1FE323ABC9740024613E /* PostMapController3.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostMapController3.swift; sourceTree = "<group>"; };
-		3A9C1FE523ABC9AC0024613E /* PostMapViewModel3.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostMapViewModel3.swift; sourceTree = "<group>"; };
-		3A9C1FE723ABCC170024613E /* PostAnnotationView3.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostAnnotationView3.swift; sourceTree = "<group>"; };
-		3A9C1FE923ABCCC30024613E /* PostClusterAnnotationView3.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostClusterAnnotationView3.swift; sourceTree = "<group>"; };
 		3A9C58702350BBAF002E36A3 /* ErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorView.swift; sourceTree = "<group>"; };
 		3A9C58782350BD1A002E36A3 /* UADimensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UADimensions.swift; sourceTree = "<group>"; };
 		3A9C587A2350BE8C002E36A3 /* UserDefaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaults.swift; sourceTree = "<group>"; };
@@ -669,23 +661,13 @@
 		3A9127FF23665D4E005944BE /* PostsMap */ = {
 			isa = PBXGroup;
 			children = (
-				3A9C1FEB23ABCCE00024613E /* 3 */,
-				3AD6102223B24E05001BA306 /* 2 */,
+				3AD94792238F35D600B5BF3B /* PostMapController2.swift */,
+				3A2C8D19238F40BA000C3122 /* PostMapViewModel2.swift */,
+				3AD9479A238F36ED00B5BF3B /* AnnotationViews */,
 				3ABC6A02236E7542009C180D /* PostAnnotation.swift */,
 				3AD94798238F365600B5BF3B /* AnnotationContentView.swift */,
 			);
 			path = PostsMap;
-			sourceTree = "<group>";
-		};
-		3A9C1FEB23ABCCE00024613E /* 3 */ = {
-			isa = PBXGroup;
-			children = (
-				3A9C1FE323ABC9740024613E /* PostMapController3.swift */,
-				3A9C1FE523ABC9AC0024613E /* PostMapViewModel3.swift */,
-				3A9C1FE723ABCC170024613E /* PostAnnotationView3.swift */,
-				3A9C1FE923ABCCC30024613E /* PostClusterAnnotationView3.swift */,
-			);
-			path = 3;
 			sourceTree = "<group>";
 		};
 		3AA7670D23501A9000A70DE4 /* Services */ = {
@@ -719,16 +701,6 @@
 				3ADA0D4A234D658E007A4DAC /* PrivateRouter.swift */,
 			);
 			path = Routers;
-			sourceTree = "<group>";
-		};
-		3AD6102223B24E05001BA306 /* 2 */ = {
-			isa = PBXGroup;
-			children = (
-				3AD94792238F35D600B5BF3B /* PostMapController2.swift */,
-				3A2C8D19238F40BA000C3122 /* PostMapViewModel2.swift */,
-				3AD9479A238F36ED00B5BF3B /* AnnotationViews */,
-			);
-			path = 2;
 			sourceTree = "<group>";
 		};
 		3AD6102323B250D2001BA306 /* MKClusterView */ = {
@@ -1158,13 +1130,11 @@
 				3ACB5B38236CBB150004FA31 /* MainCoordinator.swift in Sources */,
 				3A1DCE112384B4D80028D117 /* SpacesFileRepository.swift in Sources */,
 				3AB12E0A236B7E4E00A4E163 /* FlagPostResultViewController.swift in Sources */,
-				3A9C1FEA23ABCCC30024613E /* PostClusterAnnotationView3.swift in Sources */,
 				3A91DF162368733C0074E627 /* AuthRouter.swift in Sources */,
 				3A76EA8621DB19C900FEDEC8 /* UITextField.swift in Sources */,
 				3A1DCE192385B31E0028D117 /* Cache.swift in Sources */,
 				3A9C58712350BBAF002E36A3 /* ErrorView.swift in Sources */,
 				3A287635226A62FD00BCAE61 /* Location.swift in Sources */,
-				3A9C1FE623ABC9AC0024613E /* PostMapViewModel3.swift in Sources */,
 				3A5CA37A23AD053D00C5C4F1 /* Gallery.swift in Sources */,
 				3A28764C226B80B100BCAE61 /* PostDetailViewController.swift in Sources */,
 				3AA7672223507BEA00A70DE4 /* AuthViewModel.swift in Sources */,
@@ -1211,7 +1181,6 @@
 				3A746E1D2372DC6100F36EFB /* NonClippingLabel.swift in Sources */,
 				3A7553AE2365D9A400634C32 /* CommentListViewModel.swift in Sources */,
 				3ADA0D57234D65F0007A4DAC /* Result.swift in Sources */,
-				3A9C1FE823ABCC170024613E /* PostAnnotationView3.swift in Sources */,
 				3A5F0D1023761AB70099623E /* Environment.swift in Sources */,
 				3AA7671523501B6C00A70DE4 /* UAError.swift in Sources */,
 				3AA7670F23501A9800A70DE4 /* KeychainItemProtocol.swift in Sources */,
@@ -1246,7 +1215,6 @@
 				3A1ECBF02267EED50055FC9B /* ButtonStylePreset.swift in Sources */,
 				3ACAE1002390AB9F0025FB25 /* CircularLoader.swift in Sources */,
 				3ADA0D59234D6612007A4DAC /* NetworkService.swift in Sources */,
-				3A9C1FE423ABC9740024613E /* PostMapController3.swift in Sources */,
 				3A2C8D1C238FE4BF000C3122 /* CGRect.swift in Sources */,
 				3AB575AB22749B1800C8F597 /* Collection.swift in Sources */,
 				3A31872E2353251A00D59F79 /* TabBarController.swift in Sources */,

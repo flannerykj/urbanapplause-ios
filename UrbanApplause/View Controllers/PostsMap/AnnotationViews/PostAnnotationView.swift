@@ -1,8 +1,8 @@
 //
-//  PostAnnotationView3.swift
+//  PostClusterView.swift
 //  UrbanApplause
 //
-//  Created by Flannery Jefferson on 2019-12-19.
+//  Created by Flannery Jefferson on 2019-11-27.
 //  Copyright © 2019 Flannery Jefferson. All rights reserved.
 //
 
@@ -14,8 +14,9 @@ protocol PostAnnotationViewProtocol {
     var contentView: AnnotationContentView { get set }
 }
 
-class PostAnnotationView3: MKMarkerAnnotationView, PostAnnotationViewProtocol {
-    static let reuseIdentifier = "postAnnotation"
+class PostAnnotationView: MKMarkerAnnotationView, PostAnnotationViewProtocol {
+    static let reuseIdentifier = "PostAnnotationView"
+    
     var fileCache: FileService?
     var contentView = AnnotationContentView()
 
@@ -32,7 +33,7 @@ class PostAnnotationView3: MKMarkerAnnotationView, PostAnnotationViewProtocol {
         }
     }
 
-    /// Animation duration in seconds.
+    // Animation duration in seconds.
 
     let animationDuration: TimeInterval = 0.25
 
@@ -43,11 +44,12 @@ class PostAnnotationView3: MKMarkerAnnotationView, PostAnnotationViewProtocol {
         markerTintColor = .clear
         clusteringIdentifier = "post"
         addSubview(contentView)
-        // contentView.backgroundColor = .green
+        // contentView.backgroundColor = .blue
 
     }
     override func prepareForDisplay() {
         super.prepareForDisplay()
+        contentView.setImage(nil)
         // displayPriority = .defaultHigh
         glyphText = ""
         

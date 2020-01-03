@@ -33,7 +33,7 @@ class ImageDetailViewController: UIViewController, UIScrollViewDelegate {
         fatalError("init(coder:) has not been implemented")
     }
             
-    var imageView = LoadableImageView(initialState: .complete(nil),
+    var imageView = LoadableImageView(initialState: .empty,
                                       maskToBounds: false,
                                       contentMode: .scaleAspectFit)
         
