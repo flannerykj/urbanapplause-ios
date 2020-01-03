@@ -66,6 +66,7 @@ class MainCoordinator: NSObject {
         // Called when user logs out, or session ends and logs out forcefully.
         authService.endSession()
         store = Store()
+        self.navigateToApp()
     }
     
     // MARK: - Private Methods

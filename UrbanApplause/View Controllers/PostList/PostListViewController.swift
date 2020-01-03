@@ -5,7 +5,6 @@
 //  Created by Flannery Jefferson on 2019-01-04.
 //  Copyright © 2019 Flannery Jefferson. All rights reserved.
 //
-
 import UIKit
 import CoreLocation
 
@@ -18,6 +17,7 @@ class PostListViewController: UIViewController {
     var contentHeight: CGFloat {
         return self.tableView.contentSize.height
     }
+    weak var tabContentDelegate: TabContentDelegate?
     let tableHeaderHeight: CGFloat = 80
     let tableFooterHeight: CGFloat = 80
     let sectionHeaderHeight: CGFloat = 60
@@ -31,6 +31,7 @@ class PostListViewController: UIViewController {
     let LEFT_EDITING_MARGIN: CGFloat = 12
     var listTitle: String?
     var requestOnLoad: Bool
+    var lastCellHeight: CGFloat = 0
     
     init(listTitle: String? = nil,
          viewModel: PostListViewModel,
@@ -172,6 +173,14 @@ class PostListViewController: UIViewController {
     @objc func pressedLoadMorePosts(_: UIButton) {
         viewModel.getPosts(forceReload: false)
     }
+    func updateContentHeight() {
+        let height = tableHeaderView.bounds.height
+            + (CGFloat(viewModel.posts.count) * lastCellHeight)
+            + tableFooterView.bounds.height
+            + (self.listTitle != nil ? sectionHeaderHeight : 0)
+        self.tabContentDelegate?.didUpdateContentSize(controller: self, height: height)
+    }
+    
     func removePostFromView(_ post: Post) {
          guard let postIndex = viewModel.posts.firstIndex(where: { $0.id == post.id }) else {
             return
@@ -263,6 +272,14 @@ extension PostListViewController: UITableViewDelegate, UITableViewDataSource {
             self.postListDelegate?.didDeletePost(viewModel.posts[indexPath.row], atIndexPath: indexPath)
         }
     }
+    
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        
+        if indexPath.row == viewModel.posts.count - 1 {
+            self.lastCellHeight = cell.bounds.height
+            self.updateContentHeight()
+        }
+    }
 }
 
 extension PostListViewController: PostDetailDelegate {
@@ -287,13 +304,18 @@ extension PostListViewController: PostCellDelegate {
     }
     
     func postCell(_ cell: PostCell, didSelectUser user: User) {
-        // let vc = ProfileViewController(user: user, mainCoordinator: mainCoordinator)
-        // navigationController?.pushViewController(vc, animated: true)
+        let vc = ProfileViewController(user: user, mainCoordinator: mainCoordinator)
+        navigationController?.pushViewController(vc, animated: true)
     }
     func postCell(_ cell: PostCell, didUpdatePost post: Post, atIndexPath indexPath: IndexPath) {
         viewModel.updatePost(atIndex: indexPath.row, updatedPost: post)
     }
     func postCell(_ cell: PostCell, didDeletePost post: Post, atIndexPath indexPath: IndexPath) {
         self.removePostFromView(post)
+    }
+}
+extension PostListViewController: TabContentViewController {
+    var contentScrollView: UIScrollView? {
+        return self.tableView
     }
 }

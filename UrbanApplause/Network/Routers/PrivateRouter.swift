@@ -39,6 +39,8 @@ enum PrivateRouter: EndpointConfiguration {
     
     // artists
     case getArtists(query: Parameters?)
+    case getArtist(artistId: Int)
+
     case createArtist(values: Parameters)
     
     // applause
@@ -109,6 +111,8 @@ enum PrivateRouter: EndpointConfiguration {
             return "users"
         case .getArtists, .createArtist:
             return "artists"
+        case .getArtist(let artistId):
+            return "artists/\(artistId)"
         case .deletePostImage(let postId, let imageId):
             return "posts/\(postId)/images/\(imageId)"
         case .getLocationPosts(let locationId):

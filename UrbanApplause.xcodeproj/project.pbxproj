@@ -153,6 +153,13 @@
 		3ADEA8032391EA1D006B4EFF /* PostGISClusterAnnotationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ADEA8022391EA1D006B4EFF /* PostGISClusterAnnotationView.swift */; };
 		3AE80DB7236F77BC0081A854 /* BaseTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AE80DB6236F77BC0081A854 /* BaseTestCase.swift */; };
 		3AE86ADD23BE30910097DB1A /* NSMutableAttributedString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AE86ADC23BE30910097DB1A /* NSMutableAttributedString.swift */; };
+		3AE86ADF23BE3B150097DB1A /* ArtistProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AE86ADE23BE3B150097DB1A /* ArtistProfileViewController.swift */; };
+		3AE86AE223BE3B310097DB1A /* ArtistProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AE86AE123BE3B310097DB1A /* ArtistProfileViewModel.swift */; };
+		3AE86AE523BE41810097DB1A /* UserProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AE86AE423BE41810097DB1A /* UserProfileViewController.swift */; };
+		3AE86AE723BE41890097DB1A /* UserProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AE86AE623BE41890097DB1A /* UserProfileViewModel.swift */; };
+		3AE86AE923BE42A30097DB1A /* EditProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AE86AE823BE42A30097DB1A /* EditProfileViewController.swift */; };
+		3AE86AEC23BE42C00097DB1A /* TabbedToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AE86AEB23BE42C00097DB1A /* TabbedToolbar.swift */; };
+		3AE86AEE23BE42D10097DB1A /* TabbedToolbarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AE86AED23BE42D10097DB1A /* TabbedToolbarViewController.swift */; };
 		3AEA3374235137FD00ECBF8C /* WelcomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AEA3373235137FD00ECBF8C /* WelcomeViewController.swift */; };
 		3AEA33772352003400ECBF8C /* DynamicPostListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AEA33762352003400ECBF8C /* DynamicPostListViewModel.swift */; };
 		3AED042F235614C200383982 /* MapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AED042E235614C200383982 /* MapViewController.swift */; };
@@ -336,6 +343,13 @@
 		3ADEA8022391EA1D006B4EFF /* PostGISClusterAnnotationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostGISClusterAnnotationView.swift; sourceTree = "<group>"; };
 		3AE80DB6236F77BC0081A854 /* BaseTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseTestCase.swift; sourceTree = "<group>"; };
 		3AE86ADC23BE30910097DB1A /* NSMutableAttributedString.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSMutableAttributedString.swift; sourceTree = "<group>"; };
+		3AE86ADE23BE3B150097DB1A /* ArtistProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtistProfileViewController.swift; sourceTree = "<group>"; };
+		3AE86AE123BE3B310097DB1A /* ArtistProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtistProfileViewModel.swift; sourceTree = "<group>"; };
+		3AE86AE423BE41810097DB1A /* UserProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileViewController.swift; sourceTree = "<group>"; };
+		3AE86AE623BE41890097DB1A /* UserProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileViewModel.swift; sourceTree = "<group>"; };
+		3AE86AE823BE42A30097DB1A /* EditProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfileViewController.swift; sourceTree = "<group>"; };
+		3AE86AEB23BE42C00097DB1A /* TabbedToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabbedToolbar.swift; sourceTree = "<group>"; };
+		3AE86AED23BE42D10097DB1A /* TabbedToolbarViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabbedToolbarViewController.swift; sourceTree = "<group>"; };
 		3AEA3373235137FD00ECBF8C /* WelcomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeViewController.swift; sourceTree = "<group>"; };
 		3AEA33762352003400ECBF8C /* DynamicPostListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicPostListViewModel.swift; sourceTree = "<group>"; };
 		3AED042E235614C200383982 /* MapViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewController.swift; sourceTree = "<group>"; };
@@ -587,6 +601,9 @@
 				3A31872D2353251A00D59F79 /* TabBarController.swift */,
 				3A179A712360F56900E0C3FF /* CreateArtistViewController.swift */,
 				3A9467F923631F8200C446F7 /* SearchPostsViewController.swift */,
+				3AE86AEA23BE42B50097DB1A /* Toolbar */,
+				3AE86AE323BE41740097DB1A /* UserProfile */,
+				3AE86AE023BE3B240097DB1A /* ArtistProfile */,
 				3AF60D98234A1AAD002A1DBD /* Auth */,
 				3A9127FF23665D4E005944BE /* PostsMap */,
 				3AEA337823521A8B00ECBF8C /* PostList */,
@@ -799,6 +816,34 @@
 				3ADB124223703027004C1FA1 /* FileError.swift */,
 			);
 			path = FileService;
+			sourceTree = "<group>";
+		};
+		3AE86AE023BE3B240097DB1A /* ArtistProfile */ = {
+			isa = PBXGroup;
+			children = (
+				3AE86ADE23BE3B150097DB1A /* ArtistProfileViewController.swift */,
+				3AE86AE123BE3B310097DB1A /* ArtistProfileViewModel.swift */,
+			);
+			path = ArtistProfile;
+			sourceTree = "<group>";
+		};
+		3AE86AE323BE41740097DB1A /* UserProfile */ = {
+			isa = PBXGroup;
+			children = (
+				3AE86AE423BE41810097DB1A /* UserProfileViewController.swift */,
+				3AE86AE623BE41890097DB1A /* UserProfileViewModel.swift */,
+				3AE86AE823BE42A30097DB1A /* EditProfileViewController.swift */,
+			);
+			path = UserProfile;
+			sourceTree = "<group>";
+		};
+		3AE86AEA23BE42B50097DB1A /* Toolbar */ = {
+			isa = PBXGroup;
+			children = (
+				3AE86AEB23BE42C00097DB1A /* TabbedToolbar.swift */,
+				3AE86AED23BE42D10097DB1A /* TabbedToolbarViewController.swift */,
+			);
+			path = Toolbar;
 			sourceTree = "<group>";
 		};
 		3AEA337823521A8B00ECBF8C /* PostList */ = {
@@ -1072,8 +1117,10 @@
 				3ADB124323703027004C1FA1 /* FileError.swift in Sources */,
 				3A287637226A630200BCAE61 /* Comment.swift in Sources */,
 				3AD94799238F365600B5BF3B /* AnnotationContentView.swift in Sources */,
+				3AE86AE223BE3B310097DB1A /* ArtistProfileViewModel.swift in Sources */,
 				3ADA0D4B234D658E007A4DAC /* PrivateRouter.swift in Sources */,
 				3ADEA8032391EA1D006B4EFF /* PostGISClusterAnnotationView.swift in Sources */,
+				3AE86ADF23BE3B150097DB1A /* ArtistProfileViewController.swift in Sources */,
 				3A9127FC2366129F005944BE /* CommentCell.swift in Sources */,
 				3A33AA1D237EEAA2007B4DD7 /* Array.swift in Sources */,
 				3AF4851721E2B1C500FBC33E /* PostCell.swift in Sources */,
@@ -1091,6 +1138,7 @@
 				3A76EA8D21DB249500FEDEC8 /* UIView+Fill.swift in Sources */,
 				3ADA0D4D234D65A0007A4DAC /* EndpointConfiguration.swift in Sources */,
 				3A3BF9EA235635A4005F8354 /* SearchArtistsViewController.swift in Sources */,
+				3AE86AE923BE42A30097DB1A /* EditProfileViewController.swift in Sources */,
 				3AA7672423507F3200A70DE4 /* UATextField.swift in Sources */,
 				3ADA0D4F234D65B7007A4DAC /* HTTPMethod.swift in Sources */,
 				3AA8FB05237626E800B2DF6E /* CameraViewController.swift in Sources */,
@@ -1102,6 +1150,7 @@
 				3A2EBF36237A3E2500DE4D2C /* PostCluster.swift in Sources */,
 				3A9C58792350BD1A002E36A3 /* UADimensions.swift in Sources */,
 				3A1ECBF52267F6F50055FC9B /* UAButton.swift in Sources */,
+				3AE86AEE23BE42D10097DB1A /* TabbedToolbarViewController.swift in Sources */,
 				3A755E302355AD6900276555 /* CustomCells.swift in Sources */,
 				3A76EA9C21DBEC8800FEDEC8 /* Config.swift in Sources */,
 				3AA7671723501F4800A70DE4 /* DHLogger.swift in Sources */,
@@ -1122,6 +1171,7 @@
 				3A1ECB9022679E170055FC9B /* Typography.swift in Sources */,
 				3A76EA8B21DB1C0800FEDEC8 /* UIStackView.swift in Sources */,
 				3AA8FB072376272A00B2DF6E /* ImageService.swift in Sources */,
+				3AE86AE723BE41890097DB1A /* UserProfileViewModel.swift in Sources */,
 				3AA2BB2C2375D00A002B6DD3 /* CLPlacemark.swift in Sources */,
 				3A850AE223ABE96700E74F05 /* PostListViewModel.swift in Sources */,
 				3A76EA8F21DB25F900FEDEC8 /* UILabel.swift in Sources */,
@@ -1131,6 +1181,7 @@
 				3ACB5B31236C64850004FA31 /* ForgotPasswordViewController.swift in Sources */,
 				3A22219823B0AF4300FE9262 /* GalleryCell.swift in Sources */,
 				3A56B42323635C82000F2A42 /* GalleryDetailViewController.swift in Sources */,
+				3AE86AEC23BE42C00097DB1A /* TabbedToolbar.swift in Sources */,
 				3AE86ADD23BE30910097DB1A /* NSMutableAttributedString.swift in Sources */,
 				3A5EA3D02369FF6E006A3F27 /* Copy.swift in Sources */,
 				3ACB5B2F236C42140004FA31 /* BlockedUser.swift in Sources */,
@@ -1200,6 +1251,7 @@
 				3AB575AB22749B1800C8F597 /* Collection.swift in Sources */,
 				3A31872E2353251A00D59F79 /* TabBarController.swift in Sources */,
 				3AB575B12274A9E500C8F597 /* NewCollectionViewController.swift in Sources */,
+				3AE86AE523BE41810097DB1A /* UserProfileViewController.swift in Sources */,
 				3ADD72C92383269A0007CAEF /* SettingsItem.swift in Sources */,
 				3A2C8D1A238F40BA000C3122 /* PostMapViewModel2.swift in Sources */,
 				3ADB1234236F80D6004C1FA1 /* AuthService.swift in Sources */,

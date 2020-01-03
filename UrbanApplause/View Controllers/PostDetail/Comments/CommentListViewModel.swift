@@ -65,6 +65,7 @@ class CommentListViewModel {
                     log.error(error)
                     self?.errorMessage = error.userMessage
                 case .success(let commentsContainer):
+                    log.debug("success! \(commentsContainer)")
                     self?.comments = commentsContainer.comments.sorted(by: {
                         $0.createdAt < $1.createdAt
                     })
@@ -97,10 +98,11 @@ class CommentListViewModel {
             case .success(let container):
                 let comment = container.comment
                 comment.User = user
-                self.comments.insert(comment, at: 0)
+                self.comments.append(comment)
                 self.didCreateComment?(comment)
-                self.didUpdateData?([IndexPath(row: 0, section: 0)], [], false)
+                self.didUpdateData?([IndexPath(row: self.comments.count - 1, section: 0)], [], false)
             case .failure(let error):
+                log.error(error)
                 self.errorMessage = error.userMessage
             }
         })

@@ -18,7 +18,7 @@ class UAButton: UIButton {
     public var disabledProperties: MutableButtonProperties
     
     public func showLoading() {
-        originalButtonText = self.title(for: .normal)
+        originalButtonText = _titleLabel.text
         self._titleLabel.text = ""
         activityIndicator.startAnimating()
     }

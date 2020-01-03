@@ -47,7 +47,7 @@ class TabBarController: UITabBarController {
     // lazy var addTab = NewPostViewController(mainCoordinator: self.mainCoordinator)
     // let addTabBarItem = UITabBarItem(title: nil, image: nil, selectedImage: nil) // placeholder
     
-    /* lazy var profileTab: UINavigationController? = {
+    lazy var profileTab: UINavigationController? = {
         guard let user = store.user.data else { return nil }
         let profileRootVC = ProfileViewController(user: user, mainCoordinator: mainCoordinator)
         let nav = UINavigationController(rootViewController: profileRootVC)
@@ -55,7 +55,7 @@ class TabBarController: UITabBarController {
     }()
     let profileTabBarItem = UITabBarItem(title: "Profile",
                                          image: UIImage(systemName: "person"),
-                                         selectedImage: UIImage(systemName: "person.fill")) */
+                                         selectedImage: UIImage(systemName: "person.fill"))
     
     lazy var settingsRootVC = SettingsViewController(store: store, mainCoordinator: mainCoordinator)
     lazy var settingsTab = UINavigationController(rootViewController: settingsRootVC)
@@ -73,16 +73,22 @@ class TabBarController: UITabBarController {
         listTab.tabBarItem = listTabBarItem
         collectionsTab.tabBarItem = collectionsTabBarItem
         // addTab.tabBarItem = addTabBarItem
-        // profileTab?.tabBarItem = profileTabBarItem
+        profileTab?.tabBarItem = profileTabBarItem
         settingsTab.tabBarItem = settingsTabBarItem
 
-        let controllers = [
+        var controllers = [
             mapTab,
-            listTab,
-            // addTab,
-            collectionsTab,
-            settingsTab
+            listTab
         ]
+        
+        if self.mainCoordinator.authService.isAuthenticated {
+            controllers.append(collectionsTab)
+            
+            if let profileTab = profileTab {
+                controllers.append(profileTab)
+            }
+        }
+        controllers.append(settingsTab)
         
         self.viewControllers = controllers
         dhTabBar.middleButton.addTarget(self, action: #selector(createNewPressed(_:)), for: .touchUpInside)

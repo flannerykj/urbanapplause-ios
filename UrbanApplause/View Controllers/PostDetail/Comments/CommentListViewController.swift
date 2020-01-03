@@ -29,6 +29,7 @@ class CommentListViewController: UIViewController {
         self.mainCoordinator = mainCoordinator
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
+        setModelCallbacks()
     }
     
     required init?(coder: NSCoder) {
@@ -126,7 +127,7 @@ class CommentListViewController: UIViewController {
         viewModel.getComments()
         newCommentTextArea.autocorrectionType = .no
         newCommentTextArea.autocapitalizationType = .sentences
-        setModelCallbacks()
+        
         refreshControl.addTarget(self, action: #selector(refreshData(_:)), for: .valueChanged)
     }
     func setModelCallbacks() {
@@ -156,6 +157,9 @@ class CommentListViewController: UIViewController {
         }
         viewModel.didUpdateData = { addedIndexPaths, removedIndexPaths, shouldReload in
             DispatchQueue.main.async {
+                log.debug("added: \(addedIndexPaths.count)")
+                log.debug("removed: \(removedIndexPaths.count)")
+                log.debug("should reload: \(shouldReload)")
                 if shouldReload {
                     self.tableView.reloadData()
                 } else {
@@ -240,25 +244,19 @@ class CommentListViewController: UIViewController {
 extension CommentListViewController: UITableViewDataSource, UITableViewDelegate {
     // MARK: - Table view data source
     func numberOfSections(in tableView: UITableView) -> Int {
-        return 2
+        return 1
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if section == 0 {
-            // meta - messages
-            if self.viewModel.comments.count == 0 {
-                return 1
-            }
-        }
         return viewModel.comments.count
     }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if indexPath.section == 0 {
+        /*if indexPath.section == 0 {
             let cell = UITableViewCell()
             cell.textLabel?.text = "No comments have been added."
             cell.textLabel?.style(as: .placeholder)
             return cell
-        }
+        } */
         guard let cell = tableView.dequeueReusableCell(withIdentifier: CommentCell.reuseIdentifier,
                                                        for: indexPath) as? CommentCell else { fatalError() }
         let comment = viewModel.comments[indexPath.row]

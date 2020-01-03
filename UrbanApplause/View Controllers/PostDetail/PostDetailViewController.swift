@@ -21,6 +21,7 @@ class PostDetailViewController: UIViewController {
     
     var post: Post? {
         didSet {
+            commentsVC.post = post
             guard let post = post else { return }
             title = post.title
             if let file = post.PostImages?.first {
@@ -28,7 +29,7 @@ class PostDetailViewController: UIViewController {
             }
             artistLabel.text = post.title
             setLocation(post.Location)
-            setUsername(post.User?.username)
+            setUser(post.User)
             setArtists(post.Artists ?? [])
             dateLabel.text = post.createdAt?.timeSince()
             
@@ -135,8 +136,9 @@ class PostDetailViewController: UIViewController {
         return textView
     }()
     
-    func setUsername(_ username: String?) {
-        let username = username ?? ""
+    func setUser(_ user: User?) {
+        guard let userId = user?.id else { postedByTextView.text = ""; return }
+        let username = user?.username ?? ""
         let text = "Posted by \(username)"
         let attributedText = NSMutableAttributedString(attributedString: NSAttributedString(string: text))
         attributedText.style(as: .body)
@@ -174,9 +176,10 @@ class PostDetailViewController: UIViewController {
         
         
         var charIndex: Int = prependText.count
-        for name in artistNames {
+        for artist in artists {
+            guard let name = artist.signing_name else { continue }
             attributedText.style(as: .link,
-                                 withLink: "www.urbanapplause.com/app/artists/\(name)",
+                                 withLink: "www.urbanapplause.com/app/artists/\(artist.id)",
                 for: NSRange(location: charIndex, length: name.count))
             charIndex += name.count + artistNameSeperator.count
         }
@@ -449,11 +452,24 @@ extension PostDetailViewController: PostToolbarDelegate {
 extension PostDetailViewController: UITextViewDelegate {
     func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
         if URL.pathComponents.contains("artists") {
-            log.debug("got to profile for artist \(URL.pathComponents.last)")
+            guard let idString = URL.pathComponents.last else { return false }
+            guard let artist = self.post?.Artists?.first(where: {
+                return $0.id == Int(idString)
+            }) else { return false }
+
+            let viewModel = ArtistProfileViewModel(artistId: artist.id,
+                                                   artist: artist,
+                                                   mainCoordinator: mainCoordinator)
+            
+            let vc = ArtistProfileViewController(viewModel: viewModel,
+                                                 mainCoordinator: mainCoordinator)
+            navigationController?.pushViewController(vc, animated: true)
         }
         if URL.pathComponents.contains("users") {
-            log.debug("got to profile for user \(URL.pathComponents.last)")
-            
+            // guard let idString = URL.pathComponents.last, let id = Int(idString) else { return false }
+            guard let user = self.post?.User else { return false }
+            let vc = ProfileViewController(user: user, mainCoordinator: mainCoordinator)
+            navigationController?.pushViewController(vc, animated: true)
         }
         if URL.pathComponents.contains("locations") {
             guard let location = self.post?.Location else {
