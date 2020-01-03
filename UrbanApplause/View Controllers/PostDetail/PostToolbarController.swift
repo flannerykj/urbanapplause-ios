@@ -110,8 +110,6 @@ class PostToolbarController: UIViewController {
         toggleApplause()
     }
     
-    
-    
     func blockUser(_ user: User) {
         guard let mainCoordinator = self.mainCoordinator,
             let blockingUser = mainCoordinator.store.user.data else { return }

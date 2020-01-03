@@ -100,10 +100,11 @@ class PostListViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        loadMoreSpinner.hidesWhenStopped = true
         view.addSubview(tableView)
         tableView.fill(view: self.view)
         tableView.refreshControl = refreshControl
-
+        
         view.backgroundColor = backgroundColor
         
         viewModel.didUpdateData = { addedIndexPaths, removedIndexPaths, shouldReload in
