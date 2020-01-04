@@ -10,6 +10,8 @@ import Foundation
 import UIKit
 
 class ImageService {
+    
+    
 
     internal let DEFAULT_MIME_TYPE = "application/octet-stream"
     

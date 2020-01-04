@@ -72,14 +72,14 @@ class KeychainService {
         guard let existingItem = queryResult as? [String: AnyObject],
             let data = existingItem[kSecValueData as String] as? Data
             else {
-                log.warning("Unable to parse keychain item")
+                print("Unable to parse keychain item")
                 throw KeychainError.unexpectedItemData
         }
         do {
             let decoded = try JSONDecoder().decode(T.self, from: data)
             return decoded
         } catch {
-            log.warning("Error decoding from keychain: \(error)")
+            print("Error decoding from keychain: \(error)")
             throw KeychainError.unexpectedItemData
         }
     }
