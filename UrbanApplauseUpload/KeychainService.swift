@@ -1,10 +1,10 @@
-/*
-    Copyright (C) 2016 Apple Inc. All Rights Reserved.
-    See LICENSE.txt for this sample’s licensing information
-    
-    Abstract:
-    A struct for accessing generic password keychain items.
-*/
+//
+//  KeychainService.swift
+//  UrbanApplauseUpload
+//
+//  Created by Flannery Jefferson on 2020-01-04.
+//  Copyright © 2020 Flannery Jefferson. All rights reserved.
+//
 
 import Foundation
 import LocalAuthentication
@@ -72,14 +72,14 @@ class KeychainService {
         guard let existingItem = queryResult as? [String: AnyObject],
             let data = existingItem[kSecValueData as String] as? Data
             else {
-                log.warning("Unable to parse keychain item")
+                print("Unable to parse keychain item")
                 throw KeychainError.unexpectedItemData
         }
         do {
             let decoded = try JSONDecoder().decode(T.self, from: data)
             return decoded
         } catch {
-            log.warning("Error decoding from keychain: \(error)")
+            print("Error decoding from keychain: \(error)")
             throw KeychainError.unexpectedItemData
         }
     }

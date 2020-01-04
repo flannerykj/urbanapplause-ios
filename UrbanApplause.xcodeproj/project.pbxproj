@@ -56,6 +56,8 @@
 		3A56B42323635C82000F2A42 /* GalleryDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A56B42223635C82000F2A42 /* GalleryDetailViewController.swift */; };
 		3A56B42523635DC0000F2A42 /* GalleriesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A56B42423635DC0000F2A42 /* GalleriesViewController.swift */; };
 		3A56B42723636008000F2A42 /* GalleryListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A56B42623636008000F2A42 /* GalleryListViewModel.swift */; };
+		3A5AAD1D23BFB0C3008BD4D2 /* TempImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A5AAD1C23BFB0C3008BD4D2 /* TempImage.swift */; };
+		3A5AAD2023C14016008BD4D2 /* KeychainService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A5AAD1F23C14016008BD4D2 /* KeychainService.swift */; };
 		3A5CA37A23AD053D00C5C4F1 /* Gallery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A5CA37923AD053D00C5C4F1 /* Gallery.swift */; };
 		3A5EA3D02369FF6E006A3F27 /* Copy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A5EA3CF2369FF6E006A3F27 /* Copy.swift */; };
 		3A5F0D1023761AB70099623E /* Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A5F0D0F23761AB70099623E /* Environment.swift */; };
@@ -159,6 +161,9 @@
 		3AEA3374235137FD00ECBF8C /* WelcomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AEA3373235137FD00ECBF8C /* WelcomeViewController.swift */; };
 		3AEA33772352003400ECBF8C /* DynamicPostListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AEA33762352003400ECBF8C /* DynamicPostListViewModel.swift */; };
 		3AED042F235614C200383982 /* MapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AED042E235614C200383982 /* MapViewController.swift */; };
+		3AEE041523BFAE1B00914AF2 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AEE041423BFAE1B00914AF2 /* ShareViewController.swift */; };
+		3AEE041823BFAE1B00914AF2 /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3AEE041623BFAE1B00914AF2 /* MainInterface.storyboard */; };
+		3AEE041C23BFAE1B00914AF2 /* UrbanApplauseUpload.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 3AEE041223BFAE1B00914AF2 /* UrbanApplauseUpload.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		3AEFA991237C7D6C00CE61F1 /* Double.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AEFA990237C7D6C00CE61F1 /* Double.swift */; };
 		3AF484F621DFCC8800FBC33E /* PostListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AF484F521DFCC8800FBC33E /* PostListViewController.swift */; };
 		3AF484F821DFD13D00FBC33E /* Post.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AF484F721DFD13D00FBC33E /* Post.swift */; };
@@ -182,7 +187,28 @@
 			remoteGlobalIDString = 3A76EA6921DAD3C200FEDEC8;
 			remoteInfo = UrbanApplause;
 		};
+		3AEE041A23BFAE1B00914AF2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3A76EA6221DAD3C200FEDEC8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3AEE041123BFAE1B00914AF2;
+			remoteInfo = UrbanApplauseUpload;
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		3AEE042123BFAE1B00914AF2 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				3AEE041C23BFAE1B00914AF2 /* UrbanApplauseUpload.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		0C03F53EC91FEAFB15A7CC35 /* Pods-UrbanApplause-UrbanApplauseTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UrbanApplause-UrbanApplauseTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-UrbanApplause-UrbanApplauseTests/Pods-UrbanApplause-UrbanApplauseTests.release.xcconfig"; sourceTree = "<group>"; };
@@ -239,6 +265,9 @@
 		3A56B42223635C82000F2A42 /* GalleryDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryDetailViewController.swift; sourceTree = "<group>"; };
 		3A56B42423635DC0000F2A42 /* GalleriesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleriesViewController.swift; sourceTree = "<group>"; };
 		3A56B42623636008000F2A42 /* GalleryListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryListViewModel.swift; sourceTree = "<group>"; };
+		3A5AAD1923BFAE76008BD4D2 /* UrbanApplauseUpload.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = UrbanApplauseUpload.entitlements; sourceTree = "<group>"; };
+		3A5AAD1C23BFB0C3008BD4D2 /* TempImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TempImage.swift; sourceTree = "<group>"; };
+		3A5AAD1F23C14016008BD4D2 /* KeychainService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainService.swift; sourceTree = "<group>"; };
 		3A5CA37923AD053D00C5C4F1 /* Gallery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gallery.swift; sourceTree = "<group>"; };
 		3A5EA3CF2369FF6E006A3F27 /* Copy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Copy.swift; sourceTree = "<group>"; };
 		3A5F0D0F23761AB70099623E /* Environment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Environment.swift; sourceTree = "<group>"; };
@@ -345,6 +374,10 @@
 		3AEA3373235137FD00ECBF8C /* WelcomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeViewController.swift; sourceTree = "<group>"; };
 		3AEA33762352003400ECBF8C /* DynamicPostListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicPostListViewModel.swift; sourceTree = "<group>"; };
 		3AED042E235614C200383982 /* MapViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewController.swift; sourceTree = "<group>"; };
+		3AEE041223BFAE1B00914AF2 /* UrbanApplauseUpload.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = UrbanApplauseUpload.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		3AEE041423BFAE1B00914AF2 /* ShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
+		3AEE041723BFAE1B00914AF2 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainInterface.storyboard; sourceTree = "<group>"; };
+		3AEE041923BFAE1B00914AF2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		3AEFA990237C7D6C00CE61F1 /* Double.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Double.swift; sourceTree = "<group>"; };
 		3AF484F521DFCC8800FBC33E /* PostListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostListViewController.swift; sourceTree = "<group>"; };
 		3AF484F721DFD13D00FBC33E /* Post.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Post.swift; sourceTree = "<group>"; };
@@ -383,6 +416,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				C53A559360A23B898320A4D1 /* Pods_UrbanApplause.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3AEE040F23BFAE1B00914AF2 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -518,6 +558,7 @@
 			children = (
 				3A76EA6C21DAD3C200FEDEC8 /* UrbanApplause */,
 				3A111520236F757800341B89 /* UrbanApplauseTests */,
+				3AEE041323BFAE1B00914AF2 /* UrbanApplauseUpload */,
 				3A76EA6B21DAD3C200FEDEC8 /* Products */,
 				33B9CACCAE7BD0C127207502 /* Pods */,
 				538DD7C615769C830232F925 /* Frameworks */,
@@ -529,6 +570,7 @@
 			children = (
 				3A76EA6A21DAD3C200FEDEC8 /* UrbanApplause.app */,
 				3A11151F236F757800341B89 /* UrbanApplauseTests.xctest */,
+				3AEE041223BFAE1B00914AF2 /* UrbanApplauseUpload.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -828,6 +870,19 @@
 			path = PostList;
 			sourceTree = "<group>";
 		};
+		3AEE041323BFAE1B00914AF2 /* UrbanApplauseUpload */ = {
+			isa = PBXGroup;
+			children = (
+				3A5AAD1923BFAE76008BD4D2 /* UrbanApplauseUpload.entitlements */,
+				3AEE041423BFAE1B00914AF2 /* ShareViewController.swift */,
+				3A5AAD1F23C14016008BD4D2 /* KeychainService.swift */,
+				3AEE041623BFAE1B00914AF2 /* MainInterface.storyboard */,
+				3AEE041923BFAE1B00914AF2 /* Info.plist */,
+				3A5AAD1C23BFB0C3008BD4D2 /* TempImage.swift */,
+			);
+			path = UrbanApplauseUpload;
+			sourceTree = "<group>";
+		};
 		3AF484F921DFD18900FBC33E /* Style */ = {
 			isa = PBXGroup;
 			children = (
@@ -905,15 +960,34 @@
 				3A76EA6821DAD3C200FEDEC8 /* Resources */,
 				7367BB3FAA2E222A0DEB956E /* [CP] Embed Pods Frameworks */,
 				3A33AA26237F4DDB007B4DD7 /* SwiftLint */,
+				3AEE042123BFAE1B00914AF2 /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				3AEE041B23BFAE1B00914AF2 /* PBXTargetDependency */,
 			);
 			name = UrbanApplause;
 			productName = UrbanApplause;
 			productReference = 3A76EA6A21DAD3C200FEDEC8 /* UrbanApplause.app */;
 			productType = "com.apple.product-type.application";
+		};
+		3AEE041123BFAE1B00914AF2 /* UrbanApplauseUpload */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3AEE041D23BFAE1B00914AF2 /* Build configuration list for PBXNativeTarget "UrbanApplauseUpload" */;
+			buildPhases = (
+				3AEE040E23BFAE1B00914AF2 /* Sources */,
+				3AEE040F23BFAE1B00914AF2 /* Frameworks */,
+				3AEE041023BFAE1B00914AF2 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = UrbanApplauseUpload;
+			productName = UrbanApplauseUpload;
+			productReference = 3AEE041223BFAE1B00914AF2 /* UrbanApplauseUpload.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -921,7 +995,7 @@
 		3A76EA6221DAD3C200FEDEC8 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 1110;
+				LastSwiftUpdateCheck = 1130;
 				LastUpgradeCheck = 1010;
 				ORGANIZATIONNAME = "Flannery Jefferson";
 				TargetAttributes = {
@@ -932,6 +1006,9 @@
 					3A76EA6921DAD3C200FEDEC8 = {
 						CreatedOnToolsVersion = 10.1;
 						LastSwiftMigration = 1100;
+					};
+					3AEE041123BFAE1B00914AF2 = {
+						CreatedOnToolsVersion = 11.3;
 					};
 				};
 			};
@@ -950,6 +1027,7 @@
 			targets = (
 				3A76EA6921DAD3C200FEDEC8 /* UrbanApplause */,
 				3A11151E236F757800341B89 /* UrbanApplauseTests */,
+				3AEE041123BFAE1B00914AF2 /* UrbanApplauseUpload */,
 			);
 		};
 /* End PBXProject section */
@@ -973,6 +1051,14 @@
 				3ABC157E23761BC400EF4CF6 /* .env.production in Resources */,
 				3A76EA7521DAD3C200FEDEC8 /* Assets.xcassets in Resources */,
 				3A5F0D1223761B230099623E /* .env in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3AEE041023BFAE1B00914AF2 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3AEE041823BFAE1B00914AF2 /* MainInterface.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1231,6 +1317,16 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		3AEE040E23BFAE1B00914AF2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3A5AAD1D23BFB0C3008BD4D2 /* TempImage.swift in Sources */,
+				3AEE041523BFAE1B00914AF2 /* ShareViewController.swift in Sources */,
+				3A5AAD2023C14016008BD4D2 /* KeychainService.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -1238,6 +1334,11 @@
 			isa = PBXTargetDependency;
 			target = 3A76EA6921DAD3C200FEDEC8 /* UrbanApplause */;
 			targetProxy = 3A111524236F757800341B89 /* PBXContainerItemProxy */;
+		};
+		3AEE041B23BFAE1B00914AF2 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 3AEE041123BFAE1B00914AF2 /* UrbanApplauseUpload */;
+			targetProxy = 3AEE041A23BFAE1B00914AF2 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1248,6 +1349,14 @@
 				3A76EA7721DAD3C200FEDEC8 /* Base */,
 			);
 			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+		3AEE041623BFAE1B00914AF2 /* MainInterface.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				3AEE041723BFAE1B00914AF2 /* Base */,
+			);
+			name = MainInterface.storyboard;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -1417,6 +1526,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 9601429147D6DB8C59BCBB2D /* Pods-UrbanApplause.debug (development).xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = UrbanApplause/UrbanApplause.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
@@ -1441,6 +1551,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 6B716CA410C0621642F79543 /* Pods-UrbanApplause.release (production).xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = UrbanApplause/UrbanApplause.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
@@ -1526,6 +1637,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = F7118B5E0AA4B710006C6206 /* Pods-UrbanApplause.debug (production).xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = UrbanApplause/UrbanApplause.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
@@ -1568,6 +1680,225 @@
 			};
 			name = "Debug (Production)";
 		};
+		3AEE041E23BFAE1B00914AF2 /* Debug (Development) */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_ENTITLEMENTS = UrbanApplauseUpload/UrbanApplauseUpload.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = WJUFMSDDMW;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = UrbanApplauseUpload/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.urbanapplause.ios.UrbanApplauseUpload;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = "Debug (Development)";
+		};
+		3AEE041F23BFAE1B00914AF2 /* Debug (Production) */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_ENTITLEMENTS = UrbanApplauseUpload/UrbanApplauseUpload.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = WJUFMSDDMW;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = UrbanApplauseUpload/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.urbanapplause.ios.UrbanApplauseUpload;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = "Debug (Production)";
+		};
+		3AEE042023BFAE1B00914AF2 /* Release (Production) */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_ENTITLEMENTS = UrbanApplauseUpload/UrbanApplauseUpload.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = WJUFMSDDMW;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = UrbanApplauseUpload/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.urbanapplause.ios.UrbanApplauseUpload;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = "Release (Production)";
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1597,6 +1928,16 @@
 				3A76EA7D21DAD3C200FEDEC8 /* Debug (Development) */,
 				3ABC158023761C8C00EF4CF6 /* Debug (Production) */,
 				3A76EA7E21DAD3C200FEDEC8 /* Release (Production) */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = "Release (Production)";
+		};
+		3AEE041D23BFAE1B00914AF2 /* Build configuration list for PBXNativeTarget "UrbanApplauseUpload" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3AEE041E23BFAE1B00914AF2 /* Debug (Development) */,
+				3AEE041F23BFAE1B00914AF2 /* Debug (Production) */,
+				3AEE042023BFAE1B00914AF2 /* Release (Production) */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = "Release (Production)";
