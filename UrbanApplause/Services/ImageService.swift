@@ -9,12 +9,61 @@
 import Foundation
 import UIKit
 import UrbanApplauseShared
+import MapKit
 
 class ImageService {
-    
-    
-
     internal let DEFAULT_MIME_TYPE = "application/octet-stream"
+    
+    static func getPlacemarkFromExif(_ exifProperties: [String: Any]) -> CLPlacemark? {
+        if let gpsData = exifProperties["{GPS}"] as? [String: Any] {
+            if var longitude = gpsData["Longitude"] as? Double,
+                var latitude = gpsData["Latitude"] as? Double {
+                
+                if let longitudeRef = gpsData["LongitudeRef"] as? String,
+                    let latitudeRef = gpsData["LatitudeRef"] as? String {
+                    if longitudeRef == "W" {
+                        longitude *= -1
+                    }
+                    if latitudeRef == "S" {
+                        latitude *= -1
+                    }
+                    if let latitudeDegrees = CLLocationDegrees(exactly: latitude),
+                        let longitudeDegrees = CLLocationDegrees(exactly: longitude) {
+                        
+                        var addressDictionary: [String: String] = [:]
+                        if let iptcData = exifProperties["{IPTC}"] as? [String: Any] {
+                            
+                            if let country = iptcData["Country/PrimaryLocationName"] as? String {
+                                addressDictionary["country"] = country
+                            }
+                            
+                            if let city = iptcData["City"] as? String {
+                                addressDictionary["city"] = city
+                            }
+                        }
+                        let placemark = MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: latitudeDegrees,
+                                                                                       longitude: longitudeDegrees),
+                                                    addressDictionary: addressDictionary) as CLPlacemark
+                        
+                        return placemark
+                    }
+                }
+            }
+        }
+        return nil
+    }
+    
+    static func getDateFromExif(_ exifProperties: [String: Any]) -> Date? {
+        if let tiffData = exifProperties["{TIFF}"] as? [String: Any] {
+            if let dateTime = tiffData["DateTime"] as? String {
+                let dateFormatter = DateFormatter()
+                dateFormatter.dateFormat = "yyyy:MM:dd HH:mm:ss"
+                let date = dateFormatter.date(from: dateTime)
+                return date
+            }
+        }
+        return nil
+    }
     
     static func mimeType(for data: Data) -> String {
 

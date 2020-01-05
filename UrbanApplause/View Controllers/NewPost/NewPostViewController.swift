@@ -43,28 +43,23 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
             }
         }
     }
-    var newPostState: NewPostState? {
+    var newPostState: NewPostState = .initial {
         didSet {
             DispatchQueue.main.async {
-                self.navigationItem.title = self.newPostState?.title
+                self.navigationItem.title = self.newPostState.title
+                
+                switch self.newPostState {
+                case .initial:
+                    self.navigationItem.rightBarButtonItem = self.saveButton
+                default:
+                    self.navigationItem.rightBarButtonItem = self.loaderButton
+                }
             }
         }
     }
     var selectingArtistForIndex: Int = 0
     var editingPost: Post?
     var savedImages: [Int: UIImage] = [:]
-    
-    var isLoading = false {
-        didSet {
-            DispatchQueue.main.async {
-                if self.isLoading {
-                    self.navigationItem.rightBarButtonItem = self.loaderButton
-                } else {
-                    self.navigationItem.rightBarButtonItem = self.saveButton
-                }
-            }
-        }
-    }
     
     let progressBar: UIProgressView = {
         let view = UIProgressView(progressViewStyle: .bar)
@@ -269,9 +264,10 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
                 row.title = "Location is fixed"
             }
             <<< PushRow<String> { row in
+                row.tag = "surface_type"
                 row.title = "Surface type"
                 row.options = ["Wall", "Billboard", "Street sign", "Train", "Truck or car", "Sidewalk" /*, "Other" */]
-                row.value = "Wall"
+                // row.value = "Wall"
             }
             
             <<< DateRow { row in
@@ -281,63 +277,15 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
             }
             +++ Section()
     }
-    func getDateFromExif(_ exifProperties: [String: Any]) -> Date? {
-        if let tiffData = exifProperties["{TIFF}"] as? [String: Any] {
-            if let dateTime = tiffData["DateTime"] as? String {
-                let dateFormatter = DateFormatter()
-                dateFormatter.dateFormat = "yyyy:MM:dd HH:mm:ss"
-                let date = dateFormatter.date(from: dateTime)
-                return date
-            }
-        }
-        return nil
-    }
-    func getPlacemarkFromExif(_ exifProperties: [String: Any]) -> CLPlacemark? {
-        if let gpsData = exifProperties["{GPS}"] as? [String: Any] {
-            if var longitude = gpsData["Longitude"] as? Double,
-                var latitude = gpsData["Latitude"] as? Double {
-                
-                if let longitudeRef = gpsData["LongitudeRef"] as? String,
-                    let latitudeRef = gpsData["LatitudeRef"] as? String {
-                    if longitudeRef == "W" {
-                        longitude *= -1
-                    }
-                    if latitudeRef == "S" {
-                        latitude *= -1
-                    }
-                    if let latitudeDegrees = CLLocationDegrees(exactly: latitude),
-                        let longitudeDegrees = CLLocationDegrees(exactly: longitude) {
-                        
-                        var addressDictionary: [String: String] = [:]
-                        if let iptcData = exifProperties["{IPTC}"] as? [String: Any] {
-                            
-                            if let country = iptcData["Country/PrimaryLocationName"] as? String {
-                                addressDictionary["country"] = country
-                            }
-                            
-                            if let city = iptcData["City"] as? String {
-                                addressDictionary["city"] = city
-                            }
-                        }
-                        let placemark = MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: latitudeDegrees,
-                                                                                       longitude: longitudeDegrees),
-                                                    addressDictionary: addressDictionary) as CLPlacemark
-                        
-                        return placemark
-                    }
-                }
-            }
-        }
-        return nil
-    }
+    
     func fillFormFromExifData(properties: [String: Any]) {
         if let dateRow = self.form.rowBy(tag: "recordedAt") as? DateRow,
-            let date = self.getDateFromExif(properties) {
+            let date = ImageService.getDateFromExif(properties) {
             dateRow.value = date
             dateRow.updateCell()
         }
         if let locationRow = self.form.rowBy(tag: "location") as? LocationRow,
-            let placemark = getPlacemarkFromExif(properties) {
+            let placemark = ImageService.getPlacemarkFromExif(properties) {
             
             guard let location = placemark.location else { return }
             
@@ -365,7 +313,6 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
             photosRow.evaluateHidden()
             self.selectedImageView.image = UIImage(data: data)
             photosRow.updateCell()
-            // self.collectionView.reloadData()
         }
     }
     func handleSelectedPhotos(_ photos: [PHAsset]) {
@@ -419,7 +366,7 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
                         if let uniformTypeIdentifier = input?.uniformTypeIdentifier {
                             log.debug("type: \(uniformTypeIdentifier)")
                             if uniformTypeIdentifier == "public.heic" {
-                                
+                                log.error("unsupported format")
                             }
                         }
                         if let url = input?.fullSizeImageURL, let fullImage = CIImage(contentsOf: url) {
@@ -489,7 +436,6 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
         log.debug("payload: \(payload)")
         let geocoder = CLGeocoder()
         // Look up the location to get user-friendly location info from coords
-        self.isLoading = true
         self.newPostState = .gettingLocationData
         geocoder.reverseGeocodeLocation(location,
                                         completionHandler: { (placemarks, error) in
@@ -516,7 +462,6 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
                                         case .success(let container):
                                             self.saveImages(post: container.post)
                                         case .failure(let error):
-                                            self.isLoading = false
                                             self.newPostState = .initial
                                             self.showAlert(message: error.userMessage)
                                         }
@@ -535,7 +480,6 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
         let endpoint = PrivateRouter.uploadImages(postId: post.id, userId: userID, imagesData: self.imagesData)
         _ = networkService.request(endpoint, completion: { (result: UAResult<PostImagesContainer>) in
             DispatchQueue.main.async {
-                self.isLoading = false
                 self.newPostState = .initial
                 switch result {
                 case .success(let container):
