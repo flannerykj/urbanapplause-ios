@@ -16,7 +16,7 @@ enum HTTPMethod: String {
 }
 
 class ShareViewController: SLComposeServiceViewController {
-    let baseURL = URL(string: "https://0a087c41.ngrok.io/app")!
+    let baseURL = URL(string: Config.apiEndpoint)!.appendingPathComponent("/app")
     let currentDate = Date()
     let keychainService = KeychainService()
     var imageDate: Date?
@@ -84,7 +84,12 @@ class ShareViewController: SLComposeServiceViewController {
         var post: Post
     }
     override func didSelectPost() {
+        print("BASE URL: \(self.baseURL)")
         createPost { data, response, error in
+            guard error == nil else {
+                print("ERROR: \(error)")
+                return
+            }
             guard let data = data else {
                 print("no data")
                 return

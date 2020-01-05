@@ -9,6 +9,7 @@
 import UIKit
 import CoreLocation
 import UserNotifications
+import UrbanApplauseShared
 
 let log = DHLogger.self
 
@@ -82,8 +83,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         if kerr == KERN_SUCCESS {
             print("Memory used in bytes: \(taskInfo.resident_size)")
-        }
-        else {
+        } else {
             print("Error with task_info(): " +
                 (String(cString: mach_error_string(kerr), encoding: String.Encoding.ascii) ?? "unknown error"))
         }
