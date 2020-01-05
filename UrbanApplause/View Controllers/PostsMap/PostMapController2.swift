@@ -131,12 +131,9 @@ class PostMapViewController2: UIViewController {
     }
     
     func addNewPost(at placemark: CLPlacemark?) {
-        let vc = NewPostViewController(placemark: placemark, mainCoordinator: self.mainCoordinator)
-        vc.delegate = self
-        let nav = UINavigationController(rootViewController: vc)
-        nav.isModalInPresentation = true
-        nav.presentationController?.delegate = self
-        self.present(nav, animated: true, completion: {})
+        if self.mainCoordinator.authService.isAuthenticated {
+            (self.tabBarController as? TabBarController)?.selectPhotos()
+        }
     }
     
     required init?(coder: NSCoder) {

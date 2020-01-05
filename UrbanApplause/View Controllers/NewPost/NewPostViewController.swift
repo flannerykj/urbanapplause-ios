@@ -22,11 +22,14 @@ protocol PostFormDelegate: class {
 
 class NewPostViewController: FormViewController, UINavigationControllerDelegate,
 UIImagePickerControllerDelegate, UnsavedChangesController {
+    private var selectedAssets: [PHAsset] // assets passed from photo lib on init
+    private var selectedImageData: Data? // image data passed from camera on init
+    
     private let spacesFileRepository = SpacesFileRepository()
     var post: Post?
     var hasUnsavedChanges: Bool = false
     var mainCoordinator: MainCoordinator
-    var imagesData: [Data]
+    var imagesData: [Data] = []
     weak var delegate: PostFormDelegate?
     var initialPlacemark: CLPlacemark?
     lazy var networkService = self.mainCoordinator.networkService
@@ -75,12 +78,12 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
         return view
     }()
     
-    init(placemark: CLPlacemark? = nil, mainCoordinator: MainCoordinator) {
+    init(photos: [PHAsset], imageData: Data?, placemark: CLPlacemark? = nil, mainCoordinator: MainCoordinator) {
         self.mainCoordinator = mainCoordinator
         self.initialPlacemark = placemark
-        self.imagesData = []
+        self.selectedImageData = imageData
+        self.selectedAssets = photos
         super.init(nibName: nil, bundle: nil)
-        
         if let location = placemark?.location {
             CLGeocoder().reverseGeocodeLocation(location,
                                                 completionHandler: { (placemarks, _) in
@@ -96,6 +99,76 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
                                                     }
             })
         }
+    }
+    func handleSelectedPhotos(_ photos: [PHAsset]) {
+        selectedImageView.image = nil
+        self.imagesData = [] // clear existing  photos.
+        var errors = [Error]()
+        var newImageData = [Data]()
+        let cachingManager = PHCachingImageManager()
+        
+        let requestOptions = PHImageRequestOptions()
+        requestOptions.isSynchronous = true
+        requestOptions.isNetworkAccessAllowed = true
+        requestOptions.progressHandler = { progress, error, stop, info in
+            DispatchQueue.main.async {
+                self.progressBar.progress = Float(progress)
+                self.progressBar.isHidden = false
+            }
+        }
+        for photo in photos {
+            DispatchQueue.global(qos: .userInitiated).async {
+                cachingManager.requestImageDataAndOrientation(for: photo,
+                                                              options: requestOptions,
+                                                              resultHandler: { data, typeIdentifier, orientation, _ in
+                                                                
+                                                                DispatchQueue.main.async {
+                                                                    log.debug("mimetype: \(typeIdentifier)")
+                                                                    self.progressBar.isHidden = true
+                                                                    if let imgData = data {
+                                                                        if let type = typeIdentifier,
+                                                                            type == "public.heic" {
+                                                                            
+                                                                            let image = UIImage(data: imgData)
+                                                                            if let jpegData = image?.jpegData(compressionQuality: 0.7) {
+                                                                                newImageData.append(jpegData)
+                                                                            }
+                                                                        } else {
+                                                                            newImageData.append(imgData)
+                                                                        }
+                                                                    } else {
+                                                                        log.error("could not get image data")
+                                                                        errors.append(PHAssetError.failedToGetData(typeIdentifier))
+                                                                    }
+                                                                    if newImageData.count + errors.count == photos.count {
+                                                                        self.setPhotosFromData(newImageData)
+                                                                    }
+                                                                }
+                                                                
+                })
+                photo.requestContentEditingInput(with: nil, completionHandler: { input, _ in
+                    DispatchQueue.main.async {
+                        if let uniformTypeIdentifier = input?.uniformTypeIdentifier {
+                            log.debug("type: \(uniformTypeIdentifier)")
+                            if uniformTypeIdentifier == "public.heic" {
+                                log.error("unsupported format")
+                            }
+                        }
+                        if let url = input?.fullSizeImageURL, let fullImage = CIImage(contentsOf: url) {
+                            let properties = fullImage.properties
+                            self.fillFormFromExifData(properties: properties)
+                        }
+                    }
+                })
+            }
+        }
+    }
+    
+    func handleSelectedImageData(_ imageData: Data) {
+        let source: CGImageSource = CGImageSourceCreateWithData((imageData as! CFMutableData), nil)!
+        let metadata = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as! [String: Any]
+        self.fillFormFromExifData(properties: metadata)
+        self.setPhotosFromData([imageData])
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -122,6 +195,8 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
         self.newPostState = .initial
         // self.tableView.separatorInset = .zero
         createForm()
+        self.handleSelectedPhotos(self.selectedAssets)
+
     }
     
     func onUpdateForm() {
@@ -137,50 +212,7 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
     }()
     
     func createForm() {
-        form +++ Section("Photos")
-            <<< ButtonRow { row in
-                row.tag = "add_photo_button"
-                row.title = "Add a photo"
-                row.onCellSelection { cell, _ in
-                    let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-                    let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-                    let takePhotoAction = UIAlertAction(title: "Camera", style: .default, handler: { _ in
-                        let cameraController = CameraViewController()
-                        cameraController.delegate = self
-                        cameraController.modalPresentationStyle = .fullScreen
-                        cameraController.popoverPresentationController?.sourceView = self.view
-                        cameraController.popoverPresentationController?.sourceRect = self.view.frame
-                        self.present(cameraController, animated: true, completion: nil)
-                    })
-                    let pickPhotoAction = UIAlertAction(title: "Photo Library",
-                                                        style: .default, handler: { _ in
-                                                            
-                        let controller = BSImagePickerViewController()
-                        controller.maxNumberOfSelections = 1
-                        self.bs_presentImagePickerController(controller, animated: true,
-                                                             select: { (asset) -> Void in
-                                                                controller.dismiss(animated: true, completion: nil)
-                                                                self.handleSelectedPhotos([asset])
-                                                                // User selected an asset.
-                                                                // Do something with it, start upload perhaps?
-                                                                
-                        }, deselect: { (_) -> Void in
-                            // User deselected an assets.
-                            // Do something, cancel upload?
-                        }, cancel: { (_) -> Void in
-                            // User cancelled. And this where the assets currently selected.
-                        }, finish: { (_) -> Void in
-                            // self.photos = assets + self.photos
-                        }, completion: nil)
-                    })
-                    alertController.addAction(takePhotoAction)
-                    alertController.addAction(pickPhotoAction)
-                    alertController.addAction(cancelAction)
-                    alertController.popoverPresentationController?.sourceView = self.view
-                    alertController.popoverPresentationController?.sourceRect = cell.frame
-                    self.present(alertController, animated: true, completion: nil)
-                }
-            }
+        form +++ Section()
             <<< ViewRow<UIView> { (row) in
                 row.tag = "photos"
                 row.hidden = Condition(booleanLiteral: true)
@@ -315,69 +347,7 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
             photosRow.updateCell()
         }
     }
-    func handleSelectedPhotos(_ photos: [PHAsset]) {
-        selectedImageView.image = nil
-        self.imagesData = [] // clear existing  photos.
-        var errors = [Error]()
-        var newImageData = [Data]()
-        let cachingManager = PHCachingImageManager()
-        
-        let requestOptions = PHImageRequestOptions()
-        requestOptions.isSynchronous = true
-        requestOptions.isNetworkAccessAllowed = true
-        requestOptions.progressHandler = { progress, error, stop, info in
-            DispatchQueue.main.async {
-                self.progressBar.progress = Float(progress)
-                self.progressBar.isHidden = false
-            }
-        }
-        for photo in photos {
-            DispatchQueue.global(qos: .userInitiated).async {
-                cachingManager.requestImageDataAndOrientation(for: photo,
-                                                              options: requestOptions,
-                                                              resultHandler: { data, typeIdentifier, orientation, _ in
-                                                                
-                                                                DispatchQueue.main.async {
-                                                                    log.debug("mimetype: \(typeIdentifier)")
-                                                                    self.progressBar.isHidden = true
-                                                                    if let imgData = data {
-                                                                        if let type = typeIdentifier,
-                                                                            type == "public.heic" {
-                                                                            
-                                                                            let image = UIImage(data: imgData)
-                                                                            if let jpegData = image?.jpegData(compressionQuality: 0.7) {
-                                                                                newImageData.append(jpegData)
-                                                                            }
-                                                                        } else {
-                                                                            newImageData.append(imgData)
-                                                                        }
-                                                                    } else {
-                                                                        log.error("could not get image data")
-                                                                        errors.append(PHAssetError.failedToGetData(typeIdentifier))
-                                                                    }
-                                                                    if newImageData.count + errors.count == photos.count {
-                                                                        self.setPhotosFromData(newImageData)
-                                                                    }
-                                                                }
-                                                                
-                })
-                photo.requestContentEditingInput(with: nil, completionHandler: { input, _ in
-                    DispatchQueue.main.async {
-                        if let uniformTypeIdentifier = input?.uniformTypeIdentifier {
-                            log.debug("type: \(uniformTypeIdentifier)")
-                            if uniformTypeIdentifier == "public.heic" {
-                                log.error("unsupported format")
-                            }
-                        }
-                        if let url = input?.fullSizeImageURL, let fullImage = CIImage(contentsOf: url) {
-                            let properties = fullImage.properties
-                            self.fillFormFromExifData(properties: properties)
-                        }
-                    }
-                })
-            }
-        }
-    }
+    
     
     func makeNewLocationBody(from placemark: CLPlacemark) -> [String: Any]? {
         var body = Parameters()
@@ -529,13 +499,3 @@ extension NewPostViewController: ArtistSelectionDelegate {
     }
 }
 
-extension NewPostViewController: CameraViewDelegate {
-    func cameraController(_ controller: CameraViewController, didFinishWithImage: UIImage?, data: Data?) {
-        controller.dismiss(animated: true, completion: nil)
-        guard let imageData = data else { log.error("no data"); return }
-        let source: CGImageSource = CGImageSourceCreateWithData((imageData as! CFMutableData), nil)!
-        let metadata = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as! [String: Any]
-        self.fillFormFromExifData(properties: metadata)
-        self.setPhotosFromData([imageData])
-    }
-}

@@ -348,11 +348,11 @@ class PostDetailViewController: UIViewController {
         navigationController?.pushViewController(vc, animated: true)
     }
     @objc func edit(_ sender: UIBarButtonItem) {
-        let editVc = NewPostViewController(mainCoordinator: mainCoordinator)
+        /*let editVc = NewPostViewController(mainCoordinator: mainCoordinator)
         editVc.editingPost = post
         editVc.savedImages = downloadedImages
         // editVc.delegate = self
-        present(UINavigationController(rootViewController: editVc), animated: true)
+        present(UINavigationController(rootViewController: editVc), animated: true) */
     }
     
     @objc func toggleVisited(_ sender: UIButton) {
