@@ -7,7 +7,7 @@ source 'https://github.com/flannerykj/urbanapplause-ios-shared.git'
 target 'UrbanApplause' do
   # Comment the next line if you're not using Swift and don't want to use dynamic frameworks
   use_frameworks!
-  pod 'UrbanApplauseShared'
+  pod 'UrbanApplauseShared', '~> 0.5.0'
   pod 'Eureka', '~> 5.1.0'
   pod 'ViewRow'
   pod 'BSImagePicker', '~> 2.8'
