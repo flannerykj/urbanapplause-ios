@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import UrbanApplauseShared
 
 class GalleryCell: UITableViewCell {
     static let ReuseID = "GalleryCell"

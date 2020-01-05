@@ -13,6 +13,7 @@ import MapKit
 import Photos
 import ViewRow
 import BSImagePicker
+import UrbanApplauseShared
 
 protocol PostFormDelegate: class {
     func didDeletePost(post: Post)

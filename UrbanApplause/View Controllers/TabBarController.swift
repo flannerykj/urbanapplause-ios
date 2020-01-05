@@ -8,6 +8,8 @@
 
 import Foundation
 import UIKit
+import UrbanApplauseShared
+
 
 class TabBarController: UITabBarController {
     var store: Store

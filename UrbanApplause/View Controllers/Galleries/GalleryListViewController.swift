@@ -8,6 +8,7 @@
 
 import UIKit
 import Combine
+import UrbanApplauseShared
 
 protocol GalleryListDelegate: class {
     func galleryList(_ controller: GalleryListViewController,

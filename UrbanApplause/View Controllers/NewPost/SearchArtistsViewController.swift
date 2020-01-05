@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import UrbanApplauseShared
 
 protocol ArtistSelectionDelegate: class {
     func artistSelectionController(finishWithArtist artist: Artist?)

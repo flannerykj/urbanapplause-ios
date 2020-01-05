@@ -10,6 +10,7 @@ import Foundation
 import UIKit
 import Eureka
 import MapKit
+import UrbanApplauseShared
 
 open class UASelectorRow<Cell: CellType>: OptionsRow<Cell>, PresenterRowType where Cell: BaseCell {
 

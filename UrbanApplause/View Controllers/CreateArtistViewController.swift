@@ -8,6 +8,7 @@
 
 import UIKit
 import Eureka
+import UrbanApplauseShared
 
 protocol CreateArtistDelegate: class {
     func didCreateArtist(_ artist: Artist)

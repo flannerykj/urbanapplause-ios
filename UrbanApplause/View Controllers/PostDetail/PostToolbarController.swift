@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import UrbanApplauseShared
 
 protocol PostToolbarDelegate: class {
     func postToolbar(_ toolbar: PostToolbarController, didUpdatePost post: Post)

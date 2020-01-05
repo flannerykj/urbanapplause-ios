@@ -7,6 +7,7 @@
 //
 import Foundation
 import UIKit
+import UrbanApplauseShared
 
 class ImageDetailViewController: UIViewController, UIScrollViewDelegate {
     var file: File

@@ -7,6 +7,7 @@
 //
 
 import Foundation   
+import UrbanApplauseShared
 
 extension JSONDecoder.DateDecodingStrategy {
 

@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import UrbanApplauseShared
 
 protocol CommentListDelegate: class {
     func commentList(didUpdateComments comments: [Comment])

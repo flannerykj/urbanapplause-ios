@@ -10,6 +10,7 @@
 
 import Foundation
 import AWSS3
+import UrbanApplauseShared
 
 enum S3Error: UAError {
     case uploadError(String?), downloadError(String?)

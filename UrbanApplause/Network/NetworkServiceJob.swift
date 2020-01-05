@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UrbanApplauseShared
 
 enum NetworkServiceJobPriority {
     case primary // requested by user - complete as soon as possible

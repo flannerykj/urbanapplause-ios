@@ -9,6 +9,8 @@
 import Foundation
 import UIKit
 import SafariServices
+import UrbanApplauseShared
+
 
 class SettingsViewController: UIViewController {
 

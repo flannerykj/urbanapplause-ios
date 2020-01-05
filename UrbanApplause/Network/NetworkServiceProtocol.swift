@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UrbanApplauseShared
 
 protocol NetworkServiceProtocol: NSObject {
     func onReceiveAccessDeniedError(error: UAServerError)

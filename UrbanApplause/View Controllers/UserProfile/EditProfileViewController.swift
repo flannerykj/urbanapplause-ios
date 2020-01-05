@@ -9,6 +9,7 @@
 import Foundation
 import UIKit
 import Eureka
+import UrbanApplauseShared
 
 protocol EditProfileDelegate: class {
     func didUpdateUser(_ user: User)

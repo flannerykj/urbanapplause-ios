@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import UrbanApplauseShared
 
 class ForgotPasswordViewController: UIViewController {
     var mainCoordinator: MainCoordinator

@@ -6,6 +6,7 @@
 //  Copyright © 2020 Flannery Jefferson. All rights reserved.
 //
 import UIKit
+import UrbanApplauseShared
 
 class ProfileViewController: UIViewController {
     var mainCoordinator: MainCoordinator

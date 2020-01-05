@@ -8,6 +8,7 @@
 
 import UIKit
 import MapKit
+import UrbanApplauseShared
 
 protocol PostDetailDelegate: class {
     func postDetail(_ controller: PostDetailViewController, didUpdatePost post: Post)

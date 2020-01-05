@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UrbanApplauseShared
 
 class AuthViewModel {
     var mainCoordinator: MainCoordinator

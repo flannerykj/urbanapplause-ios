@@ -10,6 +10,7 @@ import Foundation
 import UIKit
 import MapKit
 import Eureka
+import UrbanApplauseShared
 
 public class MapViewController: UIViewController, TypedRowControllerType {
     var matchingItems: [MKMapItem] = []

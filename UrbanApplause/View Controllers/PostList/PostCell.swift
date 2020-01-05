@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import UrbanApplauseShared
 
 protocol PostCellDelegate: class {
     func postCell(_ cell: PostCell, didUpdatePost post: Post, atIndexPath indexPath: IndexPath)

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UrbanApplauseShared
 
 protocol EndpointConfiguration {
     var baseURL: URL { get }

@@ -16,7 +16,7 @@ enum HTTPMethod: String {
 }
 
 class ShareViewController: SLComposeServiceViewController {
-    let baseURL = URL(string: Config.apiEndpoint)!.appendingPathComponent("/app")
+    /*let baseURL = URL(string: Config.apiEndpoint)!.appendingPathComponent("/app")
     let currentDate = Date()
     let keychainService = KeychainService()
     var imageDate: Date?
@@ -328,7 +328,7 @@ extension NSMutableData {
     func appendString(string: String) {
         let data = string.data(using: String.Encoding.utf8, allowLossyConversion: true)
         append(data!)
-    }
+    } */
 }
 extension ShareViewController: URLSessionDelegate {
     

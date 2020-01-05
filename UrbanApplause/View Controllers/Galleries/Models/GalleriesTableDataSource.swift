@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import UrbanApplauseShared
 
 class GalleriesTableSource: UITableViewDiffableDataSource<GalleriesSection, GalleryCellViewModel> {
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {

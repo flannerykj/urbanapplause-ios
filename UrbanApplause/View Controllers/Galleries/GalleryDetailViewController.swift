@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import UrbanApplauseShared
 
 protocol CollectionDetailControllerDelegate: class {
     func collectionDetail(didDeleteCollection collection: Collection)

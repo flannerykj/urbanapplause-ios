@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import UrbanApplauseShared
 
 enum SettingsItem {
     case account, createAccount, login, termsOfService, privacyPolicy, logout

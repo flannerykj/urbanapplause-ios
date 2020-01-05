@@ -8,15 +8,14 @@
 
 import Foundation
 import MapKit
-
-
+import UrbanApplauseShared
 
 // 1. When the user moves the map, the controller requests updated data from the view model via `public func getPosts(_:)`.
 // 2. The view model will either:
 // a)
 
 
-class PostMapViewModel2 {
+public class PostMapViewModel2 {
     enum RequestedMapContent {
         case posts, postClusters
     }

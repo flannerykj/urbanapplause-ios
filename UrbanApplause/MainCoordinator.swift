@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import UrbanApplauseShared
 
 protocol MainCoordinatorDelegate: AnyObject {
     func mainCoordinator(setRootController controller: UIViewController)

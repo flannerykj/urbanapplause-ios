@@ -9,6 +9,7 @@
 import Foundation
 import UIKit
 import MapKit
+import UrbanApplauseShared
 
 class PostMapViewController2: UIViewController {
     var viewModel: PostMapViewModel2

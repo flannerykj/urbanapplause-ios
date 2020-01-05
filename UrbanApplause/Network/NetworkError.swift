@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UrbanApplauseShared
 
 enum NetworkError: UAError {
     case fourOhFour, noResponse, dataNotFound, decodingError(error: Error), parameterEncodingFailed, invalidURL,

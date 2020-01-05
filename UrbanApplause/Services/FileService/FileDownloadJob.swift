@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UrbanApplauseShared
 
 struct FileDownloadSubscriber {
     var subscriberID: String

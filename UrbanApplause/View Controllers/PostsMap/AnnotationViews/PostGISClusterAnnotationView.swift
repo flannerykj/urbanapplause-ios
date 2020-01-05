@@ -9,6 +9,7 @@
 import Foundation
 import UIKit
 import MapKit
+import UrbanApplauseShared
 
 class PostGISClusterAnnotationView: MKMarkerAnnotationView, PostAnnotationViewProtocol {
     static let reuseIdentifier = "PostGISClusterAnnotationView"
