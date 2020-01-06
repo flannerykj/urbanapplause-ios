@@ -94,7 +94,6 @@ public class PostMapViewModel2 {
                 case .failure(let error):
                     self?.onError?(error)
                 case .success(let clusterContainer):
-                    log.debug("cover post ids: \(clusterContainer.post_clusters.map { $0.cover_post_id})")
                     self?.visibleClusters = clusterContainer.post_clusters
                     self!.onUpdateMarkers?(clusterContainer.post_clusters, true)
                     self!.lastLoadedClustersMapRect = visibleMapRect

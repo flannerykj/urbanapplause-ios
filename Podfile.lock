@@ -9,7 +9,7 @@ PODS:
   - BSImageView (1.0.3)
   - Eureka (5.1.0)
   - SwiftLint (0.38.1)
-  - UrbanApplauseShared (0.8.0)
+  - UrbanApplauseShared (1.0.3)
   - ViewRow (0.8):
     - Eureka (>= 5.0.0)
 
@@ -18,7 +18,7 @@ DEPENDENCIES:
   - BSImagePicker (~> 2.8)
   - Eureka (~> 5.1.0)
   - SwiftLint
-  - UrbanApplauseShared (~> 0.8.0)
+  - UrbanApplauseShared
   - ViewRow
 
 SPEC REPOS:
@@ -42,9 +42,9 @@ SPEC CHECKSUMS:
   BSImageView: a149459433a2687157d034c78e059d30ac7f2544
   Eureka: 18a5076dcf0c41f9cd9748aa1c42f4d11434bdae
   SwiftLint: 0aeb99ca7ccfc222ef93e2560a35e669f5465e6c
-  UrbanApplauseShared: 9decbfeab8052b90ed1f1b6609229738afdcd5d8
+  UrbanApplauseShared: 16c3e0836cdcf6a58de478bfc77ed0df57c8d294
   ViewRow: 8da541e9c019f3be63f4e28f311a62cac2045ecf
 
-PODFILE CHECKSUM: 2bb9da92156da4fe69e84d46164a77d354e27e5a
+PODFILE CHECKSUM: 132189d341ba5994eb5bbc52b3ddc5a239972b11
 
 COCOAPODS: 1.8.1

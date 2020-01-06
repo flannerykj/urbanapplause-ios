@@ -107,7 +107,9 @@ class TabBarController: UITabBarController {
     }
     
     func showNewPostForm(withPhotos photos: [PHAsset], imageData: Data? = nil) {
-        let vc = NewPostViewController(photos: photos, imageData: imageData, mainCoordinator: self.mainCoordinator)
+        let vc = NewPostViewController(photos: photos,
+                                       imageData: imageData,
+                                       mainCoordinator: self.mainCoordinator)
         vc.delegate = self
         let nav = UINavigationController(rootViewController: vc)
         // prevent swipe to dismiss so we can check for unsaved changes in didAttemptToDismiss.

@@ -263,7 +263,8 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
                                         controller.delegate = self
                                         
                                         self.selectingArtistForIndex = index
-                                        self.navigationController?.pushViewController(controller, animated: true)
+                                        self.present(UINavigationController(rootViewController: controller), animated: true, completion: nil)
+                                        
                                         return UAPushRow<Artist> {
                                             $0.tag = "artist_\(index)"
                                             $0.displayValueFor = {
@@ -482,7 +483,7 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
 }
 
 extension NewPostViewController: ArtistSelectionDelegate {
-    func artistSelectionController(finishWithArtist artist: Artist?) {
+    func artistSelectionController(_ controller: ArtistSelectionViewController, didSelectArtist artist: Artist?) {
         guard let artistsSection = self.form.sectionBy(tag: "artists") as? MultivaluedSection else {
             return
         }
@@ -496,6 +497,6 @@ extension NewPostViewController: ArtistSelectionDelegate {
             self.hasUnsavedChanges = true
             artistRow.value = selectedArtist
         }
+        controller.dismiss(animated: true, completion: nil)
     }
 }
-

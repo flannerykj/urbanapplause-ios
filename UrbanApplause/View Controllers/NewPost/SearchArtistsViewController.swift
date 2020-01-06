@@ -11,11 +11,10 @@ import UIKit
 import UrbanApplauseShared
 
 protocol ArtistSelectionDelegate: class {
-    func artistSelectionController(finishWithArtist artist: Artist?)
+    func artistSelectionController(_ controller: ArtistSelectionViewController, didSelectArtist artist: Artist?)
 }
 class ArtistSelectionViewController: UITableViewController {
     var mainCoordinator: MainCoordinator
-    var selectedArtist: Artist?
     
     var isLoading = false {
         didSet {
@@ -84,11 +83,6 @@ class ArtistSelectionViewController: UITableViewController {
         }
     }
     
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        self.delegate?.artistSelectionController(finishWithArtist: self.selectedArtist)
-    }
-    
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return artists.count
     }
@@ -102,8 +96,7 @@ class ArtistSelectionViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        self.selectedArtist = artists[indexPath.row]
-        navigationController?.popViewController(animated: true)
+        delegate?.artistSelectionController(self, didSelectArtist: artists[indexPath.row])
     }
 }
 
@@ -114,8 +107,6 @@ extension ArtistSelectionViewController: UISearchBarDelegate {
 }
 extension ArtistSelectionViewController: CreateArtistDelegate {
     func didCreateArtist(_ artist: Artist) {
-        self.selectedArtist = artist
-        log.debug("created artist: \(artist)")
-        navigationController?.popViewController(animated: true)
+        delegate?.artistSelectionController(self, didSelectArtist: artist)
     }
 }

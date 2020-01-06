@@ -64,8 +64,15 @@ class CreateArtistViewController: FormViewController {
                 $0.tag = "bio"
                 $0.placeholder = "Optional"
                 $0.title = "Bio"
-        }
+            }
         
+            +++ Section("More")
+            <<< TextAreaRow {
+                $0.tag = "instagram_username"
+                $0.placeholder = "Optional"
+                $0.title = "Instagram"
+            }
+            
         navigationItem.rightBarButtonItem = saveButton
         saveButton.isEnabled = false
     }

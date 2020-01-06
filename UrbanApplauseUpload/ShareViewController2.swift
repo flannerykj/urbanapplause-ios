@@ -1,21 +1,21 @@
 //
-//  ShareViewController.swift
+//  ShareViewController2.swift
 //  UrbanApplauseUpload
 //
-//  Created by Flannery Jefferson on 2020-01-03.
+//  Created by Flannery Jefferson on 2020-01-06.
 //  Copyright © 2020 Flannery Jefferson. All rights reserved.
 //
 
+import Foundation
 import UIKit
 import Social
 import MobileCoreServices
 import Photos
 import UrbanApplauseShared
 
-let log = DHLogger.self
 
-@objc(ShareViewController)
-class ShareViewController: SLComposeServiceViewController {
+@objc(ShareViewController2)
+class ShareViewController2: UIViewController {
     let keychainService = KeychainService()
     lazy var authService = AuthService(keychainService: keychainService)
     lazy var apiService = APIService(keychainService: keychainService)
@@ -38,11 +38,15 @@ class ShareViewController: SLComposeServiceViewController {
         print("tapped")
     }
     
+    var configurationItems: [SLComposeSheetConfigurationItem] {
+        return [locationConfigurationItem]
+    }
+    
     var selectedImageData: Data?
     var imagePlacemark: CLPlacemark?
     var imageDate: Date?
     
-    override func isContentValid() -> Bool {
+    func isContentValid() -> Bool {
         guard self.authService.isAuthenticated else { self.handleError(AuthError.notAuthenicated, isFatal: true); return false }
         if selectedImageData != nil, imagePlacemark != nil {
             return true
@@ -50,17 +54,30 @@ class ShareViewController: SLComposeServiceViewController {
         return false
     }
     
-    override func configurationItems() -> [Any]! {
-        // To add configuration options via table cells at the bottom of the sheet, return an array of SLComposeSheetConfigurationItem here.
-        return [locationConfigurationItem]
-    }
-    
+    lazy var tableView: UITableView = {
+        let tableView = UITableView()
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        tableView.delegate = self
+        tableView.dataSource = self
+        tableView.backgroundColor = UIColor.systemGray6
+        tableView.contentInset = UIEdgeInsets(top: 50, left: 24, bottom: 50, right: 24)
+        tableView.layer.cornerRadius = 8
+        return tableView
+    }()
+
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.addSubview(tableView)
+        NSLayoutConstraint.activate([
+        tableView.topAnchor.constraint(equalTo: view.topAnchor),
+        tableView.rightAnchor.constraint(equalTo: view.rightAnchor),
+        tableView.leftAnchor.constraint(equalTo: view.leftAnchor),
+        tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
         setImageFromExtensionContext()
     }
     
-    override func didSelectPost() {
+    func didSelectPost() {
         guard let imageData = self.selectedImageData else { return }
         apiService.shareImage(imageData,
                               withMetaData: [:],
@@ -139,6 +156,22 @@ class ShareViewController: SLComposeServiceViewController {
         self.present(alert, animated: true, completion: nil)
     }
 }
-extension ShareViewController: URLSessionDelegate {
+extension ShareViewController2: URLSessionDelegate {
+    
+}
+extension ShareViewController2: UITableViewDataSource, UITableViewDelegate {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return configurationItems.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let item = self.configurationItems[indexPath.row]
+        let cell = UITableViewCell(style: .value1, reuseIdentifier: nil)
+        cell.textLabel?.text = item.title
+        cell.detailTextLabel?.text = item.value
+        return cell
+    }
+    
+    
     
 }
