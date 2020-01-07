@@ -8,13 +8,14 @@
 
 import UIKit
 import Eureka
+import UrbanApplauseShared
 
 protocol CreateArtistDelegate: class {
     func didCreateArtist(_ artist: Artist)
 }
 
 class CreateArtistViewController: FormViewController {
-    var mainCoordinator: MainCoordinator
+    var networkService: NetworkService
     weak var delegate: CreateArtistDelegate?
     
     var isLoading = false {
@@ -31,8 +32,8 @@ class CreateArtistViewController: FormViewController {
             
         }
     }
-    init(mainCoordinator: MainCoordinator) {
-        self.mainCoordinator = mainCoordinator
+    init(networkService: NetworkService) {
+        self.networkService = networkService
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -63,8 +64,15 @@ class CreateArtistViewController: FormViewController {
                 $0.tag = "bio"
                 $0.placeholder = "Optional"
                 $0.title = "Bio"
-        }
+            }
         
+            +++ Section("More")
+            <<< TextAreaRow {
+                $0.tag = "instagram_username"
+                $0.placeholder = "Optional"
+                $0.title = "Instagram"
+            }
+            
         navigationItem.rightBarButtonItem = saveButton
         saveButton.isEnabled = false
     }
@@ -76,7 +84,7 @@ class CreateArtistViewController: FormViewController {
     @objc func saveArtist(_: Any) {
         self.isLoading = true
         let endpoint = PrivateRouter.createArtist(values: form.values() as Parameters)
-        _ = mainCoordinator.networkService.request(endpoint) { [weak self] (result: UAResult<ArtistContainer>) in
+        _ = networkService.request(endpoint) { [weak self] (result: UAResult<ArtistContainer>) in
             DispatchQueue.main.async {
                 switch result {
                 case .failure(let error):

@@ -7,6 +7,7 @@
 //
 import UIKit
 import CoreLocation
+import UrbanApplauseShared
 
 protocol PostListControllerDelegate: class {
     var canEditPosts: Bool { get }

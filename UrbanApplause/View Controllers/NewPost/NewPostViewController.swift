@@ -13,6 +13,7 @@ import MapKit
 import Photos
 import ViewRow
 import BSImagePicker
+import UrbanApplauseShared
 
 protocol PostFormDelegate: class {
     func didDeletePost(post: Post)
@@ -21,14 +22,17 @@ protocol PostFormDelegate: class {
 
 class NewPostViewController: FormViewController, UINavigationControllerDelegate,
 UIImagePickerControllerDelegate, UnsavedChangesController {
-    private let spacesFileRepository = SpacesFileRepository()
+    private var selectedAssets: [PHAsset] // assets passed from photo lib on init
+    private var selectedImageData: Data? // image data passed from camera on init
+    private var userID: Int
+    private var fileCache: FileService?
+    
     var post: Post?
     var hasUnsavedChanges: Bool = false
-    var mainCoordinator: MainCoordinator
-    var imagesData: [Data]
+    var networkService: NetworkService
+    var imagesData: [Data] = []
     weak var delegate: PostFormDelegate?
     var initialPlacemark: CLPlacemark?
-    lazy var networkService = self.mainCoordinator.networkService
     var showMoreOptions: Bool = false {
         didSet {
             log.debug("did set showMoreOptions: \(showMoreOptions) ")
@@ -42,28 +46,23 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
             }
         }
     }
-    var newPostState: NewPostState? {
+    var newPostState: NewPostState = .initial {
         didSet {
             DispatchQueue.main.async {
-                self.navigationItem.title = self.newPostState?.title
+                self.navigationItem.title = self.newPostState.title
+                
+                switch self.newPostState {
+                case .initial:
+                    self.navigationItem.rightBarButtonItem = self.saveButton
+                default:
+                    self.navigationItem.rightBarButtonItem = self.loaderButton
+                }
             }
         }
     }
     var selectingArtistForIndex: Int = 0
     var editingPost: Post?
     var savedImages: [Int: UIImage] = [:]
-    
-    var isLoading = false {
-        didSet {
-            DispatchQueue.main.async {
-                if self.isLoading {
-                    self.navigationItem.rightBarButtonItem = self.loaderButton
-                } else {
-                    self.navigationItem.rightBarButtonItem = self.saveButton
-                }
-            }
-        }
-    }
     
     let progressBar: UIProgressView = {
         let view = UIProgressView(progressViewStyle: .bar)
@@ -79,12 +78,14 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
         return view
     }()
     
-    init(placemark: CLPlacemark? = nil, mainCoordinator: MainCoordinator) {
-        self.mainCoordinator = mainCoordinator
+    init(photos: [PHAsset], imageData: Data?, placemark: CLPlacemark? = nil, networkService: NetworkService, userID: Int, fileCache: FileService?) {
+        self.fileCache = fileCache
+        self.userID = userID
+        self.networkService = networkService
         self.initialPlacemark = placemark
-        self.imagesData = []
+        self.selectedImageData = imageData
+        self.selectedAssets = photos
         super.init(nibName: nil, bundle: nil)
-        
         if let location = placemark?.location {
             CLGeocoder().reverseGeocodeLocation(location,
                                                 completionHandler: { (placemarks, _) in
@@ -99,272 +100,6 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
                                                         }
                                                     }
             })
-        }
-    }
-    
-    required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    var loader = ActivityIndicator()
-    lazy var loaderButton = UIBarButtonItem(customView: loader)
-    
-    lazy var saveButton = UIBarButtonItem(barButtonSystemItem: .save,
-                                          target: self,
-                                          action: #selector(pressedSubmit(_:)))
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        view.backgroundColor = UIColor.lightGray
-        loader.startAnimating()
-        navigationItem.title = Copy.ScreenTitles.newPost
-        
-        let closeButton = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancel(_:)))
-        navigationItem.leftBarButtonItem = closeButton
-        
-        navigationItem.rightBarButtonItem = saveButton
-        self.newPostState = .initial
-        // self.tableView.separatorInset = .zero
-        createForm()
-    }
-    
-    func onUpdateForm() {
-        let errors = form.validate()
-        navigationItem.rightBarButtonItem?.isEnabled = errors.count == 0
-    }
-    
-    lazy var selectedImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFit
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        return imageView
-    }()
-    
-    func createForm() {
-        form +++ Section("Photos")
-            <<< ButtonRow { row in
-                row.tag = "add_photo_button"
-                row.title = "Add a photo"
-                row.onCellSelection { cell, _ in
-                    let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-                    let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-                    let takePhotoAction = UIAlertAction(title: "Camera", style: .default, handler: { _ in
-                        let cameraController = CameraViewController()
-                        cameraController.delegate = self
-                        cameraController.modalPresentationStyle = .fullScreen
-                        cameraController.popoverPresentationController?.sourceView = self.view
-                        cameraController.popoverPresentationController?.sourceRect = self.view.frame
-                        self.present(cameraController, animated: true, completion: nil)
-                    })
-                    let pickPhotoAction = UIAlertAction(title: "Photo Library",
-                                                        style: .default, handler: { _ in
-                                                            
-                        let controller = BSImagePickerViewController()
-                        controller.maxNumberOfSelections = 1
-                        self.bs_presentImagePickerController(controller, animated: true,
-                                                             select: { (asset) -> Void in
-                                                                controller.dismiss(animated: true, completion: nil)
-                                                                self.handleSelectedPhotos([asset])
-                                                                // User selected an asset.
-                                                                // Do something with it, start upload perhaps?
-                                                                
-                        }, deselect: { (_) -> Void in
-                            // User deselected an assets.
-                            // Do something, cancel upload?
-                        }, cancel: { (_) -> Void in
-                            // User cancelled. And this where the assets currently selected.
-                        }, finish: { (_) -> Void in
-                            // self.photos = assets + self.photos
-                        }, completion: nil)
-                    })
-                    alertController.addAction(takePhotoAction)
-                    alertController.addAction(pickPhotoAction)
-                    alertController.addAction(cancelAction)
-                    alertController.popoverPresentationController?.sourceView = self.view
-                    alertController.popoverPresentationController?.sourceRect = cell.frame
-                    self.present(alertController, animated: true, completion: nil)
-                }
-            }
-            <<< ViewRow<UIView> { (row) in
-                row.tag = "photos"
-                row.hidden = Condition(booleanLiteral: true)
-            }
-            .cellSetup { (cell, _) in
-                cell.view = UIView(frame: CGRect(x: 0,
-                                                 y: 0,
-                                                 width: cell.contentView.frame.width,
-                                                 height: 210))
-                
-                cell.view!.addSubview(self.selectedImageView)
-                self.selectedImageView.fill(view: cell.view!)
-                cell.view!.addSubview(self.progressBar)
-                NSLayoutConstraint.activate([
-                    self.progressBar.centerXAnchor.constraint(equalTo: cell.view!.centerXAnchor),
-                    self.progressBar.centerYAnchor.constraint(equalTo: cell.view!.centerYAnchor),
-                    self.progressBar.widthAnchor.constraint(equalTo: cell.view!.widthAnchor, multiplier: 0.8)
-                ])
-                cell.update()
-            }
-            
-            +++ Section("Location")
-            <<< LocationRow("location") { row in
-                row.title = "Location"
-                row.value = self.initialPlacemark
-                row.onChange { _ in
-                    self.hasUnsavedChanges = true
-                }
-            }
-            +++ MultivaluedSection(multivaluedOptions: [.Insert, .Reorder, .Delete],
-                                   header: "Artists",
-                                   footer: "") {
-                                    $0.tag = "artists"
-                                    
-                                    $0.addButtonProvider = { section in
-                                        return ButtonRow {
-                                            $0.tag = "add"
-                                            $0.title = "Add an artist"
-                                            
-                                        }.cellUpdate { cell, _ in
-                                            cell.textLabel?.textAlignment = .left
-                                        }
-                                    }
-                                    $0.multivaluedRowToInsertAt = { index in
-                                        // this gets called IMMEDIATELY after the add button is pressed.
-                                        // Doesn't actually wait for artist to be selected from following controller.
-                                        let controller = ArtistSelectionViewController(mainCoordinator: self.mainCoordinator)
-                                        controller.delegate = self
-                                        
-                                        self.selectingArtistForIndex = index
-                                        self.navigationController?.pushViewController(controller, animated: true)
-                                        return UAPushRow<Artist> {
-                                            $0.tag = "artist_\(index)"
-                                            $0.displayValueFor = {
-                                                $0?.signing_name
-                                            }
-                                        }
-                                    }
-            }
-            +++ Section()
-            <<< ButtonRow {
-                $0.tag = "toggle_fields_button"
-                $0.title = "Show more fields"
-                $0.onCellSelection { _, _ in
-                    log.debug("show more")
-                    self.showMoreOptions = !self.showMoreOptions
-                }
-            }
-            +++ Section("") {
-                $0.tag = "toggleable_fields"
-                $0.hidden = Condition(booleanLiteral: !self.showMoreOptions)
-            }
-            <<< SwitchRow { row in
-                row.tag = "active"
-                row.value = true
-                row.title = "This piece is still visible"
-            }
-            <<< SwitchRow { row in
-                row.tag = "is_location_fixed"
-                row.value = true
-                row.title = "Location is fixed"
-            }
-            <<< PushRow<String> { row in
-                row.title = "Surface type"
-                row.options = ["Wall", "Billboard", "Street sign", "Train", "Truck or car", "Sidewalk" /*, "Other" */]
-                row.value = "Wall"
-            }
-            
-            <<< DateRow { row in
-                row.tag = "recordedAt"
-                row.title = "Photographed on"
-                row.value = Date()
-            }
-            +++ Section()
-    }
-    func getDateFromExif(_ exifProperties: [String: Any]) -> Date? {
-        if let tiffData = exifProperties["{TIFF}"] as? [String: Any] {
-            if let dateTime = tiffData["DateTime"] as? String {
-                let dateFormatter = DateFormatter()
-                dateFormatter.dateFormat = "yyyy:MM:dd HH:mm:ss"
-                let date = dateFormatter.date(from: dateTime)
-                return date
-            }
-        }
-        return nil
-    }
-    func getPlacemarkFromExif(_ exifProperties: [String: Any]) -> CLPlacemark? {
-        if let gpsData = exifProperties["{GPS}"] as? [String: Any] {
-            if var longitude = gpsData["Longitude"] as? Double,
-                var latitude = gpsData["Latitude"] as? Double {
-                
-                if let longitudeRef = gpsData["LongitudeRef"] as? String,
-                    let latitudeRef = gpsData["LatitudeRef"] as? String {
-                    if longitudeRef == "W" {
-                        longitude *= -1
-                    }
-                    if latitudeRef == "S" {
-                        latitude *= -1
-                    }
-                    if let latitudeDegrees = CLLocationDegrees(exactly: latitude),
-                        let longitudeDegrees = CLLocationDegrees(exactly: longitude) {
-                        
-                        var addressDictionary: [String: String] = [:]
-                        if let iptcData = exifProperties["{IPTC}"] as? [String: Any] {
-                            
-                            if let country = iptcData["Country/PrimaryLocationName"] as? String {
-                                addressDictionary["country"] = country
-                            }
-                            
-                            if let city = iptcData["City"] as? String {
-                                addressDictionary["city"] = city
-                            }
-                        }
-                        let placemark = MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: latitudeDegrees,
-                                                                                       longitude: longitudeDegrees),
-                                                    addressDictionary: addressDictionary) as CLPlacemark
-                        
-                        return placemark
-                    }
-                }
-            }
-        }
-        return nil
-    }
-    func fillFormFromExifData(properties: [String: Any]) {
-        if let dateRow = self.form.rowBy(tag: "recordedAt") as? DateRow,
-            let date = self.getDateFromExif(properties) {
-            dateRow.value = date
-            dateRow.updateCell()
-        }
-        if let locationRow = self.form.rowBy(tag: "location") as? LocationRow,
-            let placemark = getPlacemarkFromExif(properties) {
-            
-            guard let location = placemark.location else { return }
-            
-            CLGeocoder().reverseGeocodeLocation(location,
-                                                completionHandler: { (placemarks, _) in
-                                                    if let placemarkWithInfo = placemarks?.first {
-                                                        DispatchQueue.main.async {
-                                                            locationRow.value = placemarkWithInfo
-                                                            locationRow.updateCell()
-                                                        }
-                                                    }
-            })
-            locationRow.value = placemark
-            locationRow.updateCell()
-        }
-    }
-    func setPhotosFromData(_ imagesData: [Data]) {
-        self.hasUnsavedChanges = true
-        self.imagesData = imagesData
-        if let photoButtonRow = self.form.rowBy(tag: "add_photo_button") {
-            photoButtonRow.title = imagesData.count > 0 ? "Use a different photo" : "Add a photo"
-        }
-        if let photosRow = self.form.rowBy(tag: "photos") as? ViewRow, let data = self.imagesData.first {
-            photosRow.hidden = false
-            photosRow.evaluateHidden()
-            self.selectedImageView.image = UIImage(data: data)
-            photosRow.updateCell()
-            // self.collectionView.reloadData()
         }
     }
     func handleSelectedPhotos(_ photos: [PHAsset]) {
@@ -418,7 +153,7 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
                         if let uniformTypeIdentifier = input?.uniformTypeIdentifier {
                             log.debug("type: \(uniformTypeIdentifier)")
                             if uniformTypeIdentifier == "public.heic" {
-                                
+                                log.error("unsupported format")
                             }
                         }
                         if let url = input?.fullSizeImageURL, let fullImage = CIImage(contentsOf: url) {
@@ -430,6 +165,191 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
             }
         }
     }
+    
+    func handleSelectedImageData(_ imageData: Data) {
+        let source: CGImageSource = CGImageSourceCreateWithData((imageData as! CFMutableData), nil)!
+        let metadata = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as! [String: Any]
+        self.fillFormFromExifData(properties: metadata)
+        self.setPhotosFromData([imageData])
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    var loader = ActivityIndicator()
+    lazy var loaderButton = UIBarButtonItem(customView: loader)
+    
+    lazy var saveButton = UIBarButtonItem(barButtonSystemItem: .save,
+                                          target: self,
+                                          action: #selector(pressedSubmit(_:)))
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = UIColor.lightGray
+        loader.startAnimating()
+        navigationItem.title = Copy.ScreenTitles.newPost
+        
+        let closeButton = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancel(_:)))
+        navigationItem.leftBarButtonItem = closeButton
+        
+        navigationItem.rightBarButtonItem = saveButton
+        self.newPostState = .initial
+        // self.tableView.separatorInset = .zero
+        createForm()
+        self.handleSelectedPhotos(self.selectedAssets)
+    }
+    
+    func onUpdateForm() {
+        let errors = form.validate()
+        navigationItem.rightBarButtonItem?.isEnabled = errors.count == 0
+    }
+    
+    lazy var selectedImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFit
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        return imageView
+    }()
+    
+    func createForm() {
+        form +++ Section()
+            <<< ViewRow<UIView> { (row) in
+                row.tag = "photos"
+                row.hidden = Condition(booleanLiteral: true)
+            }
+            .cellSetup { (cell, _) in
+                cell.view = UIView(frame: CGRect(x: 0,
+                                                 y: 0,
+                                                 width: cell.contentView.frame.width,
+                                                 height: 210))
+                
+                cell.view!.addSubview(self.selectedImageView)
+                self.selectedImageView.fill(view: cell.view!)
+                cell.view!.addSubview(self.progressBar)
+                NSLayoutConstraint.activate([
+                    self.progressBar.centerXAnchor.constraint(equalTo: cell.view!.centerXAnchor),
+                    self.progressBar.centerYAnchor.constraint(equalTo: cell.view!.centerYAnchor),
+                    self.progressBar.widthAnchor.constraint(equalTo: cell.view!.widthAnchor, multiplier: 0.8)
+                ])
+                cell.update()
+            }
+            
+            +++ Section("Location")
+            <<< LocationRow("location") { row in
+                row.title = "Location"
+                row.value = self.initialPlacemark
+                row.onChange { _ in
+                    self.hasUnsavedChanges = true
+                }
+            }
+            +++ MultivaluedSection(multivaluedOptions: [.Insert, .Reorder, .Delete],
+                                   header: "Artists",
+                                   footer: "") {
+                                    $0.tag = "artists"
+                                    
+                                    $0.addButtonProvider = { section in
+                                        return ButtonRow {
+                                            $0.tag = "add"
+                                            $0.title = "Add an artist"
+                                            
+                                        }.cellUpdate { cell, _ in
+                                            cell.textLabel?.textAlignment = .left
+                                        }
+                                    }
+                                    $0.multivaluedRowToInsertAt = { index in
+                                        // this gets called IMMEDIATELY after the add button is pressed.
+                                        // Doesn't actually wait for artist to be selected from following controller.
+                                        let controller = ArtistSelectionViewController(networkService: self.networkService)
+                                        controller.delegate = self
+                                        
+                                        self.selectingArtistForIndex = index
+                                        self.present(UINavigationController(rootViewController: controller), animated: true, completion: nil)
+                                        
+                                        return UAPushRow<Artist> {
+                                            $0.tag = "artist_\(index)"
+                                            $0.displayValueFor = {
+                                                $0?.signing_name
+                                            }
+                                        }
+                                    }
+            }
+            +++ Section()
+            <<< ButtonRow {
+                $0.tag = "toggle_fields_button"
+                $0.title = "Show more fields"
+                $0.onCellSelection { _, _ in
+                    log.debug("show more")
+                    self.showMoreOptions = !self.showMoreOptions
+                }
+            }
+            +++ Section("") {
+                $0.tag = "toggleable_fields"
+                $0.hidden = Condition(booleanLiteral: !self.showMoreOptions)
+            }
+            <<< SwitchRow { row in
+                row.tag = "active"
+                row.value = true
+                row.title = "This piece is still visible"
+            }
+            <<< SwitchRow { row in
+                row.tag = "is_location_fixed"
+                row.value = true
+                row.title = "Location is fixed"
+            }
+            <<< PushRow<String> { row in
+                row.tag = "surface_type"
+                row.title = "Surface type"
+                row.options = ["Wall", "Billboard", "Street sign", "Train", "Truck or car", "Sidewalk" /*, "Other" */]
+                // row.value = "Wall"
+            }
+            
+            <<< DateRow { row in
+                row.tag = "recordedAt"
+                row.title = "Photographed on"
+                row.value = Date()
+            }
+            +++ Section()
+    }
+    
+    func fillFormFromExifData(properties: [String: Any]) {
+        if let dateRow = self.form.rowBy(tag: "recordedAt") as? DateRow,
+            let date = ImageService.getDateFromExif(properties) {
+            dateRow.value = date
+            dateRow.updateCell()
+        }
+        if let locationRow = self.form.rowBy(tag: "location") as? LocationRow,
+            let placemark = ImageService.getPlacemarkFromExif(properties) {
+            
+            guard let location = placemark.location else { return }
+            
+            CLGeocoder().reverseGeocodeLocation(location,
+                                                completionHandler: { (placemarks, _) in
+                                                    if let placemarkWithInfo = placemarks?.first {
+                                                        DispatchQueue.main.async {
+                                                            locationRow.value = placemarkWithInfo
+                                                            locationRow.updateCell()
+                                                        }
+                                                    }
+            })
+            locationRow.value = placemark
+            locationRow.updateCell()
+        }
+    }
+    func setPhotosFromData(_ imagesData: [Data]) {
+        self.hasUnsavedChanges = true
+        self.imagesData = imagesData
+        if let photoButtonRow = self.form.rowBy(tag: "add_photo_button") {
+            photoButtonRow.title = imagesData.count > 0 ? "Use a different photo" : "Add a photo"
+        }
+        if let photosRow = self.form.rowBy(tag: "photos") as? ViewRow, let data = self.imagesData.first {
+            photosRow.hidden = false
+            photosRow.evaluateHidden()
+            self.selectedImageView.image = UIImage(data: data)
+            photosRow.updateCell()
+        }
+    }
+    
     
     func makeNewLocationBody(from placemark: CLPlacemark) -> [String: Any]? {
         var body = Parameters()
@@ -459,14 +379,11 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
             self.showAlert(message: "Please select a location")
             return
         }
-        guard let userId = mainCoordinator.store.user.data?.id else {
-            log.error("no user id")
-            return
-        }
+
         if let description = formValues["description"] as? String {
             payload["description"] = description
         }
-        payload["UserId"] = userId
+        payload["UserId"] = userID
         
         if let active = formValues["active"] as? Bool {
             payload["active"] = active
@@ -488,7 +405,6 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
         log.debug("payload: \(payload)")
         let geocoder = CLGeocoder()
         // Look up the location to get user-friendly location info from coords
-        self.isLoading = true
         self.newPostState = .gettingLocationData
         geocoder.reverseGeocodeLocation(location,
                                         completionHandler: { (placemarks, error) in
@@ -515,7 +431,6 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
                                         case .success(let container):
                                             self.saveImages(post: container.post)
                                         case .failure(let error):
-                                            self.isLoading = false
                                             self.newPostState = .initial
                                             self.showAlert(message: error.userMessage)
                                         }
@@ -525,16 +440,10 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
     
     func saveImages(post: Post) {
         self.newPostState = .uploadingImages
-        guard let userID = self.mainCoordinator.store.user.data?.id else {
-            log.error("no user")
-            return
-        }
-        
         // Add new Post Images to Post
         let endpoint = PrivateRouter.uploadImages(postId: post.id, userId: userID, imagesData: self.imagesData)
         _ = networkService.request(endpoint, completion: { (result: UAResult<PostImagesContainer>) in
             DispatchQueue.main.async {
-                self.isLoading = false
                 self.newPostState = .initial
                 switch result {
                 case .success(let container):
@@ -545,11 +454,11 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
                         for i in 0..<container.images.count {
                             let imageData = self.imagesData[i]
                             let file = container.images[i]
-                            self.mainCoordinator.fileCache.addLocalData(imageData, for: file)
+                            self.fileCache?.addLocalData(imageData, for: file)
                             log.debug("file: \(file)")
                             if let thumbnail = file.thumbnail {
                                 log.debug("thumbnail: \(thumbnail)")
-                                self.mainCoordinator.fileCache.addLocalData(imageData, for: thumbnail)
+                                self.fileCache?.addLocalData(imageData, for: thumbnail)
                             }
                         }
                     }
@@ -567,7 +476,7 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
 }
 
 extension NewPostViewController: ArtistSelectionDelegate {
-    func artistSelectionController(finishWithArtist artist: Artist?) {
+    func artistSelectionController(_ controller: ArtistSelectionViewController, didSelectArtist artist: Artist?) {
         guard let artistsSection = self.form.sectionBy(tag: "artists") as? MultivaluedSection else {
             return
         }
@@ -581,16 +490,6 @@ extension NewPostViewController: ArtistSelectionDelegate {
             self.hasUnsavedChanges = true
             artistRow.value = selectedArtist
         }
-    }
-}
-
-extension NewPostViewController: CameraViewDelegate {
-    func cameraController(_ controller: CameraViewController, didFinishWithImage: UIImage?, data: Data?) {
         controller.dismiss(animated: true, completion: nil)
-        guard let imageData = data else { log.error("no data"); return }
-        let source: CGImageSource = CGImageSourceCreateWithData((imageData as! CFMutableData), nil)!
-        let metadata = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as! [String: Any]
-        self.fillFormFromExifData(properties: metadata)
-        self.setPhotosFromData([imageData])
     }
 }

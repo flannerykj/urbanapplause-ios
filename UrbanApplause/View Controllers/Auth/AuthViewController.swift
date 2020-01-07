@@ -8,6 +8,7 @@
 
 import UIKit
 import SafariServices
+import UrbanApplauseShared
 
 class AuthViewController: UIViewController {
     private var viewModel: AuthViewModel

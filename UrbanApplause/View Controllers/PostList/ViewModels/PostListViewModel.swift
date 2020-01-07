@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UrbanApplauseShared
 
 protocol PostListViewModel: class {
     var _posts: [Post] { get set }

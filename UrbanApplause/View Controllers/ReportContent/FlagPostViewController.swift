@@ -9,6 +9,7 @@
 import Foundation
 import UIKit
 import Eureka
+import UrbanApplauseShared
 
 class ReportAnIssueViewController: UIViewController {
     

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UrbanApplauseShared
 
 class CommentListViewModel {
     private var mainCoordinator: MainCoordinator

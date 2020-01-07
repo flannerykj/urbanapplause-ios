@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import UrbanApplauseShared
 
 protocol MainCoordinatorDelegate: AnyObject {
     func mainCoordinator(setRootController controller: UIViewController)
@@ -69,6 +70,10 @@ class MainCoordinator: NSObject {
         self.navigateToApp()
     }
     
+    public func showAuthModalOnRootVC(isNewUser: Bool) {
+        rootController?.showAuth(isNewUser: isNewUser, mainCoordinator: self)
+    }
+    
     // MARK: - Private Methods
     private func navigateToApp() {
         store.user.data = authService.authUser
@@ -79,4 +84,6 @@ class MainCoordinator: NSObject {
     private func switchRootViewController(viewController: UIViewController) {
         self.rootController = viewController
     }
+    
+    
 }

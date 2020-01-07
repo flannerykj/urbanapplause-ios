@@ -8,13 +8,13 @@
 
 import Foundation
 import UIKit
+import UrbanApplauseShared
 
 protocol ArtistSelectionDelegate: class {
-    func artistSelectionController(finishWithArtist artist: Artist?)
+    func artistSelectionController(_ controller: ArtistSelectionViewController, didSelectArtist artist: Artist?)
 }
 class ArtistSelectionViewController: UITableViewController {
-    var mainCoordinator: MainCoordinator
-    var selectedArtist: Artist?
+    var networkService: NetworkService
     
     var isLoading = false {
         didSet {
@@ -37,8 +37,8 @@ class ArtistSelectionViewController: UITableViewController {
     
     lazy var searchBar = UISearchBar(frame: CGRect(x: 0, y: 0, width: 100, height: 60))
     
-    init(mainCoordinator: MainCoordinator) {
-        self.mainCoordinator = mainCoordinator
+    init(networkService: NetworkService) {
+        self.networkService = networkService
         super.init(nibName: nil, bundle: nil)
         tableView.tableHeaderView = searchBar
         searchBar.delegate = self
@@ -61,14 +61,14 @@ class ArtistSelectionViewController: UITableViewController {
     }
     
     @objc func createArtist(_: Any) {
-        let vc = CreateArtistViewController(mainCoordinator: self.mainCoordinator)
+        let vc = CreateArtistViewController(networkService: self.networkService)
         vc.delegate = self
         navigationController?.pushViewController(vc, animated: true)
     }
     
     func getArtists(query: String) {
         let endpoint = PrivateRouter.getArtists(query: ["search": query])
-        _ = mainCoordinator.networkService.request(endpoint) { [weak self] (result: UAResult<ArtistsContainer>) in
+        _ = networkService.request(endpoint) { [weak self] (result: UAResult<ArtistsContainer>) in
             DispatchQueue.main.async {
                 switch result {
                 case .failure(let error):
@@ -81,11 +81,6 @@ class ArtistSelectionViewController: UITableViewController {
                 }
             }
         }
-    }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        self.delegate?.artistSelectionController(finishWithArtist: self.selectedArtist)
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -101,8 +96,7 @@ class ArtistSelectionViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        self.selectedArtist = artists[indexPath.row]
-        navigationController?.popViewController(animated: true)
+        delegate?.artistSelectionController(self, didSelectArtist: artists[indexPath.row])
     }
 }
 
@@ -113,8 +107,6 @@ extension ArtistSelectionViewController: UISearchBarDelegate {
 }
 extension ArtistSelectionViewController: CreateArtistDelegate {
     func didCreateArtist(_ artist: Artist) {
-        self.selectedArtist = artist
-        log.debug("created artist: \(artist)")
-        navigationController?.popViewController(animated: true)
+        delegate?.artistSelectionController(self, didSelectArtist: artist)
     }
 }

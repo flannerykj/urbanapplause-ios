@@ -9,6 +9,7 @@
 import UIKit
 import CoreLocation
 import UserNotifications
+import UrbanApplauseShared
 
 let log = DHLogger.self
 
@@ -70,7 +71,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
-    
+    func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
+        if url.pathComponents.contains("login") {
+            appCoordinator.showAuthModalOnRootVC(isNewUser: true)
+        }
+        return true
+    }
     func report_memory() {
         var taskInfo = mach_task_basic_info()
         var count = mach_msg_type_number_t(MemoryLayout<mach_task_basic_info>.size)/4
@@ -82,8 +88,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         if kerr == KERN_SUCCESS {
             print("Memory used in bytes: \(taskInfo.resident_size)")
-        }
-        else {
+        } else {
             print("Error with task_info(): " +
                 (String(cString: mach_error_string(kerr), encoding: String.Encoding.ascii) ?? "unknown error"))
         }

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UrbanApplauseShared
 
 struct ServerErrorWrapper: Decodable {
     var error: UAServerError

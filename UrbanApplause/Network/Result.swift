@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UrbanApplauseShared
 
 enum UAResult<T> {
     case success(T), failure(UAError)

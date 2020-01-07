@@ -10,6 +10,7 @@ import Foundation
 import UIKit
 import Eureka
 import MapKit
+import UrbanApplauseShared
 
 open class UASelectorRow<Cell: CellType>: OptionsRow<Cell>, PresenterRowType where Cell: BaseCell {
 
@@ -90,16 +91,14 @@ public final class LocationRow: OptionsRow<PushSelectorCell<CLPlacemark>>, Prese
 
         displayValueFor = {
             guard let placemark = $0 else { log.debug("no placemark set"); return "" }
-            log.debug(" placemark: \(placemark.location)")
-            return placemark.title
-            
-            /* guard let location = placemark.location else { return "" }
+            guard let location = placemark.location else { return "" }
             let fmt = NumberFormatter()
             fmt.maximumFractionDigits = 4
             fmt.minimumFractionDigits = 4
             let latitude = fmt.string(from: NSNumber(value: location.coordinate.latitude))!
             let longitude = fmt.string(from: NSNumber(value: location.coordinate.longitude))!
-            return  placemark.title ?? "\(latitude), \(longitude)" */
+
+            return  "\(latitude), \(longitude) (\(placemark.title))"
         }
     }
     

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UrbanApplauseShared
 
 class ArtistProfileViewModel: NSObject {
     var didUpdateData: ((Artist?) -> Void)?

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UrbanApplauseShared
 
 enum PHAssetError: UAError {
     case failedToGetData(String?)

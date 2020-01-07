@@ -8,6 +8,7 @@
 
 import UIKit
 import Eureka
+import UrbanApplauseShared
 
 protocol NewCollectionViewControllerDelegate: class {
     func didCreateCollection(collection: Collection)

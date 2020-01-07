@@ -67,7 +67,7 @@ class UATextArea: UITextView, UITextViewDelegate {
         // Combine the textView text and the replacement text to
         // create the updated text string
         let currentText: String = self.text
-        guard let nsRange = self.selectedRange else { return false }
+        let nsRange = self.selectedRange
         let updatedText = (currentText as NSString).replacingCharacters(in: nsRange, with: text)
 
         // If updated text view will be empty, add the placeholder

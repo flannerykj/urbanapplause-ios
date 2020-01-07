@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import UIKit
+import UrbanApplauseShared
 
 class GalleryListViewModel {
     typealias Snapshot = NSDiffableDataSourceSnapshot<GalleriesSection, GalleryCellViewModel>

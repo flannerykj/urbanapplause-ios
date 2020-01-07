@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import UrbanApplauseShared
 
 class ImageCarouselViewController: UIViewController {
     var imageIndex: Int = 0

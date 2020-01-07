@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UrbanApplauseShared
 
 enum AuthRouter: EndpointConfiguration {
     

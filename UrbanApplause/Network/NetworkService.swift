@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import UrbanApplauseShared
 
 protocol DownloadService: NSObject {
     func download(_ route: EndpointConfiguration,

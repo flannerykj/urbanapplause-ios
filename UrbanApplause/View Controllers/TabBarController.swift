@@ -8,6 +8,9 @@
 
 import Foundation
 import UIKit
+import UrbanApplauseShared
+import BSImagePicker
+import Photos
 
 class TabBarController: UITabBarController {
     var store: Store
@@ -96,20 +99,71 @@ class TabBarController: UITabBarController {
     
     @objc func createNewPressed(_: Any) {
         if mainCoordinator.authService.isAuthenticated {
-            let vc = NewPostViewController(mainCoordinator: self.mainCoordinator)
-            vc.delegate = self
-            let nav = UINavigationController(rootViewController: vc)
-            // prevent swipe to dismiss so we can check for unsaved changes in didAttemptToDismiss.
-            nav.isModalInPresentation = true
-            nav.presentationController?.delegate = self
-            self.present(nav, animated: true, completion: nil)
+            self.selectPhotos()
         } else {
             self.showAlertForLoginRequired(desiredAction: "post",
                                            mainCoordinator: self.mainCoordinator)
         }
     }
     
-}
+    func showNewPostForm(withPhotos photos: [PHAsset], imageData: Data? = nil) {
+        guard let userID = self.mainCoordinator.store.user.data?.id else {
+            return
+        }
+        let vc = NewPostViewController(photos: photos,
+                                       imageData: imageData,
+                                       networkService: self.mainCoordinator.networkService,
+                                       userID: userID,
+                                       fileCache: mainCoordinator.fileCache)
+        vc.delegate = self
+        let nav = UINavigationController(rootViewController: vc)
+        // prevent swipe to dismiss so we can check for unsaved changes in didAttemptToDismiss.
+        nav.isModalInPresentation = true
+        nav.presentationController?.delegate = self
+        self.present(nav, animated: true, completion: nil)
+    }
+    func selectPhotos() {
+        let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+            let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+            let takePhotoAction = UIAlertAction(title: "Camera", style: .default, handler: { _ in
+                let cameraController = CameraViewController()
+                cameraController.delegate = self
+                cameraController.modalPresentationStyle = .fullScreen
+                cameraController.popoverPresentationController?.sourceView = self.view
+                cameraController.popoverPresentationController?.sourceRect = self.view.frame
+                self.present(cameraController, animated: true, completion: nil)
+            })
+            let pickPhotoAction = UIAlertAction(title: "Photo Library",
+                                                style: .default, handler: { _ in
+                                                    
+                let controller = BSImagePickerViewController()
+                controller.maxNumberOfSelections = 1
+                self.bs_presentImagePickerController(controller, animated: true,
+                                                     select: { (asset) -> Void in
+                                                        controller.dismiss(animated: true, completion: nil)
+                                                        self.showNewPostForm(withPhotos: [asset])
+                                                        // User selected an asset.
+                                                        // Do something with it, start upload perhaps?
+                                                        
+                }, deselect: { (_) -> Void in
+                    // User deselected an assets.
+                    // Do something, cancel upload?
+                }, cancel: { (_) -> Void in
+                    // User cancelled. And this where the assets currently selected.
+                }, finish: { (_) -> Void in
+                    // self.photos = assets + self.photos
+                }, completion: nil)
+            })
+            alertController.addAction(takePhotoAction)
+            alertController.addAction(pickPhotoAction)
+            alertController.addAction(cancelAction)
+            alertController.popoverPresentationController?.sourceView = self.view
+            alertController.popoverPresentationController?.sourceRect = self.view.frame
+            self.present(alertController, animated: true, completion: nil)
+        }
+    }
+    
+
 extension TabBarController: UITabBarControllerDelegate {
     override func tabBar(_ tabBar: UITabBar, didSelect item: UITabBarItem) {
         let indexOfSearchTab = 1
@@ -189,5 +243,12 @@ extension TabBarController: PostFormDelegate {
     func didDeletePost(post: Post) {
         self.listRootVC.didCreatePost(post: post)
         self.mapRootVC.didDeletePost(post: post)
+    }
+}
+extension TabBarController: CameraViewDelegate {
+    func cameraController(_ controller: CameraViewController, didFinishWithImage: UIImage?, data: Data?) {
+        controller.dismiss(animated: true, completion: nil)
+        guard let imageData = data else { log.error("no data"); return }
+        self.showNewPostForm(withPhotos: [], imageData: imageData)
     }
 }

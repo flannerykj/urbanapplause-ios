@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import UrbanApplauseShared
 
 protocol CommentCellDelegate: class {
     func commentCell(didSelectUser user: User)

@@ -9,6 +9,7 @@
 import Foundation
 import UIKit
 import MapKit
+import UrbanApplauseShared
 
 protocol PostAnnotationViewProtocol {
     var contentView: AnnotationContentView { get set }

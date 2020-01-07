@@ -7,9 +7,9 @@
 //
 
 import Foundation
-    
+import UrbanApplauseShared
+
 enum PrivateRouter: EndpointConfiguration {
-    
     // auth
     case authenticate(email: String, password: String, username: String?, newUser: Bool)
     

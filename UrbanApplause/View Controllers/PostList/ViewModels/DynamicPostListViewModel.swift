@@ -8,6 +8,7 @@
 
 import Foundation
 import MapKit
+import UrbanApplauseShared
 
 class DynamicPostListViewModel: PostListViewModel {
     private var mainCoordinator: MainCoordinator

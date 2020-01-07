@@ -8,6 +8,7 @@
 
 import UIKit
 import MapKit
+import UrbanApplauseShared
 
 protocol PostDetailDelegate: class {
     func postDetail(_ controller: PostDetailViewController, didUpdatePost post: Post)
@@ -75,16 +76,16 @@ class PostDetailViewController: UIViewController {
         self.isLoading = true
         _ = mainCoordinator.networkService.request(PrivateRouter.getPost(id: postID),
                                                    completion: { (result: UAResult<PostContainer>) in
-            DispatchQueue.main.async {
-                self.isLoading = false
-                switch result {
-                case .success(let container):
-                    self.post = container.post
-                case .failure(let error):
-                    log.error(error)
-                    self.showAlert(title: "Something went wrong", message: error.userMessage)
-                }
-            }
+                                                    DispatchQueue.main.async {
+                                                        self.isLoading = false
+                                                        switch result {
+                                                        case .success(let container):
+                                                            self.post = container.post
+                                                        case .failure(let error):
+                                                            log.error(error)
+                                                            self.showAlert(title: "Something went wrong", message: error.userMessage)
+                                                        }
+                                                    }
         })
     }
     required init?(coder: NSCoder) {
@@ -108,9 +109,9 @@ class PostDetailViewController: UIViewController {
             })
         }
     }
-
+    
     var downloadedImages: [Int: UIImage] = [:]
-        
+    
     lazy var photoView = LoadableImageView(initialState: .empty)
     
     var artistLabel: UILabel = {
@@ -161,7 +162,7 @@ class PostDetailViewController: UIViewController {
             $0.signing_name != nil
         }.map { $0.signing_name ?? "" }
         let artistNameSeperator = ", "
-
+        
         var allText = prependText
         let noneAddedText = "None added"
         if artistNames.count > 0 {
@@ -198,7 +199,7 @@ class PostDetailViewController: UIViewController {
         attributedText.style(as: .body)
         attributedText.style(as: .link, withLink: "www.urbanapplause.com/app/locations/\(location.id)", for: NSRange(location: prependText.count, length: location.description.count))
         locationLabel.attributedText = attributedText
-    
+        
     }
     lazy var metadataStackView: UIStackView = {
         let stackView = UIStackView(arrangedSubviews: [postedByTextView, dateLabel, locationLabel, artistsTextView])
@@ -206,7 +207,7 @@ class PostDetailViewController: UIViewController {
         dateLabel.setContentCompressionResistancePriority(.required, for: .vertical)
         locationLabel.setContentCompressionResistancePriority(.required, for: .vertical)
         artistsTextView.setContentCompressionResistancePriority(.required, for: .vertical)
-
+        
         stackView.axis = .vertical
         stackView.spacing = 4
         stackView.isLayoutMarginsRelativeArrangement = true
@@ -225,10 +226,10 @@ class PostDetailViewController: UIViewController {
                                 rightImage: UIImage(systemName: "eye"))
     
     let applaudedButton = UAButton(type: .outlined,
-                                        title: "Applauded",
-                                        target: self,
-                                        action: #selector(toggleApplause(_:)),
-                                        rightImage: UIImage(named: "applause"))
+                                   title: "Applauded",
+                                   target: self,
+                                   action: #selector(toggleApplause(_:)),
+                                   rightImage: UIImage(named: "applause"))
     
     lazy var optionsStackView: UIStackView = {
         let stackView = UIStackView(arrangedSubviews: [visitsButton, applaudedButton])
@@ -251,14 +252,14 @@ class PostDetailViewController: UIViewController {
         stackView.axis = .vertical
         return stackView
     }()
-
+    
     lazy var mapView: MKMapView = {
-       let mapView = MKMapView()
+        let mapView = MKMapView()
         mapView.delegate = self
         mapView.register(MKMarkerAnnotationView.self, forAnnotationViewWithReuseIdentifier: markerReuseIdentifier)
         return mapView
     }()
-
+    
     lazy var scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
@@ -268,7 +269,10 @@ class PostDetailViewController: UIViewController {
         return scrollView
     }()
     
-    lazy var optionsButton = UIBarButtonItem(image: UIImage(systemName: "ellipsis"), style: .plain, target: self, action: #selector(showMoreOptions(_:)))
+    lazy var optionsButton = UIBarButtonItem(image: UIImage(systemName: "ellipsis"),
+                                             style: .plain,
+                                             target: self,
+                                             action: #selector(showMoreOptions(_:)))
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -282,18 +286,18 @@ class PostDetailViewController: UIViewController {
         navigationItem.rightBarButtonItem = optionsButton
         
         view.addSubview(scrollView)
-
+        
         scrollView.fill(view: self.view)
         NSLayoutConstraint.activate([
-        photoView.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.height * 0.4),
-        mapView.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.height * 0.5)
+            photoView.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.height * 0.4),
+            mapView.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.height * 0.5)
         ])
         view.addSubview(activityIndicator)
         activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
         visitsButton.setLeftImage(UIImage(systemName: "checkmark")?.withRenderingMode(.alwaysTemplate))
         applaudedButton.setLeftImage(UIImage(named: "applause")?.withRenderingMode(.alwaysTemplate))
-
+        
         let thegrey = UIColor.systemGray
         visitsButton.normalProperties.borderColor = thegrey
         visitsButton.normalProperties.textColor = thegrey
@@ -304,7 +308,7 @@ class PostDetailViewController: UIViewController {
         
         self.updateVisitedButton()
         self.updateApplaudedButton()
-
+        
     }
     @objc func showMoreOptions(_ sender: UIButton) {
         let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
@@ -344,13 +348,13 @@ class PostDetailViewController: UIViewController {
         navigationController?.pushViewController(vc, animated: true)
     }
     @objc func edit(_ sender: UIBarButtonItem) {
-        let editVc = NewPostViewController(mainCoordinator: mainCoordinator)
+        /*let editVc = NewPostViewController(mainCoordinator: mainCoordinator)
         editVc.editingPost = post
         editVc.savedImages = downloadedImages
         // editVc.delegate = self
-        present(UINavigationController(rootViewController: editVc), animated: true)
+        present(UINavigationController(rootViewController: editVc), animated: true) */
     }
-
+    
     @objc func toggleVisited(_ sender: UIButton) {
         guard self.mainCoordinator.authService.isAuthenticated else {
             self.showAlertForLoginRequired(desiredAction: "save a visit",
@@ -440,15 +444,15 @@ class PostDetailViewController: UIViewController {
         let blockAction = UIAlertAction(title: "Block", style: .destructive, handler: { _ in
             let endpoint = PrivateRouter.blockUser(blockingUserId: blockingUser.id, blockedUserId: user.id)
             _ = self.mainCoordinator.networkService.request(endpoint,
-                                                       completion: { (result: UAResult<BlockedUserContainer>) in
-                                                        DispatchQueue.main.async {
-                                                            switch result {
-                                                            case .success:
-                                                                self.onBlockUserSuccess(user: user)
-                                                            case .failure(let error):
-                                                                self.onBlockUserError(error, user: user)
-                                                            }
-                                                        }
+                                                            completion: { (result: UAResult<BlockedUserContainer>) in
+                                                                DispatchQueue.main.async {
+                                                                    switch result {
+                                                                    case .success:
+                                                                        self.onBlockUserSuccess(user: user)
+                                                                    case .failure(let error):
+                                                                        self.onBlockUserError(error, user: user)
+                                                                    }
+                                                                }
             })
         })
         alertController.addAction(cancelAction)
@@ -499,15 +503,15 @@ class PostDetailViewController: UIViewController {
         })
         let deleteAction = UIAlertAction(title: "Delete", style: .destructive, handler: { _ in
             _ = self.mainCoordinator.networkService.request(PrivateRouter.deletePost(id: post.id),
-                                                       completion: { (result: UAResult<PostContainer>) in
-                                                        DispatchQueue.main.async {
-                                                            switch result {
-                                                            case .success:
-                                                                self.onDeletePostSuccess(post: post)
-                                                            case .failure(let error):
-                                                                self.onDeletePostError(error, post: post)
-                                                            }
-                                                        }
+                                                            completion: { (result: UAResult<PostContainer>) in
+                                                                DispatchQueue.main.async {
+                                                                    switch result {
+                                                                    case .success:
+                                                                        self.onDeletePostSuccess(post: post)
+                                                                    case .failure(let error):
+                                                                        self.onDeletePostError(error, post: post)
+                                                                    }
+                                                                }
             })
         })
         alertController.addAction(cancelAction)
@@ -564,7 +568,7 @@ class PostDetailViewController: UIViewController {
         }
         present(UINavigationController(rootViewController: vc), animated: true, completion: nil)
     }
-
+    
     func addPostToCollection(_ collection: Collection, completion: @escaping (Bool) -> Void) {
         guard let post = self.post else { return }
         let endpoint = PrivateRouter.addToCollection(collectionId: collection.id, postId: post.id, annotation: "")
@@ -627,7 +631,7 @@ class PostDetailViewController: UIViewController {
 
 extension PostDetailViewController: PostFormDelegate {
     func didCreatePost(post: Post) {}
-
+    
     func didDeletePost(post: Post) {
         DispatchQueue.main.async {
             // self.delegate?.shouldReloadPosts()
@@ -645,7 +649,10 @@ extension PostDetailViewController: MKMapViewDelegate {
 }
 
 extension PostDetailViewController: UITextViewDelegate {
-    func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
+    func textView(_ textView: UITextView,
+                  shouldInteractWith URL: URL,
+                  in characterRange: NSRange,
+                  interaction: UITextItemInteraction) -> Bool {
         if URL.pathComponents.contains("artists") {
             guard let idString = URL.pathComponents.last else { return false }
             guard let artist = self.post?.Artists?.first(where: {
@@ -669,7 +676,7 @@ extension PostDetailViewController: UITextViewDelegate {
             ac.addAction(UIAlertAction(title: "Get directions", style: .default, handler: { _ in
                 let placemark = MKPlacemark(coordinate: location.clLocation.coordinate)
                 let mapItem = MKMapItem(placemark: placemark)
-
+                
                 mapItem.name = location.description
                 let launchOptions = [MKLaunchOptionsDirectionsModeKey : MKLaunchOptionsDirectionsModeWalking]
                 mapItem.openInMaps(launchOptions: launchOptions)
@@ -683,7 +690,7 @@ extension PostDetailViewController: UITextViewDelegate {
 }
 
 extension PostDetailViewController: GalleryListDelegate {
-        func galleryList(_ controller: GalleryListViewController,
+    func galleryList(_ controller: GalleryListViewController,
                      didSelectCellModel cellModel: GalleryCellViewModel,
                      at indexPath: IndexPath) {
         
@@ -744,6 +751,4 @@ extension PostDetailViewController: GalleryListDelegate {
         }
         return nil
     }
-    
-    
 }
