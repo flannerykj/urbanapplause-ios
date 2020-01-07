@@ -59,7 +59,12 @@ public class MapViewController: UIViewController, TypedRowControllerType {
         
         // map setup
         view.addSubview(mapView)
-        mapView.fill(view: self.view)
+        NSLayoutConstraint.activate([
+            mapView.rightAnchor.constraint(equalTo: view.rightAnchor),
+            mapView.leftAnchor.constraint(equalTo: view.leftAnchor),
+            mapView.topAnchor.constraint(equalTo: view.topAnchor),
+            mapView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
         
         let tapRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(didLongPressMap(sender:)))
         mapView.addGestureRecognizer(tapRecognizer)

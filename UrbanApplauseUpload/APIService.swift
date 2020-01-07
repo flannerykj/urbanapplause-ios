@@ -9,10 +9,6 @@
 import Foundation
 import UrbanApplauseShared
 
-enum HTTPMethod: String {
-    case get, put, post, delete
-}
-
 enum APIServiceError: Error, UAError {
     case noData, errorCreatingPost(Error), errorDecodingPost(Error)
     
@@ -180,10 +176,4 @@ class APIService {
         return "Boundary-\(NSUUID().uuidString)"
     }
 
-}
-extension NSMutableData {
-    func appendString(string: String) {
-        let data = string.data(using: String.Encoding.utf8, allowLossyConversion: true)
-        append(data!)
-    }
 }

@@ -19,6 +19,57 @@
 		3A12AA6C23C3C29C006A3138 /* APIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A12AA6B23C3C29C006A3138 /* APIService.swift */; };
 		3A12AA7A23C3E4C1006A3138 /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A12AA7923C3E4C1006A3138 /* Errors.swift */; };
 		3A12AA7F23C3EC14006A3138 /* ShareViewController2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A12AA7E23C3EC14006A3138 /* ShareViewController2.swift */; };
+		3A12AAC123C3F422006A3138 /* ConfigurationItemCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A12AAC023C3F422006A3138 /* ConfigurationItemCell.swift */; };
+		3A12AAC223C3F640006A3138 /* MapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AED042E235614C200383982 /* MapViewController.swift */; };
+		3A12AAC523C3F6DA006A3138 /* UIViewController+Alert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A12AAC423C3F6DA006A3138 /* UIViewController+Alert.swift */; };
+		3A12AAC623C3F85A006A3138 /* CustomCells.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A755E2F2355AD6900276555 /* CustomCells.swift */; };
+		3A12AAC723C3F9E1006A3138 /* AuthRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A91DF152368733C0074E627 /* AuthRouter.swift */; };
+		3A12AAC823C3F9E1006A3138 /* PrivateRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ADA0D4A234D658E007A4DAC /* PrivateRouter.swift */; };
+		3A12AAC923C3F9E1006A3138 /* NetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ADA0D58234D6612007A4DAC /* NetworkService.swift */; };
+		3A12AACA23C3F9E1006A3138 /* NetworkServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A3187352353784C00D59F79 /* NetworkServiceProtocol.swift */; };
+		3A12AACB23C3F9E1006A3138 /* UAServerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AA7671023501ADF00A70DE4 /* UAServerError.swift */; };
+		3A12AACC23C3F9E1006A3138 /* NetworkError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A54FF8F237B30220019D108 /* NetworkError.swift */; };
+		3A12AACD23C3F9E1006A3138 /* NetworkServiceJob.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A3187232353208500D59F79 /* NetworkServiceJob.swift */; };
+		3A12AACE23C3F9E1006A3138 /* EndpointConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ADA0D4C234D65A0007A4DAC /* EndpointConfiguration.swift */; };
+		3A12AACF23C3F9E1006A3138 /* HTTPMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ADA0D4E234D65B7007A4DAC /* HTTPMethod.swift */; };
+		3A12AAD023C3F9E1006A3138 /* HTTPTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ADA0D50234D65C4007A4DAC /* HTTPTask.swift */; };
+		3A12AAD123C3F9E1006A3138 /* HTTPHeaders.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ADA0D52234D65D4007A4DAC /* HTTPHeaders.swift */; };
+		3A12AAD223C3F9E1006A3138 /* Parameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ADA0D54234D65E3007A4DAC /* Parameters.swift */; };
+		3A12AAD323C3F9E1006A3138 /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ADA0D56234D65F0007A4DAC /* Result.swift */; };
+		3A12AAD423C3FA1C006A3138 /* NSData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A677C9223580433004E77E7 /* NSData.swift */; };
+		3A12AAD523C3FB52006A3138 /* NewPostViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AF4850021E2785100FBC33E /* NewPostViewController.swift */; };
+		3A12AAD723C3FB8E006A3138 /* UIViewController+ExtensionSafeAlerts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A12AAD623C3FB8E006A3138 /* UIViewController+ExtensionSafeAlerts.swift */; };
+		3A12AAD823C3FB95006A3138 /* UIViewController+ExtensionSafeAlerts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A12AAD623C3FB8E006A3138 /* UIViewController+ExtensionSafeAlerts.swift */; };
+		3A12AADA23C3FBDE006A3138 /* NewPostState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A1DCE162385947F0028D117 /* NewPostState.swift */; };
+		3A12AADB23C3FBE9006A3138 /* SearchArtistsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A3BF9E9235635A4005F8354 /* SearchArtistsViewController.swift */; };
+		3A12AADC23C3FBE9006A3138 /* PHAssetError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A1DCE142385946F0028D117 /* PHAssetError.swift */; };
+		3A12AADD23C3FC05006A3138 /* UIView+Fill.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A76EA8C21DB249500FEDEC8 /* UIView+Fill.swift */; };
+		3A12AADE23C3FC8F006A3138 /* CreateArtistViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A179A712360F56900E0C3FF /* CreateArtistViewController.swift */; };
+		3A12AAE023C3FCF4006A3138 /* UAButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A1ECBF42267F6F50055FC9B /* UAButton.swift */; };
+		3A12AAE123C3FCF4006A3138 /* IconButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A31872F235327B900D59F79 /* IconButton.swift */; };
+		3A12AAE223C3FCF4006A3138 /* UATextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AA7672323507F3200A70DE4 /* UATextField.swift */; };
+		3A12AAE323C3FCF4006A3138 /* ErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A9C58702350BBAF002E36A3 /* ErrorView.swift */; };
+		3A12AAE423C3FCF4006A3138 /* ActivityIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A179A6F2360F10200E0C3FF /* ActivityIndicator.swift */; };
+		3A12AAE523C3FCF4006A3138 /* UATextArea.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A7553AF2365EFD900634C32 /* UATextArea.swift */; };
+		3A12AAE623C3FCF4006A3138 /* UATextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A0C8FBB23B8FCEA0068AECA /* UATextView.swift */; };
+		3A12AAE723C3FCF4006A3138 /* NoFrameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AFAB6BC2364C9BB000EC360 /* NoFrameView.swift */; };
+		3A12AAE823C3FCF4006A3138 /* NonClippingLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A746E1C2372DC6100F36EFB /* NonClippingLabel.swift */; };
+		3A12AAE923C3FCF4006A3138 /* CircularLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ACAE0FF2390AB9F0025FB25 /* CircularLoader.swift */; };
+		3A12AAEA23C3FCF4006A3138 /* LoadableImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A6FE0A323B681EE0018018F /* LoadableImageView.swift */; };
+		3A12AAEB23C3FD10006A3138 /* Copy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A5EA3CF2369FF6E006A3F27 /* Copy.swift */; };
+		3A12AAEC23C3FD19006A3138 /* UIColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AF484FA21DFD1D700FBC33E /* UIColor.swift */; };
+		3A12AAED23C3FD19006A3138 /* StyleConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A76EA8121DAD5E400FEDEC8 /* StyleConstants.swift */; };
+		3A12AAEE23C3FD19006A3138 /* ButtonStylePreset.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A1ECBEF2267EED50055FC9B /* ButtonStylePreset.swift */; };
+		3A12AAEF23C3FD19006A3138 /* Typography.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A1ECB8F22679E170055FC9B /* Typography.swift */; };
+		3A12AAF023C3FD19006A3138 /* UADimensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A9C58782350BD1A002E36A3 /* UADimensions.swift */; };
+		3A12AAF123C3FD34006A3138 /* Cache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A1DCE182385B31E0028D117 /* Cache.swift */; };
+		3A12AAF223C3FD34006A3138 /* FileService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A31873323535E5800D59F79 /* FileService.swift */; };
+		3A12AAF323C3FD34006A3138 /* FileDownloadJob.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ADB12442370303F004C1FA1 /* FileDownloadJob.swift */; };
+		3A12AAF423C3FD34006A3138 /* FileError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ADB124223703027004C1FA1 /* FileError.swift */; };
+		3A12AAF523C3FD3C006A3138 /* UserDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A9C587A2350BE8C002E36A3 /* UserDefaults.swift */; };
+		3A12AAF623C3FD3C006A3138 /* SpacesFileRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A1DCE102384B4D80028D117 /* SpacesFileRepository.swift */; };
+		3A12AAF723C3FD6E006A3138 /* UILabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A76EA8E21DB25F900FEDEC8 /* UILabel.swift */; };
+		3A12AAF823C3FDE4006A3138 /* UIEdgeInsets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A0C8FB923B8FC8C0068AECA /* UIEdgeInsets.swift */; };
 		3A179A702360F10200E0C3FF /* ActivityIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A179A6F2360F10200E0C3FF /* ActivityIndicator.swift */; };
 		3A179A722360F56900E0C3FF /* CreateArtistViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A179A712360F56900E0C3FF /* CreateArtistViewController.swift */; };
 		3A1DCE112384B4D80028D117 /* SpacesFileRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A1DCE102384B4D80028D117 /* SpacesFileRepository.swift */; };
@@ -204,6 +255,9 @@
 		3A12AA6B23C3C29C006A3138 /* APIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIService.swift; sourceTree = "<group>"; };
 		3A12AA7923C3E4C1006A3138 /* Errors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Errors.swift; sourceTree = "<group>"; };
 		3A12AA7E23C3EC14006A3138 /* ShareViewController2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareViewController2.swift; sourceTree = "<group>"; };
+		3A12AAC023C3F422006A3138 /* ConfigurationItemCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigurationItemCell.swift; sourceTree = "<group>"; };
+		3A12AAC423C3F6DA006A3138 /* UIViewController+Alert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+Alert.swift"; sourceTree = "<group>"; };
+		3A12AAD623C3FB8E006A3138 /* UIViewController+ExtensionSafeAlerts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+ExtensionSafeAlerts.swift"; sourceTree = "<group>"; };
 		3A179A6F2360F10200E0C3FF /* ActivityIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityIndicator.swift; sourceTree = "<group>"; };
 		3A179A712360F56900E0C3FF /* CreateArtistViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateArtistViewController.swift; sourceTree = "<group>"; };
 		3A1DCE102384B4D80028D117 /* SpacesFileRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpacesFileRepository.swift; sourceTree = "<group>"; };
@@ -527,6 +581,7 @@
 				3A76EA8521DB19C900FEDEC8 /* UITextField.swift */,
 				3AF4850C21E29A4D00FBC33E /* UIViewController+Alert.swift */,
 				3A3F720323849AFA0075FBFE /* UIViewController+Keyboard.swift */,
+				3A12AAD623C3FB8E006A3138 /* UIViewController+ExtensionSafeAlerts.swift */,
 				3A76EA8E21DB25F900FEDEC8 /* UILabel.swift */,
 				3A76EA8C21DB249500FEDEC8 /* UIView+Fill.swift */,
 				3A76EA8A21DB1C0800FEDEC8 /* UIStackView.swift */,
@@ -755,8 +810,10 @@
 				3A5AAD1923BFAE76008BD4D2 /* UrbanApplauseUpload.entitlements */,
 				3AEE041423BFAE1B00914AF2 /* ShareViewController.swift */,
 				3A12AA7E23C3EC14006A3138 /* ShareViewController2.swift */,
+				3A12AAC023C3F422006A3138 /* ConfigurationItemCell.swift */,
 				3A12AA6B23C3C29C006A3138 /* APIService.swift */,
 				3A12AA7923C3E4C1006A3138 /* Errors.swift */,
+				3A12AAC423C3F6DA006A3138 /* UIViewController+Alert.swift */,
 				3AEE041923BFAE1B00914AF2 /* Info.plist */,
 			);
 			path = UrbanApplauseUpload;
@@ -1156,6 +1213,7 @@
 				3A0C8FB823B8F72D0068AECA /* UITextView.swift in Sources */,
 				3A76EA8221DAD5E400FEDEC8 /* StyleConstants.swift in Sources */,
 				3A318730235327B900D59F79 /* IconButton.swift in Sources */,
+				3A12AAD723C3FB8E006A3138 /* UIViewController+ExtensionSafeAlerts.swift in Sources */,
 				3ADA0D51234D65C4007A4DAC /* HTTPTask.swift in Sources */,
 				3A3F720423849AFA0075FBFE /* UIViewController+Keyboard.swift in Sources */,
 				3ACB5B3E236CE7EE0004FA31 /* SettingsViewController.swift in Sources */,
@@ -1211,12 +1269,62 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3A12AACF23C3F9E1006A3138 /* HTTPMethod.swift in Sources */,
+				3A12AAC523C3F6DA006A3138 /* UIViewController+Alert.swift in Sources */,
+				3A12AAE823C3FCF4006A3138 /* NonClippingLabel.swift in Sources */,
+				3A12AACE23C3F9E1006A3138 /* EndpointConfiguration.swift in Sources */,
+				3A12AAEE23C3FD19006A3138 /* ButtonStylePreset.swift in Sources */,
+				3A12AAE723C3FCF4006A3138 /* NoFrameView.swift in Sources */,
+				3A12AAD823C3FB95006A3138 /* UIViewController+ExtensionSafeAlerts.swift in Sources */,
+				3A12AACC23C3F9E1006A3138 /* NetworkError.swift in Sources */,
 				3A12AA6C23C3C29C006A3138 /* APIService.swift in Sources */,
+				3A12AAC823C3F9E1006A3138 /* PrivateRouter.swift in Sources */,
+				3A12AACD23C3F9E1006A3138 /* NetworkServiceJob.swift in Sources */,
+				3A12AAC623C3F85A006A3138 /* CustomCells.swift in Sources */,
+				3A12AAE523C3FCF4006A3138 /* UATextArea.swift in Sources */,
 				3A12AA7F23C3EC14006A3138 /* ShareViewController2.swift in Sources */,
+				3A12AADC23C3FBE9006A3138 /* PHAssetError.swift in Sources */,
+				3A12AAD123C3F9E1006A3138 /* HTTPHeaders.swift in Sources */,
+				3A12AAD423C3FA1C006A3138 /* NSData.swift in Sources */,
+				3A12AADD23C3FC05006A3138 /* UIView+Fill.swift in Sources */,
 				3A12AA7A23C3E4C1006A3138 /* Errors.swift in Sources */,
+				3A12AAE223C3FCF4006A3138 /* UATextField.swift in Sources */,
+				3A12AAE423C3FCF4006A3138 /* ActivityIndicator.swift in Sources */,
 				3A5AAD2823C1AAAD008BD4D2 /* Environment.swift in Sources */,
+				3A12AAF823C3FDE4006A3138 /* UIEdgeInsets.swift in Sources */,
 				3A5AAD2923C1AAB3008BD4D2 /* Config.swift in Sources */,
+				3A12AAED23C3FD19006A3138 /* StyleConstants.swift in Sources */,
+				3A12AAD523C3FB52006A3138 /* NewPostViewController.swift in Sources */,
+				3A12AAF723C3FD6E006A3138 /* UILabel.swift in Sources */,
+				3A12AAD323C3F9E1006A3138 /* Result.swift in Sources */,
+				3A12AADA23C3FBDE006A3138 /* NewPostState.swift in Sources */,
 				3AEE041523BFAE1B00914AF2 /* ShareViewController.swift in Sources */,
+				3A12AAF323C3FD34006A3138 /* FileDownloadJob.swift in Sources */,
+				3A12AAF123C3FD34006A3138 /* Cache.swift in Sources */,
+				3A12AAE923C3FCF4006A3138 /* CircularLoader.swift in Sources */,
+				3A12AAC723C3F9E1006A3138 /* AuthRouter.swift in Sources */,
+				3A12AACA23C3F9E1006A3138 /* NetworkServiceProtocol.swift in Sources */,
+				3A12AAF523C3FD3C006A3138 /* UserDefaults.swift in Sources */,
+				3A12AAF623C3FD3C006A3138 /* SpacesFileRepository.swift in Sources */,
+				3A12AAEC23C3FD19006A3138 /* UIColor.swift in Sources */,
+				3A12AAEB23C3FD10006A3138 /* Copy.swift in Sources */,
+				3A12AAC123C3F422006A3138 /* ConfigurationItemCell.swift in Sources */,
+				3A12AAE323C3FCF4006A3138 /* ErrorView.swift in Sources */,
+				3A12AADE23C3FC8F006A3138 /* CreateArtistViewController.swift in Sources */,
+				3A12AAD023C3F9E1006A3138 /* HTTPTask.swift in Sources */,
+				3A12AAC923C3F9E1006A3138 /* NetworkService.swift in Sources */,
+				3A12AAF423C3FD34006A3138 /* FileError.swift in Sources */,
+				3A12AAE023C3FCF4006A3138 /* UAButton.swift in Sources */,
+				3A12AAC223C3F640006A3138 /* MapViewController.swift in Sources */,
+				3A12AADB23C3FBE9006A3138 /* SearchArtistsViewController.swift in Sources */,
+				3A12AAEF23C3FD19006A3138 /* Typography.swift in Sources */,
+				3A12AAF223C3FD34006A3138 /* FileService.swift in Sources */,
+				3A12AAE123C3FCF4006A3138 /* IconButton.swift in Sources */,
+				3A12AAE623C3FCF4006A3138 /* UATextView.swift in Sources */,
+				3A12AAF023C3FD19006A3138 /* UADimensions.swift in Sources */,
+				3A12AACB23C3F9E1006A3138 /* UAServerError.swift in Sources */,
+				3A12AAEA23C3FCF4006A3138 /* LoadableImageView.swift in Sources */,
+				3A12AAD223C3F9E1006A3138 /* Parameters.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -24,15 +24,15 @@ class NewPostViewController: FormViewController, UINavigationControllerDelegate,
 UIImagePickerControllerDelegate, UnsavedChangesController {
     private var selectedAssets: [PHAsset] // assets passed from photo lib on init
     private var selectedImageData: Data? // image data passed from camera on init
+    private var userID: Int
+    private var fileCache: FileService?
     
-    private let spacesFileRepository = SpacesFileRepository()
     var post: Post?
     var hasUnsavedChanges: Bool = false
-    var mainCoordinator: MainCoordinator
+    var networkService: NetworkService
     var imagesData: [Data] = []
     weak var delegate: PostFormDelegate?
     var initialPlacemark: CLPlacemark?
-    lazy var networkService = self.mainCoordinator.networkService
     var showMoreOptions: Bool = false {
         didSet {
             log.debug("did set showMoreOptions: \(showMoreOptions) ")
@@ -78,8 +78,10 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
         return view
     }()
     
-    init(photos: [PHAsset], imageData: Data?, placemark: CLPlacemark? = nil, mainCoordinator: MainCoordinator) {
-        self.mainCoordinator = mainCoordinator
+    init(photos: [PHAsset], imageData: Data?, placemark: CLPlacemark? = nil, networkService: NetworkService, userID: Int, fileCache: FileService?) {
+        self.fileCache = fileCache
+        self.userID = userID
+        self.networkService = networkService
         self.initialPlacemark = placemark
         self.selectedImageData = imageData
         self.selectedAssets = photos
@@ -196,7 +198,6 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
         // self.tableView.separatorInset = .zero
         createForm()
         self.handleSelectedPhotos(self.selectedAssets)
-
     }
     
     func onUpdateForm() {
@@ -259,7 +260,7 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
                                     $0.multivaluedRowToInsertAt = { index in
                                         // this gets called IMMEDIATELY after the add button is pressed.
                                         // Doesn't actually wait for artist to be selected from following controller.
-                                        let controller = ArtistSelectionViewController(mainCoordinator: self.mainCoordinator)
+                                        let controller = ArtistSelectionViewController(networkService: self.networkService)
                                         controller.delegate = self
                                         
                                         self.selectingArtistForIndex = index
@@ -378,14 +379,11 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
             self.showAlert(message: "Please select a location")
             return
         }
-        guard let userId = mainCoordinator.store.user.data?.id else {
-            log.error("no user id")
-            return
-        }
+
         if let description = formValues["description"] as? String {
             payload["description"] = description
         }
-        payload["UserId"] = userId
+        payload["UserId"] = userID
         
         if let active = formValues["active"] as? Bool {
             payload["active"] = active
@@ -442,11 +440,6 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
     
     func saveImages(post: Post) {
         self.newPostState = .uploadingImages
-        guard let userID = self.mainCoordinator.store.user.data?.id else {
-            log.error("no user")
-            return
-        }
-        
         // Add new Post Images to Post
         let endpoint = PrivateRouter.uploadImages(postId: post.id, userId: userID, imagesData: self.imagesData)
         _ = networkService.request(endpoint, completion: { (result: UAResult<PostImagesContainer>) in
@@ -461,11 +454,11 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
                         for i in 0..<container.images.count {
                             let imageData = self.imagesData[i]
                             let file = container.images[i]
-                            self.mainCoordinator.fileCache.addLocalData(imageData, for: file)
+                            self.fileCache?.addLocalData(imageData, for: file)
                             log.debug("file: \(file)")
                             if let thumbnail = file.thumbnail {
                                 log.debug("thumbnail: \(thumbnail)")
-                                self.mainCoordinator.fileCache.addLocalData(imageData, for: thumbnail)
+                                self.fileCache?.addLocalData(imageData, for: thumbnail)
                             }
                         }
                     }

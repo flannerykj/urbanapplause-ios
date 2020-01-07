@@ -34,7 +34,7 @@
 	<key>NSExtension</key>
 	<dict>
 		<key>NSExtensionPrincipalClass</key>
-		<string>ShareViewController2</string>
+		<string>ShareNavigationController</string>
 		<key>NSExtensionAttributes</key>
 		<dict>
 			<key>NSExtensionActivationRule</key>
