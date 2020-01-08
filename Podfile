@@ -9,6 +9,7 @@ target 'UrbanApplause' do
   pod 'BSImagePicker', '~> 2.8'
   pod 'SwiftLint'
   pod 'AWSS3'
+  pod 'SnapKit'
   # Pods for UrbanApplause
 
   target 'UrbanApplauseUpload' do

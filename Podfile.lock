@@ -8,6 +8,7 @@ PODS:
     - BSImageView (= 1.0.3)
   - BSImageView (1.0.3)
   - Eureka (5.1.0)
+  - SnapKit (5.0.1)
   - SwiftLint (0.38.1)
   - ViewRow (0.8):
     - Eureka (>= 5.0.0)
@@ -16,6 +17,7 @@ DEPENDENCIES:
   - AWSS3
   - BSImagePicker (~> 2.8)
   - Eureka
+  - SnapKit
   - SwiftLint
   - ViewRow
 
@@ -27,6 +29,7 @@ SPEC REPOS:
     - BSImagePicker
     - BSImageView
     - Eureka
+    - SnapKit
     - SwiftLint
     - ViewRow
 
@@ -37,9 +40,10 @@ SPEC CHECKSUMS:
   BSImagePicker: 07404254f2fcdaf5a2eb403c0f8c337267ce8738
   BSImageView: a149459433a2687157d034c78e059d30ac7f2544
   Eureka: 18a5076dcf0c41f9cd9748aa1c42f4d11434bdae
+  SnapKit: 97b92857e3df3a0c71833cce143274bf6ef8e5eb
   SwiftLint: 0aeb99ca7ccfc222ef93e2560a35e669f5465e6c
   ViewRow: 8da541e9c019f3be63f4e28f311a62cac2045ecf
 
-PODFILE CHECKSUM: be2c972339617779fa917cf437a77124b2043631
+PODFILE CHECKSUM: b657114a5db5d82876669f186b0792f53752ee76
 
 COCOAPODS: 1.8.1

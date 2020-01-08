@@ -18,7 +18,11 @@ class ArtistSelectionViewController: UITableViewController {
     
     var isLoading = false {
         didSet {
-            
+            if isLoading {
+                activityIndicator.startAnimating()
+            } else {
+                activityIndicator.stopAnimating()
+            }
         }
     }
     var artists = [Artist]() {
@@ -36,6 +40,7 @@ class ArtistSelectionViewController: UITableViewController {
     var multiSelectionEnabled: Bool = false
     
     lazy var searchBar = UISearchBar(frame: CGRect(x: 0, y: 0, width: 100, height: 60))
+    lazy var activityIndicator = ActivityIndicator()
     
     init(appContext: AppContext) {
         self.appContext = appContext
@@ -52,7 +57,7 @@ class ArtistSelectionViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        activityIndicator.hidesWhenStopped = true
         let addButton = UIBarButtonItem(title: "Create new",
                                         style: .plain,
                                         target: self,
@@ -98,6 +103,23 @@ class ArtistSelectionViewController: UITableViewController {
         cell.textLabel?.text = "\(selectedItem.signing_name ?? "")"
         cell.detailTextLabel?.text = ""
         return cell
+    }
+    
+    override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+            let view = UIView(frame: CGRect(x: 0, y: 0, width: 20, height: 50))
+            view.addSubview(activityIndicator)
+            NSLayoutConstraint.activate([
+                activityIndicator.topAnchor.constraint(equalTo: view.topAnchor),
+                activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+            ])
+            return view
+    }
+    
+    override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        if isLoading {
+            return 50
+        }
+        return 0
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
