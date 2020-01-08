@@ -11,22 +11,22 @@ import UIKit
 import Eureka
 
 class AccountViewController: FormViewController {
-    var mainCoordinator: MainCoordinator
+    var appContext: AppContext
     
-    init(mainCoordinator: MainCoordinator) {
-        self.mainCoordinator = mainCoordinator
+    init(appContext: AppContext) {
+        self.appContext = appContext
         super.init(nibName: nil, bundle: nil)
         
         form +++ Section()
             <<< TextRow {
                 $0.tag = "email"
                 $0.title = "Email"
-                $0.value = mainCoordinator.store.user.data?.email
+                $0.value = appContext.store.user.data?.email
             }
             <<< TextRow {
                 $0.tag = "username"
                 $0.title = "Username"
-                $0.value = mainCoordinator.store.user.data?.username
+                $0.value = appContext.store.user.data?.username
         }
         
         for row in form.rows {

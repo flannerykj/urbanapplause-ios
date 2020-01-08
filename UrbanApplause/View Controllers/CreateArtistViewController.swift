@@ -14,7 +14,7 @@ protocol CreateArtistDelegate: class {
 }
 
 class CreateArtistViewController: FormViewController {
-    var mainCoordinator: MainCoordinator
+    var appContext: AppContext
     weak var delegate: CreateArtistDelegate?
     
     var isLoading = false {
@@ -31,8 +31,8 @@ class CreateArtistViewController: FormViewController {
             
         }
     }
-    init(mainCoordinator: MainCoordinator) {
-        self.mainCoordinator = mainCoordinator
+    init(appContext: AppContext) {
+        self.appContext = appContext
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -76,7 +76,7 @@ class CreateArtistViewController: FormViewController {
     @objc func saveArtist(_: Any) {
         self.isLoading = true
         let endpoint = PrivateRouter.createArtist(values: form.values() as Parameters)
-        _ = mainCoordinator.networkService.request(endpoint) { [weak self] (result: UAResult<ArtistContainer>) in
+        _ = appContext.networkService.request(endpoint) { [weak self] (result: UAResult<ArtistContainer>) in
             DispatchQueue.main.async {
                 switch result {
                 case .failure(let error):

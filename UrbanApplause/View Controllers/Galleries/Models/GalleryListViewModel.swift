@@ -37,7 +37,7 @@ class GalleryListViewModel {
 
     var includeGeneratedGalleries: Bool
     var userId: Int?
-    var mainCoordinator: MainCoordinator
+    var appContext: AppContext
     
     var cancellables = Set<AnyCancellable>()
     private var collections = CurrentValueSubject<[Collection], Never>([])
@@ -56,10 +56,10 @@ class GalleryListViewModel {
     public var isLoading: AnyPublisher<Bool, Never>
     public var tableData: AnyPublisher<[GalleriesSection: [Gallery]], Never>!
     
-    init(userId: Int?, includeGeneratedGalleries: Bool = true, mainCoordinator: MainCoordinator) {
+    init(userId: Int?, includeGeneratedGalleries: Bool = true, appContext: AppContext) {
         self.userId = userId
         self.includeGeneratedGalleries = includeGeneratedGalleries
-        self.mainCoordinator = mainCoordinator
+        self.appContext = appContext
         
         self.errorMessage = _errorMessage.eraseToAnyPublisher()
 
@@ -114,7 +114,7 @@ class GalleryListViewModel {
         _errorMessage.value = nil
         collectionsLoading.value = true
         let endpoint = PrivateRouter.getCollections(userId: userId, postId: nil)
-        _ = mainCoordinator.networkService.request(endpoint) { [weak self] (result: UAResult<CollectionsContainer>) in
+        _ = appContext.networkService.request(endpoint) { [weak self] (result: UAResult<CollectionsContainer>) in
             DispatchQueue.main.async {
                 self!.collectionsLoading.value = false
                 log.debug("got collections")
@@ -131,8 +131,8 @@ class GalleryListViewModel {
     private func getVisits() {
         guard !visitsLoading.value else { return }
         visitsLoading.value = true
-        let endpoint = PrivateRouter.getPosts(query: PostQuery(visitedBy: mainCoordinator.store.user.data?.id))
-        _ = mainCoordinator.networkService.request(endpoint) { (result: UAResult<PostsContainer>) in
+        let endpoint = PrivateRouter.getPosts(query: PostQuery(visitedBy: appContext.store.user.data?.id))
+        _ = appContext.networkService.request(endpoint) { (result: UAResult<PostsContainer>) in
             DispatchQueue.main.async {
                 self.visitsLoading.value = false
                 switch result {
@@ -149,8 +149,8 @@ class GalleryListViewModel {
     private func getApplauded() {
         guard !applaudedLoading.value else { return }
         applaudedLoading.value = true
-        let endpoint = PrivateRouter.getPosts(query: PostQuery(applaudedBy: mainCoordinator.store.user.data?.id))
-        _ = mainCoordinator.networkService.request(endpoint) { (result: UAResult<PostsContainer>) in
+        let endpoint = PrivateRouter.getPosts(query: PostQuery(applaudedBy: appContext.store.user.data?.id))
+        _ = appContext.networkService.request(endpoint) { (result: UAResult<PostsContainer>) in
             DispatchQueue.main.async {
                 self.applaudedLoading.value = false
                 switch result {
@@ -166,8 +166,8 @@ class GalleryListViewModel {
     private func getPosted() {
         guard !postedLoading.value else { return }
         postedLoading.value = true
-        let endpoint = PrivateRouter.getPosts(query: PostQuery(userId: mainCoordinator.store.user.data?.id))
-        _ = mainCoordinator.networkService.request(endpoint) { (result: UAResult<PostsContainer>) in
+        let endpoint = PrivateRouter.getPosts(query: PostQuery(userId: appContext.store.user.data?.id))
+        _ = appContext.networkService.request(endpoint) { (result: UAResult<PostsContainer>) in
             DispatchQueue.main.async {
                 self.postedLoading.value = false
                 switch result {

@@ -40,3 +40,12 @@ protocol UAError: Error {
     var debugMessage: String { get }
     var userMessage: String { get }
 }
+extension UAError {
+    var debugMessage: String {
+        return self.userMessage
+    }
+    
+    var errorCode: UAErrorCode? {
+        return nil
+    }
+}

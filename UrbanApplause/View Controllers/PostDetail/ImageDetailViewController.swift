@@ -10,7 +10,7 @@ import UIKit
 
 class ImageDetailViewController: UIViewController, UIScrollViewDelegate {
     var file: File
-    var mainCoordinator: MainCoordinator
+    var appContext: AppContext
     var imageDownloadJob: FileDownloadJob?
     var subscriber: FileDownloadSubscriber? {
         willSet {
@@ -19,11 +19,11 @@ class ImageDetailViewController: UIViewController, UIScrollViewDelegate {
             }
         }
     }
-    init(file: File, placeholderImage: UIImage?, mainCoordinator: MainCoordinator) {
+    init(file: File, placeholderImage: UIImage?, appContext: AppContext) {
         
         self.file = file
-        self.mainCoordinator = mainCoordinator
-        self.imageDownloadJob = mainCoordinator.fileCache.getJobForFile(file)
+        self.appContext = appContext
+        self.imageDownloadJob = appContext.fileCache.getJobForFile(file)
         
         super.init(nibName: nil, bundle: nil)
         self.imageView.state = .complete(placeholderImage)

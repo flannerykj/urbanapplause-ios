@@ -17,7 +17,7 @@ protocol PostToolbarDelegate: class {
 
 class PostToolbarController: UIViewController {
     weak var delegate: PostToolbarDelegate?
-    var mainCoordinator: MainCoordinator?
+    var appContext: AppContext?
     var post: Post? {
         didSet {
             applauseCountLabel.text = applauseCountText()
@@ -76,8 +76,8 @@ class PostToolbarController: UIViewController {
         return stackView
     }()
     
-    init(mainCoordinator: MainCoordinator?) {
-        self.mainCoordinator = mainCoordinator
+    init(appContext: AppContext?) {
+        self.appContext = appContext
         super.init(nibName: nil, bundle: nil)
         applauseCountLabel.textColor = UIColor.lightGray
         commentCountLabel.textColor = UIColor.lightGray
@@ -92,15 +92,15 @@ class PostToolbarController: UIViewController {
     }
     
     func savePost() {
-        guard let mainCoordinator = self.mainCoordinator, let userId = mainCoordinator.store.user.data?.id else {
+        guard let appContext = self.appContext, let userId = appContext.store.user.data?.id else {
             return
         }
         let galleriesViewModel = GalleryListViewModel(userId: userId,
                                                       includeGeneratedGalleries: false,
-                                                      mainCoordinator: mainCoordinator)
+                                                      appContext: appContext)
         
         let vc = GalleryListViewController(viewModel: galleriesViewModel,
-                                           mainCoordinator: mainCoordinator)
+                                           appContext: appContext)
         vc.navigationItem.title = "Add to galleries"
         vc.delegate = self
         present(UINavigationController(rootViewController: vc), animated: true, completion: nil)
@@ -111,8 +111,8 @@ class PostToolbarController: UIViewController {
     }
     
     func blockUser(_ user: User) {
-        guard let mainCoordinator = self.mainCoordinator,
-            let blockingUser = mainCoordinator.store.user.data else { return }
+        guard let appContext = self.appContext,
+            let blockingUser = appContext.store.user.data else { return }
         let username = user.username ?? "this user"
         let msg = "You will no longer be show posts or comments from this user"
         let alertController = UIAlertController(title: "Block \(username)?", message: msg, preferredStyle: .alert)
@@ -121,7 +121,7 @@ class PostToolbarController: UIViewController {
         })
         let blockAction = UIAlertAction(title: "Block", style: .destructive, handler: { _ in
             let endpoint = PrivateRouter.blockUser(blockingUserId: blockingUser.id, blockedUserId: user.id)
-            _ = mainCoordinator.networkService.request(endpoint,
+            _ = appContext.networkService.request(endpoint,
                                                        completion: { (result: UAResult<BlockedUserContainer>) in
                                                         DispatchQueue.main.async {
                                                             switch result {
@@ -172,8 +172,8 @@ class PostToolbarController: UIViewController {
         })
         alertController.addAction(savePostAction)
         
-        if let mainCoordinator = mainCoordinator,
-            let user = mainCoordinator.store.user.data,
+        if let appContext = appContext,
+            let user = appContext.store.user.data,
             let post = self.post, post.UserId == user.id {
             let deleteAction = UIAlertAction(title: "Delete post", style: .default, handler: { _ in
                 self.confirmDeletePost()
@@ -200,7 +200,7 @@ class PostToolbarController: UIViewController {
     }
     
     func confirmDeletePost() {
-        guard let mainCoordinator = self.mainCoordinator, let post = self.post else { return }
+        guard let appContext = self.appContext, let post = self.post else { return }
         
         let alertController = UIAlertController(title: "Are you sure you want to delete this post?",
                                                 message: "This cannot be undone.",
@@ -210,7 +210,7 @@ class PostToolbarController: UIViewController {
             alertController.dismiss(animated: true, completion: nil)
         })
         let deleteAction = UIAlertAction(title: "Delete", style: .destructive, handler: { _ in
-            _ = mainCoordinator.networkService.request(PrivateRouter.deletePost(id: post.id),
+            _ = appContext.networkService.request(PrivateRouter.deletePost(id: post.id),
                                                        completion: { (result: UAResult<PostContainer>) in
                                                         DispatchQueue.main.async {
                                                             switch result {
@@ -251,7 +251,7 @@ class PostToolbarController: UIViewController {
         self.present(errorAlert, animated: true, completion: nil)
     }
     func flagPost() {
-        guard let store = self.mainCoordinator?.store else { log.debug("no store"); return }
+        guard let store = self.appContext?.store else { log.debug("no store"); return }
         let vc = ReportAnIssueViewController(store: store) { reportController, reason in
             self.submitFlag(reason: reason, reportAnIssueController: reportController)
         }
@@ -272,9 +272,9 @@ class PostToolbarController: UIViewController {
     }
     
     @objc func pressedComment(_: Any) {
-        guard let post = self.post, let mainCoordinator = mainCoordinator else { return }
-        let model = CommentListViewModel(post: post, mainCoordinator: mainCoordinator)
-        let vc = CommentListViewController(viewModel: model, mainCoordinator: mainCoordinator)
+        guard let post = self.post, let appContext = appContext else { return }
+        let model = CommentListViewModel(post: post, appContext: appContext)
+        let vc = CommentListViewController(viewModel: model, appContext: appContext)
         vc.post = self.post
         vc.delegate = self
         present(UINavigationController(rootViewController: vc), animated: true, completion: nil)
@@ -282,12 +282,12 @@ class PostToolbarController: UIViewController {
     
     func toggleApplause() {
         guard let post = self.post,
-            let mainCoordinator = self.mainCoordinator,
-            let userId = mainCoordinator.store.user.data?.id else {
+            let appContext = self.appContext,
+            let userId = appContext.store.user.data?.id else {
                 log.error("missing data for creating applause")
                 return
         }
-        _ = mainCoordinator.networkService.request(PrivateRouter.addOrRemoveClap(postId: post.id, userId: userId),
+        _ = appContext.networkService.request(PrivateRouter.addOrRemoveClap(postId: post.id, userId: userId),
                                                    completion: { (result: UAResult<ApplauseInteractionContainer>) in
                                                     switch result {
                                                     case .success(let container):
@@ -310,11 +310,11 @@ class PostToolbarController: UIViewController {
     }
     
     func addPostToCollection(_ collection: Collection, completion: @escaping (Bool) -> Void) {
-        guard let post = self.post, let mainCoordinator = self.mainCoordinator else {
+        guard let post = self.post, let appContext = self.appContext else {
             return
         }
         let endpoint = PrivateRouter.addToCollection(collectionId: collection.id, postId: post.id, annotation: "")
-        _ = mainCoordinator.networkService.request(endpoint, completion: { (result: UAResult<CollectionContainer>) in
+        _ = appContext.networkService.request(endpoint, completion: { (result: UAResult<CollectionContainer>) in
             DispatchQueue.main.async {
                 switch result {
                 case .success(let container):
@@ -330,11 +330,11 @@ class PostToolbarController: UIViewController {
     }
     
     func removePostFromCollection(_ collection: Collection, completion: @escaping (Bool) -> Void) {
-        guard let post = self.post, let mainCoordinator = self.mainCoordinator else {
+        guard let post = self.post, let appContext = self.appContext else {
             return
         }
         let endpoint = PrivateRouter.deleteFromCollection(collectionId: collection.id, postId: post.id)
-        _ = mainCoordinator.networkService.request(endpoint, completion: { (result: UAResult<CollectionContainer>) in
+        _ = appContext.networkService.request(endpoint, completion: { (result: UAResult<CollectionContainer>) in
             DispatchQueue.main.async {
                 switch result {
                 case .success(let container):
@@ -351,9 +351,9 @@ class PostToolbarController: UIViewController {
         })
     }
     func submitFlag(reason: PostFlagReason, reportAnIssueController: ReportAnIssueViewController) {
-        guard let mainCoordinator = self.mainCoordinator, let post = self.post else { return }
+        guard let appContext = self.appContext, let post = self.post else { return }
         reportAnIssueController.self.isSubmitting = true
-        _ = mainCoordinator.networkService.request(PrivateRouter.createPostFlag(postId: post.id,
+        _ = appContext.networkService.request(PrivateRouter.createPostFlag(postId: post.id,
                                                                                 reason: reason),
                                                    completion: { (result: UAResult<PostFlagContainer>) in
                                                     DispatchQueue.main.async {

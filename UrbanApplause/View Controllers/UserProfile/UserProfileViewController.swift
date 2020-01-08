@@ -8,11 +8,11 @@
 import UIKit
 
 class ProfileViewController: UIViewController {
-    var mainCoordinator: MainCoordinator
+    var appContext: AppContext
     var user: User
     
     var isAuthUser: Bool {
-        if let userId = self.mainCoordinator.store.user.data?.id,
+        if let userId = self.appContext.store.user.data?.id,
             userId == user.id {
             log.debug("user id: \(userId)")
             return true
@@ -22,12 +22,12 @@ class ProfileViewController: UIViewController {
     
     lazy var tabItems: [ToolbarTabItem] = {
         let userPostsViewModel = DynamicPostListViewModel(filterForPostedBy: user, filterForArtist: nil, filterForQuery: nil,
-                                                   mainCoordinator: mainCoordinator)
-        let userPostsVC = PostListViewController(viewModel: userPostsViewModel, mainCoordinator: mainCoordinator)
+                                                   appContext: appContext)
+        let userPostsVC = PostListViewController(viewModel: userPostsViewModel, appContext: appContext)
 
-        let applaudedPostsViewModel = DynamicPostListViewModel(filterForUserApplause: user, mainCoordinator: mainCoordinator)
+        let applaudedPostsViewModel = DynamicPostListViewModel(filterForUserApplause: user, appContext: appContext)
         let userApplauseVC = PostListViewController(viewModel: applaudedPostsViewModel,
-                                                    mainCoordinator: mainCoordinator)
+                                                    appContext: appContext)
         
         return [
             ToolbarTabItem(title: "Posts", viewController: userPostsVC, delegate: self),
@@ -35,8 +35,8 @@ class ProfileViewController: UIViewController {
         ]
     }()
     
-    init(user: User, mainCoordinator: MainCoordinator) {
-        self.mainCoordinator = mainCoordinator
+    init(user: User, appContext: AppContext) {
+        self.appContext = appContext
         self.user = user
         super.init(nibName: nil, bundle: nil)
     }
@@ -86,7 +86,7 @@ class ProfileViewController: UIViewController {
     
     lazy var tabsViewController = TabbedToolbarViewController(headerContent: headerStackView,
                                                               tabItems: self.tabItems,
-                                                              mainCoordinator: mainCoordinator)
+                                                              appContext: appContext)
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -106,14 +106,14 @@ class ProfileViewController: UIViewController {
     
     @objc func refreshUserProfile(sender: UIRefreshControl) {
         let endpoint = PrivateRouter.getUser(id: user.id)
-        _ = mainCoordinator.networkService.request(endpoint) { (result: UAResult<UserContainer>) in
+        _ = appContext.networkService.request(endpoint) { (result: UAResult<UserContainer>) in
             
             DispatchQueue.main.async {
                 sender.endRefreshing()
                 switch result {
                 case .success(let userContainer):
                     if self.isAuthUser {
-                        self.mainCoordinator.store.user.data = userContainer.user
+                        self.appContext.store.user.data = userContainer.user
                     }
                     self.user = userContainer.user
                     self.updateLabels()
@@ -141,7 +141,7 @@ class ProfileViewController: UIViewController {
     }
    
     @objc func pressedEdit(_ sender: UIBarButtonItem) {
-        let vc = EditProfileViewController(mainCoordinator: mainCoordinator)
+        let vc = EditProfileViewController(appContext: appContext)
         vc.delegate = self
         navigationController?.pushViewController(vc, animated: true)
     }

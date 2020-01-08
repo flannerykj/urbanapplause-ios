@@ -18,7 +18,7 @@ protocol PostCellDelegate: class {
 class PostCell: UITableViewCell {
     var indexPath: IndexPath?
     weak var delegate: PostCellDelegate?
-    var mainCoordinator: MainCoordinator?
+    var appContext: AppContext?
     var subscriber: FileDownloadSubscriber? {
         willSet {
             if let subscriber = self.subscriber { // remove previous subscriber before setting new

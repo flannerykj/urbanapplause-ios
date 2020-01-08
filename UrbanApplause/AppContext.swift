@@ -1,5 +1,5 @@
 //
-//  MainCoordinator.swift
+//  AppContext.swift
 //  UrbanApplause
 //
 //  Created by Flannery Jefferson on 2019-11-01.
@@ -9,16 +9,19 @@
 import Foundation
 import UIKit
 
-protocol MainCoordinatorDelegate: AnyObject {
-    func mainCoordinator(setRootController controller: UIViewController)
+protocol AppContextDelegate: AnyObject {
+    func appContext(setRootController controller: UIViewController)
+    func appContextOpenSettings(completion: @escaping (Bool) -> Void)
 }
 
-class MainCoordinator: NSObject {
-    weak var delegate: MainCoordinatorDelegate?
+class AppContext: NSObject {
+    weak var sharedApplication: UIApplication?
+    weak var delegate: AppContextDelegate?
+    
     private var rootController: UIViewController? {
         didSet {
             if let controller = rootController {
-                delegate?.mainCoordinator(setRootController: controller)
+                delegate?.appContext(setRootController: controller)
             }
         }
     }
@@ -69,14 +72,23 @@ class MainCoordinator: NSObject {
         self.navigateToApp()
     }
     
+    public var canOpenSettings: Bool {
+        return delegate != nil
+    }
+    public func openSettings(completion: @escaping (Bool) -> Void) {
+        delegate?.appContextOpenSettings(completion: completion)
+    }
+    
+    
     // MARK: - Private Methods
     private func navigateToApp() {
         store.user.data = authService.authUser
-        let root = TabBarController(store: store, mainCoordinator: self)
+        let root = TabBarController(store: store, appContext: self)
         switchRootViewController(viewController: root)
     }
     
     private func switchRootViewController(viewController: UIViewController) {
         self.rootController = viewController
     }
+    
 }

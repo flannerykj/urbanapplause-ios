@@ -12,7 +12,7 @@ import UIKit
 class ImageCarouselViewController: UIViewController {
     var imageIndex: Int = 0
     var files: [File]
-    var mainCoordinator: MainCoordinator
+    var appContext: AppContext
     var imageDownloadJobs: [FileDownloadJob]
     var imageControllers: [UIViewController]
 
@@ -34,13 +34,13 @@ class ImageCarouselViewController: UIViewController {
         return scrollView
     }()
     
-    init(files: [File], mainCoordinator: MainCoordinator) {
+    init(files: [File], appContext: AppContext) {
         self.files = files
-        self.mainCoordinator = mainCoordinator
-        self.imageDownloadJobs = files.map { mainCoordinator.fileCache.getJobForFile($0)! }
+        self.appContext = appContext
+        self.imageDownloadJobs = files.map { appContext.fileCache.getJobForFile($0)! }
         self.imageControllers = files.map { ImageDetailViewController(file: $0,
                                                                       placeholderImage: nil,
-                                                                      mainCoordinator: mainCoordinator) }
+                                                                      appContext: appContext) }
         super.init(nibName: nil, bundle: nil)
     }
     

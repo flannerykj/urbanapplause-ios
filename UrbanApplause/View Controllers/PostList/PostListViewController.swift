@@ -23,7 +23,7 @@ class PostListViewController: UIViewController {
     let sectionHeaderHeight: CGFloat = 60
     
     var query: String?
-    var mainCoordinator: MainCoordinator
+    var appContext: AppContext
     var viewModel: PostListViewModel
     var backgroundColor = UIColor.systemGray6
     var tableContentHeight: CGFloat = 0
@@ -36,9 +36,9 @@ class PostListViewController: UIViewController {
     init(listTitle: String? = nil,
          viewModel: PostListViewModel,
          requestOnLoad: Bool = true,
-         mainCoordinator: MainCoordinator) {
+         appContext: AppContext) {
         
-        self.mainCoordinator = mainCoordinator
+        self.appContext = appContext
         self.viewModel = viewModel
         self.listTitle = listTitle
         self.requestOnLoad = requestOnLoad
@@ -210,14 +210,14 @@ extension PostListViewController: UITableViewDelegate, UITableViewDataSource {
         let post = viewModel.posts[indexPath.row]
         if let firstFile = post.PostImages?.first {
             if let thumb = firstFile.thumbnail {
-                let imageJob = mainCoordinator.fileCache.getJobForFile(thumb)
+                let imageJob = appContext.fileCache.getJobForFile(thumb)
                 cell.downloadJob = imageJob
             } else {
-                let imageJob = mainCoordinator.fileCache.getJobForFile(firstFile)
+                let imageJob = appContext.fileCache.getJobForFile(firstFile)
                 cell.downloadJob = imageJob
             }
         }
-        cell.mainCoordinator = mainCoordinator
+        cell.appContext = appContext
         cell.post = post
         cell.delegate = self
         cell.indexPath = indexPath
@@ -255,7 +255,7 @@ extension PostListViewController: UITableViewDelegate, UITableViewDataSource {
         let vc = PostDetailViewController(postId: post.id,
                                           post: post,
                                           thumbImage: thumbImage,
-                                          mainCoordinator: mainCoordinator)
+                                          appContext: appContext)
         vc.delegate = self
         navigationController?.pushViewController(vc, animated: true)
     }
@@ -306,7 +306,7 @@ extension PostListViewController: PostCellDelegate {
     }
     
     func postCell(_ cell: PostCell, didSelectUser user: User) {
-        let vc = ProfileViewController(user: user, mainCoordinator: mainCoordinator)
+        let vc = ProfileViewController(user: user, appContext: appContext)
         navigationController?.pushViewController(vc, animated: true)
     }
     func postCell(_ cell: PostCell, didUpdatePost post: Post, atIndexPath indexPath: IndexPath) {

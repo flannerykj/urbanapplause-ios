@@ -21,7 +21,7 @@ class TabbedToolbarViewController: UIViewController {
     var lastContainerScrollOffset: CGFloat?
 
     var visibleTabItems: [ToolbarTabItem]
-    var mainCoordinator: MainCoordinator
+    var appContext: AppContext
     var activeControllerContentHeight: CGFloat?
     
     var tabButtons: [ToolbarTabButton] = []
@@ -42,8 +42,8 @@ class TabbedToolbarViewController: UIViewController {
         return headerView
     }()
     
-    init(headerContent: UIView, tabItems: [ToolbarTabItem], mainCoordinator: MainCoordinator) {
-        self.mainCoordinator = mainCoordinator
+    init(headerContent: UIView, tabItems: [ToolbarTabItem], appContext: AppContext) {
+        self.appContext = appContext
         self.visibleTabItems = tabItems
         self.headerContent = headerContent
         super.init(nibName: nil, bundle: nil)

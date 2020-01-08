@@ -9,7 +9,7 @@
 import Foundation
 
 class AuthViewModel {
-    var mainCoordinator: MainCoordinator
+    var appContext: AppContext
     
     private(set) var isLoading = false {
         didSet {
@@ -27,8 +27,8 @@ class AuthViewModel {
     var didSetLoading: ((Bool) -> Void)?
     var didSetErrorMessage: ((String?) -> Void)?
     
-    init(isNewUser: Bool, mainCoordinator: MainCoordinator) {
-        self.mainCoordinator = mainCoordinator
+    init(isNewUser: Bool, appContext: AppContext) {
+        self.appContext = appContext
         self.isNewUser = isNewUser
     }
 
@@ -50,12 +50,12 @@ class AuthViewModel {
                                                password: password!,
                                                username: username,
                                                newUser: isNewUser)
-        _ = mainCoordinator.networkService.request(endpoint) { [weak self] (result: UAResult<AuthResponse>) in
+        _ = appContext.networkService.request(endpoint) { [weak self] (result: UAResult<AuthResponse>) in
             self?.isLoading = false
             switch result {
             case .success(let authResponse):
                 DispatchQueue.main.async {
-                    self?.mainCoordinator.startSession(authResponse: authResponse)
+                    self?.appContext.startSession(authResponse: authResponse)
                 }
             case .failure(let error):
                 log.error(error)

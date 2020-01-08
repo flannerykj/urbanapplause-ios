@@ -14,29 +14,29 @@ protocol CollectionDetailControllerDelegate: class {
 }
 
 class GalleryDetailViewController: UIViewController {
-    var mainCoordinator: MainCoordinator
+    var appContext: AppContext
     var postListViewModel: DynamicPostListViewModel
     var gallery: Gallery
     weak var delegate: CollectionDetailControllerDelegate?
     
-    lazy var postListVC = PostListViewController(viewModel: postListViewModel, mainCoordinator: mainCoordinator)
+    lazy var postListVC = PostListViewController(viewModel: postListViewModel, appContext: appContext)
     
-    init(gallery: Gallery, mainCoordinator: MainCoordinator) {
-        self.mainCoordinator = mainCoordinator
+    init(gallery: Gallery, appContext: AppContext) {
+        self.appContext = appContext
         self.gallery = gallery
         switch gallery {
         case .custom(let collection):
             self.postListViewModel = DynamicPostListViewModel(filterForCollection: collection,
-                                                              mainCoordinator: mainCoordinator)
+                                                              appContext: appContext)
         case .visits:
-            self.postListViewModel = DynamicPostListViewModel(filterForVisitedBy: mainCoordinator.store.user.data,
-                                                              mainCoordinator: mainCoordinator)
+            self.postListViewModel = DynamicPostListViewModel(filterForVisitedBy: appContext.store.user.data,
+                                                              appContext: appContext)
         case .applause:
-            self.postListViewModel = DynamicPostListViewModel(filterForUserApplause: mainCoordinator.store.user.data,
-                                                              mainCoordinator: mainCoordinator)
+            self.postListViewModel = DynamicPostListViewModel(filterForUserApplause: appContext.store.user.data,
+                                                              appContext: appContext)
         case .posted:
-            self.postListViewModel = DynamicPostListViewModel(filterForPostedBy: mainCoordinator.store.user.data,
-                                                              mainCoordinator: mainCoordinator)
+            self.postListViewModel = DynamicPostListViewModel(filterForPostedBy: appContext.store.user.data,
+                                                              appContext: appContext)
         }
         super.init(nibName: nil, bundle: nil)
     }
@@ -102,7 +102,7 @@ class GalleryDetailViewController: UIViewController {
             alertController.view.addSubview(indicator)
             
             let endpoint = PrivateRouter.deleteCollection(id: collection.id)
-            _ = self.mainCoordinator.networkService.request(endpoint,
+            _ = self.appContext.networkService.request(endpoint,
                                                             completion: {(result: UAResult<CollectionContainer>) in
                 switch result {
                 case .success:
@@ -139,7 +139,7 @@ extension GalleryDetailViewController: PostListControllerDelegate {
         self.postListVC.tableView.endUpdates()
         
         let endpoint = PrivateRouter.deleteFromCollection(collectionId: collection.id, postId: post.id)
-        _ = self.mainCoordinator.networkService.request(endpoint, completion: { (result: UAResult<PostContainer>) in
+        _ = self.appContext.networkService.request(endpoint, completion: { (result: UAResult<PostContainer>) in
             switch result {
             case .success:
                 break

@@ -15,12 +15,12 @@ protocol NewCollectionViewControllerDelegate: class {
 
 class NewCollectionViewController: FormViewController {
     weak var delegate: NewCollectionViewControllerDelegate?
-    var mainCoordinator: MainCoordinator
+    var appContext: AppContext
     var isLoading: Bool = false
     var errorMessage: String?
     
-    init(mainCoordinator: MainCoordinator) {
-        self.mainCoordinator = mainCoordinator
+    init(appContext: AppContext) {
+        self.appContext = appContext
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -59,7 +59,7 @@ class NewCollectionViewController: FormViewController {
     
     @objc func createCollection(_: UIButton) {
         log.debug("pressed create collection")
-        guard let userId = mainCoordinator.store.user.data?.id else {
+        guard let userId = appContext.store.user.data?.id else {
             log.error("user data not set")
             return
         }
@@ -69,7 +69,7 @@ class NewCollectionViewController: FormViewController {
         self.isLoading = true
         self.errorMessage = nil
         let endpoint = PrivateRouter.createCollection(values: payload as Parameters)
-        _ = mainCoordinator.networkService.request(endpoint) {(result: UAResult<CollectionContainer>) in
+        _ = appContext.networkService.request(endpoint) {(result: UAResult<CollectionContainer>) in
             DispatchQueue.main.async {
                 self.isLoading = false
                 switch result {

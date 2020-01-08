@@ -13,7 +13,7 @@ class ArtistProfileViewModel: NSObject {
     var didSetLoading: ((Bool) -> Void)?
     var didSetErrorMessage: ((String?) -> Void)?
     
-    private var mainCoordinator: MainCoordinator
+    private var appContext: AppContext
     
     private var artistId: Int {
         didSet {
@@ -36,9 +36,9 @@ class ArtistProfileViewModel: NSObject {
         }
     }
 
-    init(artistId: Int, artist: Artist?, mainCoordinator: MainCoordinator) {
+    init(artistId: Int, artist: Artist?, appContext: AppContext) {
         self.artistId = artistId
-        self.mainCoordinator = mainCoordinator
+        self.appContext = appContext
     }
     public func setArtist(_ artist: Artist?) {
         self.artist = artist
@@ -47,7 +47,7 @@ class ArtistProfileViewModel: NSObject {
     func fetchArtist() {
         self.isLoading = true
         let endpoint = PrivateRouter.getArtist(artistId: self.artistId)
-        _ = mainCoordinator.networkService.request(endpoint) { (result: UAResult<ArtistContainer>) in
+        _ = appContext.networkService.request(endpoint) { (result: UAResult<ArtistContainer>) in
             self.isLoading = false
             switch result {
             case .success(let container):

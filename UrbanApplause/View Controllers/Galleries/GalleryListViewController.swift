@@ -23,15 +23,15 @@ class GalleryListViewController: UIViewController {
     let uuid = UUID()
     var subscriptions = Set<AnyCancellable>()
     @Published var animate: Bool = false
-    var mainCoordinator: MainCoordinator
+    var appContext: AppContext
     private var viewModel: GalleryListViewModel
     weak var delegate: GalleryListDelegate?
     let tableHeaderHeight: CGFloat = 80
     lazy var dataSource = self.makeDataSource()
     
     init(viewModel: GalleryListViewModel,
-         mainCoordinator: MainCoordinator) {
-        self.mainCoordinator = mainCoordinator
+         appContext: AppContext) {
+        self.appContext = appContext
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
@@ -150,7 +150,7 @@ class GalleryListViewController: UIViewController {
         self.dismiss(animated: true, completion: nil)
     }
     @objc func createCollection(_: UIButton) {
-        let vc = NewCollectionViewController(mainCoordinator: mainCoordinator)
+        let vc = NewCollectionViewController(appContext: appContext)
         vc.delegate = self
         navigationController?.pushViewController(vc, animated: true)
     }

@@ -32,7 +32,7 @@ class PostMapViewModel2 {
     public var onError: ((Error) -> Void)?
     private var didTransitionZoomBoundary: Bool = false
     private var timer: Timer?
-    private var mainCoordinator: MainCoordinator
+    private var appContext: AppContext
     
     private var requestedForceReload: Bool = false
     
@@ -52,8 +52,8 @@ class PostMapViewModel2 {
         }
     }
     
-    init(mainCoordinator: MainCoordinator) {
-        self.mainCoordinator = mainCoordinator
+    init(appContext: AppContext) {
+        self.appContext = appContext
     }
     public func requestMapData(visibleMapRect: MKMapRect, mapPixelWidth: Double, forceReload: Bool = false) {
         self.requestedForceReload = forceReload
@@ -81,17 +81,22 @@ class PostMapViewModel2 {
         }
     }
     func getAllPostClusters(visibleMapRect: MKMapRect, mapPixelWidth: Double) {
+        if isLoading && !requestedForceReload {
+            return
+        }
         if self.visibleClusters != nil
             && !requestedForceReload
             && lastLoadedClustersMapRect.contains(visibleMapRect)
+            && !getZoomDidChange(mapPixelWidth / visibleMapRect.size.width, lastLoadedZoomScale)
             && lastRequestedMapContent == .postClusters {
             return
         }
         let clusterByProximity = getMarkerWidthInDegrees(visibleMapRect: visibleMapRect, mapPixelWidth: mapPixelWidth) / 2
         self.isLoading = true
         self.lastRequestedMapContent = .postClusters
-        let filterForGeoBounds = getMapGeoBounds(visibleMapRect: visibleMapRect)
-        _ = mainCoordinator.networkService.request(PrivateRouter.getPostClusters(postedAfter: nil,
+        let requestedMapRect = visibleMapRect.insetBy(dx: -(visibleMapRect.width/2), dy: -(visibleMapRect.height/3))
+        let filterForGeoBounds = getMapGeoBounds(visibleMapRect: requestedMapRect)
+        _ = appContext.networkService.request(PrivateRouter.getPostClusters(postedAfter: nil,
                                                                              threshold: clusterByProximity,
                                                                              bounds: filterForGeoBounds)
         ) { [weak self] (result: UAResult<PostClustersContainer>) in
@@ -105,7 +110,7 @@ class PostMapViewModel2 {
                     log.debug("cover post ids: \(clusterContainer.post_clusters.map { $0.cover_post_id})")
                     self?.visibleClusters = clusterContainer.post_clusters
                     self!.onUpdateMarkers?(clusterContainer.post_clusters, true)
-                    self!.lastLoadedClustersMapRect = visibleMapRect
+                    self!.lastLoadedClustersMapRect = requestedMapRect
                     self!.lastLoadedZoomScale = mapPixelWidth / visibleMapRect.size.width
                 }
             }
@@ -141,7 +146,7 @@ class PostMapViewModel2 {
                             proximity: nil,
                             bounds: filterForGeoBounds,
                             include: [])
-        _ = mainCoordinator.networkService.request(PrivateRouter.getPosts(query: query)
+        _ = appContext.networkService.request(PrivateRouter.getPosts(query: query)
         ) { [weak self] (result: UAResult<PostsContainer>) in
             guard self != nil else { return }
             DispatchQueue.main.async {

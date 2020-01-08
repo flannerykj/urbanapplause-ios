@@ -15,7 +15,7 @@ class UserProfileViewModel: NSObject {
     var didSetLoading: ((Bool) -> Void)?
     var didSetErrorMessage: ((String?) -> Void)?
     
-    private var mainCoordinator: MainCoordinator
+    private var appContext: AppContext
     
     private var userId: Int {
         didSet {
@@ -38,9 +38,9 @@ class UserProfileViewModel: NSObject {
         }
     }
 
-    init(userId: Int, user: User?, mainCoordinator: MainCoordinator) {
+    init(userId: Int, user: User?, appContext: AppContext) {
         self.userId = userId
-        self.mainCoordinator = mainCoordinator
+        self.appContext = appContext
     }
     public func setUser(_ user: User?) {
         self.user = user
@@ -49,7 +49,7 @@ class UserProfileViewModel: NSObject {
     func fetchUser() {
         self.isLoading = true
         let endpoint = PrivateRouter.getUser(id: userId)
-        _ = mainCoordinator.networkService.request(endpoint) { (result: UAResult<UserContainer>) in
+        _ = appContext.networkService.request(endpoint) { (result: UAResult<UserContainer>) in
             self.isLoading = false
             switch result {
             case .success(let container):

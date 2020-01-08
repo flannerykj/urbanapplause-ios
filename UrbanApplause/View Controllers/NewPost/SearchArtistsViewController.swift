@@ -13,7 +13,7 @@ protocol ArtistSelectionDelegate: class {
     func artistSelectionController(finishWithArtist artist: Artist?)
 }
 class ArtistSelectionViewController: UITableViewController {
-    var mainCoordinator: MainCoordinator
+    var appContext: AppContext
     var selectedArtist: Artist?
     
     var isLoading = false {
@@ -37,8 +37,8 @@ class ArtistSelectionViewController: UITableViewController {
     
     lazy var searchBar = UISearchBar(frame: CGRect(x: 0, y: 0, width: 100, height: 60))
     
-    init(mainCoordinator: MainCoordinator) {
-        self.mainCoordinator = mainCoordinator
+    init(appContext: AppContext) {
+        self.appContext = appContext
         super.init(nibName: nil, bundle: nil)
         tableView.tableHeaderView = searchBar
         searchBar.delegate = self
@@ -61,14 +61,14 @@ class ArtistSelectionViewController: UITableViewController {
     }
     
     @objc func createArtist(_: Any) {
-        let vc = CreateArtistViewController(mainCoordinator: self.mainCoordinator)
+        let vc = CreateArtistViewController(appContext: self.appContext)
         vc.delegate = self
         navigationController?.pushViewController(vc, animated: true)
     }
     
     func getArtists(query: String) {
         let endpoint = PrivateRouter.getArtists(query: ["search": query])
-        _ = mainCoordinator.networkService.request(endpoint) { [weak self] (result: UAResult<ArtistsContainer>) in
+        _ = appContext.networkService.request(endpoint) { [weak self] (result: UAResult<ArtistsContainer>) in
             DispatchQueue.main.async {
                 switch result {
                 case .failure(let error):

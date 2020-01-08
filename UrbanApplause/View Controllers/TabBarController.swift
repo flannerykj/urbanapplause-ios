@@ -8,15 +8,19 @@
 
 import Foundation
 import UIKit
+import BSImagePicker
+import Photos
+import MapKit
 
 class TabBarController: UITabBarController {
     var store: Store
-    var mainCoordinator: MainCoordinator
+    var appContext: AppContext
     let dhTabBar = UATabBar()
+    var selectedPlacemark: CLPlacemark?
     
-    init(store: Store, mainCoordinator: MainCoordinator) {
+    init(store: Store, appContext: AppContext) {
         self.store = store
-        self.mainCoordinator = mainCoordinator
+        self.appContext = appContext
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -24,32 +28,32 @@ class TabBarController: UITabBarController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    lazy var mapRootVC = PostMapViewController2(viewModel: PostMapViewModel2(mainCoordinator: mainCoordinator),
-                                               mainCoordinator: mainCoordinator)
+    lazy var mapRootVC = PostMapViewController2(viewModel: PostMapViewModel2(appContext: appContext),
+                                               appContext: appContext)
     lazy var mapTab = UINavigationController(rootViewController: mapRootVC)
     let mapTabBarItem = UITabBarItem(title: "Map",
                                      image: UIImage(systemName: "map"),
                                      selectedImage: UIImage(systemName: "map.fill"))
     
-    lazy var listRootVC = SearchPostsViewController(mainCoordinator: mainCoordinator)
+    lazy var listRootVC = SearchPostsViewController(appContext: appContext)
     lazy var listTab = UINavigationController(rootViewController: listRootVC)
     lazy var listTabBarItem = UITabBarItem(title: "Search",
                                            image: UIImage(systemName: "magnifyingglass"),
                                            selectedImage: UIImage(systemName: "magnifyingglass"))
     
     lazy var collectionsRootVC = GalleriesViewController(userId: store.user.data?.id,
-                                                           mainCoordinator: mainCoordinator)
+                                                           appContext: appContext)
     lazy var collectionsTab = UINavigationController(rootViewController: collectionsRootVC)
     let collectionsTabBarItem = UITabBarItem(title: "Galleries",
                                              image: UIImage(systemName: "square.grid.2x2"),
                                              selectedImage: UIImage(systemName: "square.grid.2x2.fill"))
 
-    // lazy var addTab = NewPostViewController(mainCoordinator: self.mainCoordinator)
+    // lazy var addTab = NewPostViewController(appContext: self.appContext)
     // let addTabBarItem = UITabBarItem(title: nil, image: nil, selectedImage: nil) // placeholder
     
     lazy var profileTab: UINavigationController? = {
         guard let user = store.user.data else { return nil }
-        let profileRootVC = ProfileViewController(user: user, mainCoordinator: mainCoordinator)
+        let profileRootVC = ProfileViewController(user: user, appContext: appContext)
         let nav = UINavigationController(rootViewController: profileRootVC)
         return nav
     }()
@@ -57,7 +61,7 @@ class TabBarController: UITabBarController {
                                          image: UIImage(systemName: "person"),
                                          selectedImage: UIImage(systemName: "person.fill"))
     
-    lazy var settingsRootVC = SettingsViewController(store: store, mainCoordinator: mainCoordinator)
+    lazy var settingsRootVC = SettingsViewController(store: store, appContext: appContext)
     lazy var settingsTab = UINavigationController(rootViewController: settingsRootVC)
     
     let settingsTabBarItem = UITabBarItem(title: "Settings", image: UIImage(systemName: "gear"), selectedImage: nil)
@@ -81,7 +85,7 @@ class TabBarController: UITabBarController {
             // listTab
         ]
         
-        if self.mainCoordinator.authService.isAuthenticated {
+        if self.appContext.authService.isAuthenticated {
             controllers.append(collectionsTab)
             
             if let profileTab = profileTab {
@@ -94,22 +98,107 @@ class TabBarController: UITabBarController {
         dhTabBar.middleButton.addTarget(self, action: #selector(createNewPressed(_:)), for: .touchUpInside)
     }
     
-    @objc func createNewPressed(_: Any) {
-        if mainCoordinator.authService.isAuthenticated {
-            let vc = NewPostViewController(mainCoordinator: self.mainCoordinator)
-            vc.delegate = self
-            let nav = UINavigationController(rootViewController: vc)
-            // prevent swipe to dismiss so we can check for unsaved changes in didAttemptToDismiss.
-            nav.isModalInPresentation = true
-            nav.presentationController?.delegate = self
-            self.present(nav, animated: true, completion: nil)
+    public func pickImageForNewPost(placemark: CLPlacemark? = nil) {
+        self.selectedPlacemark = placemark
+        if appContext.authService.isAuthenticated {
+            let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+            let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+            let takePhotoAction = UIAlertAction(title: "Camera", style: .default, handler: { _ in
+                let cameraController = CameraViewController(appContext: self.appContext)
+                cameraController.delegate = self
+                cameraController.modalPresentationStyle = .fullScreen
+                cameraController.popoverPresentationController?.sourceView = self.view
+                cameraController.popoverPresentationController?.sourceRect = self.view.frame
+                self.present(cameraController, animated: true, completion: nil)
+            })
+            let pickPhotoAction = UIAlertAction(title: "Photo Library",
+                                                style: .default, handler: { _ in
+                                                    
+                let controller = BSImagePickerViewController()
+                controller.maxNumberOfSelections = 1
+                self.bs_presentImagePickerController(controller, animated: true,
+                                                     select: { (asset) -> Void in
+                                                        self.handleSelectedAsset(asset, controller: controller)
+                }, deselect: { (_) -> Void in
+                    // User deselected an assets.
+                    // Do something, cancel upload?
+                }, cancel: { (_) -> Void in
+                    // User cancelled. And this where the assets currently selected.
+                }, finish: { (_) -> Void in
+                    // self.photos = assets + self.photos
+                }, completion: nil)
+            })
+            alertController.addAction(takePhotoAction)
+            alertController.addAction(pickPhotoAction)
+            alertController.addAction(cancelAction)
+            alertController.popoverPresentationController?.sourceView = self.view
+            alertController.popoverPresentationController?.sourceRect = self.view.frame
+            self.present(alertController, animated: true, completion: nil)
+            
         } else {
             self.showAlertForLoginRequired(desiredAction: "post",
-                                           mainCoordinator: self.mainCoordinator)
+                                           appContext: self.appContext)
         }
     }
     
+    private func handleSelectedAsset(_ asset: PHAsset, controller: BSImagePickerViewController) {
+        let requestOptions = PHImageRequestOptions()
+        requestOptions.isSynchronous = true
+        requestOptions.isNetworkAccessAllowed = true
+        requestOptions.progressHandler = { progress, error, stop, info in
+            DispatchQueue.main.async {
+                // self.progressBar.progress = Float(progress)
+                // self.progressBar.isHidden = false
+            }
+        }
+        let cachingManager = PHCachingImageManager()
+        cachingManager.requestImageDataAndOrientation(for: asset,
+                                                      options: requestOptions,
+                                                      resultHandler: { data, typeIdentifier, orientation, _ in
+                                                        
+                                                        DispatchQueue.main.async {
+                                                            controller.dismiss(animated: true, completion: nil)
+                                                            log.debug("mimetype: \(typeIdentifier)")
+                                                            // self.progressBar.isHidden = true
+                                                            if let imgData = data {
+                                                                self.createNewPost(withImageData: imgData)
+                                                            } else {
+                                                                log.error("could not get image data")
+                                                            }
+                                                        }
+        })
+    }
+    
+    @objc func createNewPressed(_: Any) {
+        pickImageForNewPost()
+    }
+    
+    private func createNewPost(withImageData imageData: Data) {
+        let controller = NewPostViewController(imageData: imageData, placemark: self.selectedPlacemark, appContext: self.appContext)
+        controller.delegate = self
+        let nav = UINavigationController(rootViewController: controller)
+        // prevent swipe to dismiss so we can check for unsaved changes in didAttemptToDismiss.
+        nav.isModalInPresentation = true
+        nav.presentationController?.delegate = self
+        self.present(nav, animated: true, completion: nil)
+    }
+    
 }
+extension TabBarController: CameraViewDelegate {
+    func cameraController(_ controller: CameraViewController, didFinishWithImage: UIImage?, data: Data?, atLocation location: CLLocation?) {
+        guard let imageData = data else {
+            log.error("Camera returned no data")
+            return
+        }
+        if selectedPlacemark == nil, let loc = location {
+            selectedPlacemark = MKPlacemark(coordinate: loc.coordinate) as CLPlacemark
+        }
+        controller.dismiss(animated: true, completion: {
+            self.createNewPost(withImageData: imageData)
+        })
+    }
+}
+
 extension TabBarController: UITabBarControllerDelegate {
     override func tabBar(_ tabBar: UITabBar, didSelect item: UITabBarItem) {
         let indexOfSearchTab = 1
@@ -179,15 +268,20 @@ class UATabBar: UITabBar {
     }
     
     
+    
 }
 extension TabBarController: PostFormDelegate {
     func didCreatePost(post: Post) {
+        // wait for upload images to complete
+    }
+    
+    func didCompleteUploadingImages(post: Post) {
         self.listRootVC.didDeletePost(post: post)
-        self.mapRootVC.didCreatePost(post: post)
+        self.mapRootVC.didCompleteUploadingImages(post: post)
     }
     
     func didDeletePost(post: Post) {
-        self.listRootVC.didCreatePost(post: post)
+        self.listRootVC.didCompleteUploadingImages(post: post)
         self.mapRootVC.didDeletePost(post: post)
     }
 }

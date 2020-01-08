@@ -14,13 +14,13 @@ protocol ArtistProfileDelegate: AnyObject {
 }
 
 class ArtistProfileViewController: UIViewController {
-    var mainCoordinator: MainCoordinator
+    var appContext: AppContext
     var artist: Artist
 
     lazy var tabItems: [ToolbarTabItem] = {
         let postsViewModel = DynamicPostListViewModel(filterForArtist: artist, filterForQuery: nil,
-                                                   mainCoordinator: mainCoordinator)
-        let postsVC = PostListViewController(viewModel: postsViewModel, mainCoordinator: mainCoordinator)
+                                                   appContext: appContext)
+        let postsVC = PostListViewController(viewModel: postsViewModel, appContext: appContext)
 
         var title = "Work"
         if let name = artist.signing_name {
@@ -31,8 +31,8 @@ class ArtistProfileViewController: UIViewController {
         ]
     }()
     
-    init(artist: Artist, mainCoordinator: MainCoordinator) {
-        self.mainCoordinator = mainCoordinator
+    init(artist: Artist, appContext: AppContext) {
+        self.appContext = appContext
         self.artist = artist
         super.init(nibName: nil, bundle: nil)
     }
@@ -74,7 +74,7 @@ class ArtistProfileViewController: UIViewController {
     
     lazy var tabsViewController = TabbedToolbarViewController(headerContent: headerStackView,
                                                               tabItems: self.tabItems,
-                                                              mainCoordinator: mainCoordinator)
+                                                              appContext: appContext)
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -89,7 +89,7 @@ class ArtistProfileViewController: UIViewController {
     
     @objc func refreshUserProfile(sender: UIRefreshControl) {
         let endpoint = PrivateRouter.getArtist(artistId: artist.id)
-        _ = mainCoordinator.networkService.request(endpoint) { (result: UAResult<ArtistContainer>) in
+        _ = appContext.networkService.request(endpoint) { (result: UAResult<ArtistContainer>) in
             
             DispatchQueue.main.async {
                 sender.endRefreshing()

@@ -10,16 +10,16 @@ import Foundation
 import UIKit
 
 class GalleriesViewController: UIViewController {
-    var mainCoordinator: MainCoordinator
+    var appContext: AppContext
     var query: String?
     var collections = [Collection]()
     var galleryListViewModel: GalleryListViewModel
     lazy var galleryListVC = GalleryListViewController(viewModel: galleryListViewModel,
-                                                             mainCoordinator: mainCoordinator)
+                                                             appContext: appContext)
     
-    init(userId: Int?, mainCoordinator: MainCoordinator) {
-        self.mainCoordinator = mainCoordinator
-        self.galleryListViewModel = GalleryListViewModel(userId: userId, mainCoordinator: mainCoordinator)
+    init(userId: Int?, appContext: AppContext) {
+        self.appContext = appContext
+        self.galleryListViewModel = GalleryListViewModel(userId: userId, appContext: appContext)
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -46,7 +46,7 @@ class GalleriesViewController: UIViewController {
     }
     
     @objc func createCollection(_: Any) {
-        let vc = NewCollectionViewController(mainCoordinator: mainCoordinator)
+        let vc = NewCollectionViewController(appContext: appContext)
         vc.delegate = galleryListVC
         present(UINavigationController(rootViewController: vc), animated: true, completion: nil)
     }
@@ -56,7 +56,7 @@ extension GalleriesViewController: GalleryListDelegate {
                      didSelectCellModel cellModel: GalleryCellViewModel,
                      at indexPath: IndexPath) {
         
-        let vc = GalleryDetailViewController(gallery: cellModel.gallery, mainCoordinator: mainCoordinator)
+        let vc = GalleryDetailViewController(gallery: cellModel.gallery, appContext: appContext)
         navigationController?.pushViewController(vc, animated: true)
     }
     
