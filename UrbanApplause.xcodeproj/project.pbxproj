@@ -306,7 +306,6 @@
 		3AEA33772352003400ECBF8C /* DynamicPostListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AEA33762352003400ECBF8C /* DynamicPostListViewModel.swift */; };
 		3AED042F235614C200383982 /* MapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AED042E235614C200383982 /* MapViewController.swift */; };
 		3AEE041523BFAE1B00914AF2 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AEE041423BFAE1B00914AF2 /* ShareViewController.swift */; };
-		3AEE041C23BFAE1B00914AF2 /* UrbanApplauseUpload.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 3AEE041223BFAE1B00914AF2 /* UrbanApplauseUpload.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		3AEFA991237C7D6C00CE61F1 /* Double.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AEFA990237C7D6C00CE61F1 /* Double.swift */; };
 		3AF484F621DFCC8800FBC33E /* PostListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AF484F521DFCC8800FBC33E /* PostListViewController.swift */; };
 		3AF484F821DFD13D00FBC33E /* Post.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AF484F721DFD13D00FBC33E /* Post.swift */; };
@@ -331,7 +330,7 @@
 			remoteGlobalIDString = 3A76EA6921DAD3C200FEDEC8;
 			remoteInfo = UrbanApplause;
 		};
-		3AEE041A23BFAE1B00914AF2 /* PBXContainerItemProxy */ = {
+		3AC46A7D23C5F79F000E1CFC /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 3A76EA6221DAD3C200FEDEC8 /* Project object */;
 			proxyType = 1;
@@ -347,7 +346,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				3AEE041C23BFAE1B00914AF2 /* UrbanApplauseUpload.appex in Embed App Extensions */,
 			);
 			name = "Embed App Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -588,7 +586,6 @@
 				2B4804BA024D62E163988D88 /* Pods-UrbanApplause-UrbanApplauseUpload.debug (production).xcconfig */,
 				11FADA9929CDDF6683111867 /* Pods-UrbanApplause-UrbanApplauseUpload.release (production).xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -1107,7 +1104,7 @@
 			buildRules = (
 			);
 			dependencies = (
-				3AEE041B23BFAE1B00914AF2 /* PBXTargetDependency */,
+				3AC46A7E23C5F79F000E1CFC /* PBXTargetDependency */,
 			);
 			name = UrbanApplause;
 			productName = UrbanApplause;
@@ -1643,10 +1640,10 @@
 			target = 3A76EA6921DAD3C200FEDEC8 /* UrbanApplause */;
 			targetProxy = 3A111524236F757800341B89 /* PBXContainerItemProxy */;
 		};
-		3AEE041B23BFAE1B00914AF2 /* PBXTargetDependency */ = {
+		3AC46A7E23C5F79F000E1CFC /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 3AEE041123BFAE1B00914AF2 /* UrbanApplauseUpload */;
-			targetProxy = 3AEE041A23BFAE1B00914AF2 /* PBXContainerItemProxy */;
+			targetProxy = 3AC46A7D23C5F79F000E1CFC /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1831,14 +1828,14 @@
 				CODE_SIGN_ENTITLEMENTS = UrbanApplause/UrbanApplause.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = WJUFMSDDMW;
 				INFOPLIST_FILE = UrbanApplause/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.0;
+				MARKETING_VERSION = 4.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.urbanapplause.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1856,14 +1853,14 @@
 				CODE_SIGN_ENTITLEMENTS = UrbanApplause/UrbanApplause.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = WJUFMSDDMW;
 				INFOPLIST_FILE = UrbanApplause/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.0;
+				MARKETING_VERSION = 4.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.urbanapplause.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1942,14 +1939,14 @@
 				CODE_SIGN_ENTITLEMENTS = UrbanApplause/UrbanApplause.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = WJUFMSDDMW;
 				INFOPLIST_FILE = UrbanApplause/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.0;
+				MARKETING_VERSION = 4.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.urbanapplause.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

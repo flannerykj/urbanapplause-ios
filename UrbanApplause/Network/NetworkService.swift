@@ -42,6 +42,9 @@ class NetworkService: NSObject, NetworkServiceProtocol {
         }
         
     }
+    func setCustomHeaders(_ headers: [String : String]) {
+        self.customHeaders = headers
+    }
     func getCustomHeaders() -> [String : String] {
         return self.customHeaders
     }
