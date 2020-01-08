@@ -1,5 +1,5 @@
 //
-//  MainCoordinator.swift
+//  AppContext.swift
 //  UrbanApplause
 //
 //  Created by Flannery Jefferson on 2019-11-01.
@@ -9,16 +9,19 @@
 import Foundation
 import UIKit
 
-protocol MainCoordinatorDelegate: AnyObject {
-    func mainCoordinator(setRootController controller: UIViewController)
+protocol AppContextDelegate: AnyObject {
+    func appContext(setRootController controller: UIViewController)
+    func appContextOpenSettings(completion: @escaping (Bool) -> Void)
 }
 
-class MainCoordinator: NSObject {
-    weak var delegate: MainCoordinatorDelegate?
+class AppContext: NSObject {
+    weak var sharedApplication: UIApplication?
+    weak var delegate: AppContextDelegate?
+    
     private var rootController: UIViewController? {
         didSet {
             if let controller = rootController {
-                delegate?.mainCoordinator(setRootController: controller)
+                delegate?.appContext(setRootController: controller)
             }
         }
     }
@@ -28,7 +31,13 @@ class MainCoordinator: NSObject {
     private(set) var store = Store()
     lazy private(set) var authService = AuthService(keychainService: keychainService)
     lazy private(set) var fileCache: FileService = FileService()
-    lazy private(set) var networkService: NetworkService = {
+    
+    lazy private(set) var networkService =  NetworkService(customHeaders: customHeaders, handleAuthError: { serverError in
+           self.endSession()
+        })
+
+    
+    var customHeaders: [String: String] {
         var headers: [String: String] = [:]
         do {
             let authTokens: AuthResponse =
@@ -37,10 +46,8 @@ class MainCoordinator: NSObject {
         } catch {
             log.warning(error)
         }
-        return NetworkService(customHeaders: headers, handleAuthError: { serverError in
-           self.endSession()
-        })
-    }()
+        return headers
+    }
 
     init(keychainService: KeychainService = KeychainService(),
          userDefaults: UserDefaults = UserDefaults.standard) {
@@ -58,25 +65,34 @@ class MainCoordinator: NSObject {
         // Called when user logs in. Not called if valid token already in keychain when app launches.
         do {
             try authService.beginSession(authResponse: authResponse)
+            networkService.setCustomHeaders(customHeaders)
         } catch {
         }
         navigateToApp()
     }
     public func endSession() {
-        // Called when user logs out, or session ends and logs out forcefully.
+        // Called when user logs out
         authService.endSession()
         store = Store()
         self.navigateToApp()
     }
     
+    public var canOpenSettings: Bool {
+        return delegate != nil
+    }
+    public func openSettings(completion: @escaping (Bool) -> Void) {
+        delegate?.appContextOpenSettings(completion: completion)
+    }
+    
     // MARK: - Private Methods
     private func navigateToApp() {
         store.user.data = authService.authUser
-        let root = TabBarController(store: store, mainCoordinator: self)
+        let root = TabBarController(store: store, appContext: self)
         switchRootViewController(viewController: root)
     }
     
     private func switchRootViewController(viewController: UIViewController) {
         self.rootController = viewController
     }
+    
 }

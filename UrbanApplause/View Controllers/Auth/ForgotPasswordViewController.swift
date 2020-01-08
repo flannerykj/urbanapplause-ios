@@ -10,9 +10,9 @@ import Foundation
 import UIKit
 
 class ForgotPasswordViewController: UIViewController {
-    var mainCoordinator: MainCoordinator
-    init(mainCoordinator: MainCoordinator) {
-        self.mainCoordinator = mainCoordinator
+    var appContext: AppContext
+    init(appContext: AppContext) {
+        self.appContext = appContext
         super.init(nibName: nil, bundle: nil)
     }
     var isLoading: Bool = false {
@@ -89,7 +89,7 @@ class ForgotPasswordViewController: UIViewController {
         self.errorView.errorMessage = nil
         self.emailField.resignFirstResponder()
         let endpoint = AuthRouter.resetPassword(email: email)
-        _ = mainCoordinator.networkService.request(endpoint) { (result: UAResult<MessageContainer>) in
+        _ = appContext.networkService.request(endpoint) { (result: UAResult<MessageContainer>) in
             DispatchQueue.main.async {
                 self.isLoading = false
                 switch result {

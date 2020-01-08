@@ -13,11 +13,11 @@ import SafariServices
 class SettingsViewController: UIViewController {
 
     var store: Store
-    var mainCoordinator: MainCoordinator
+    var appContext: AppContext
     
-    init(store: Store, mainCoordinator: MainCoordinator) {
+    init(store: Store, appContext: AppContext) {
         self.store = store
-        self.mainCoordinator = mainCoordinator
+        self.appContext = appContext
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -64,7 +64,7 @@ class SettingsViewController: UIViewController {
 // MARK: - Table view data source
 extension SettingsViewController: UITableViewDataSource, UITableViewDelegate {
     var sections: [[SettingsItem]] {
-        if mainCoordinator.authService.isAuthenticated {
+        if appContext.authService.isAuthenticated {
             return [
                 [.account],
                 [.termsOfService, .privacyPolicy],
@@ -110,12 +110,12 @@ extension SettingsViewController: UITableViewDataSource, UITableViewDelegate {
         let helpItem = sections[indexPath.section][indexPath.row]
         switch helpItem {
         case .logout:
-            mainCoordinator.endSession()
+            appContext.endSession()
         case .account:
-            let accountVC = AccountViewController(mainCoordinator: mainCoordinator)
+            let accountVC = AccountViewController(appContext: appContext)
             navigationController?.pushViewController(accountVC, animated: true)
         case .createAccount, .login:
-            self.showAuth(isNewUser: helpItem == .createAccount, mainCoordinator: self.mainCoordinator)
+            self.showAuth(isNewUser: helpItem == .createAccount, appContext: self.appContext)
         default:
             if let url = helpItem.url {
                 let vc = SFSafariViewController(url: url, configuration: SFSafariViewController.Configuration())

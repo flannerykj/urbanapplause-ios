@@ -42,11 +42,14 @@ class NetworkService: NSObject, NetworkServiceProtocol {
         }
         
     }
+    func setCustomHeaders(_ headers: [String : String]) {
+        self.customHeaders = headers
+    }
     func getCustomHeaders() -> [String : String] {
         return self.customHeaders
     }
     func onReceiveAccessDeniedError(error serverError: UAServerError) {
-        // self.mainCoordinator.endSession()
+        // self.appContext.endSession()
     }
     
     // Data task (use for uploads as well as get, post etc.)
@@ -80,6 +83,17 @@ class NetworkService: NSObject, NetworkServiceProtocol {
             log.warning("Caught non-UA error")
         }
         return nil
+    }
+    
+    public func requestOnBackgroundTask(_ route: EndpointConfiguration,
+                                           session: URLSession) {
+        do {
+            let request = try self.buildRequest(from: route)
+            let task = session.dataTask(with: request)
+            task.resume()
+        } catch {
+            log.error(error)
+        }
     }
     
     private func addJob(job: NetworkServiceJob) {
@@ -191,9 +205,3 @@ extension NetworkService: URLSessionDataDelegate {
     }
 }
 
-extension NSMutableData {
-    func appendString(string: String) {
-        let data = string.data(using: String.Encoding.utf8, allowLossyConversion: true)
-        append(data!)
-    }
-}

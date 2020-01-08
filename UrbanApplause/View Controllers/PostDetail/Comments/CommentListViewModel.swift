@@ -9,7 +9,7 @@
 import Foundation
 
 class CommentListViewModel {
-    private var mainCoordinator: MainCoordinator
+    private var appContext: AppContext
     private var post: Post?
     
     private(set) var isLoading = false {
@@ -39,9 +39,9 @@ class CommentListViewModel {
     var didCreateComment: ((Comment) -> Void)?
     var didBlockUser: ((User) -> Void)?
     
-    init(post: Post?, mainCoordinator: MainCoordinator) {
+    init(post: Post?, appContext: AppContext) {
         self.post = post
-        self.mainCoordinator = mainCoordinator
+        self.appContext = appContext
     }
     
     func setPost(_ post: Post?) {
@@ -56,7 +56,7 @@ class CommentListViewModel {
         errorMessage = nil
         isLoading = true
         let endpoint = PrivateRouter.getComments(postId: postId)
-        _ = mainCoordinator.networkService.request(endpoint) { [weak self] (result: UAResult<CommentsContainer>) in
+        _ = appContext.networkService.request(endpoint) { [weak self] (result: UAResult<CommentsContainer>) in
             
             DispatchQueue.main.async {
                 self?.isLoading = false
@@ -83,13 +83,13 @@ class CommentListViewModel {
             errorMessage = "Comment cannot be empty"
             return
         }
-        guard let user = mainCoordinator.store.user.data else {
+        guard let user = appContext.store.user.data else {
             log.error("no user set")
             return
         }
         self.errorMessage = nil
         self.isSubmitting = true
-        _ = mainCoordinator.networkService.request(PrivateRouter.createComment(postId: postId,
+        _ = appContext.networkService.request(PrivateRouter.createComment(postId: postId,
                                                                                    userId: user.id,
                                                                                    content: content),
                                                        completion: { (result: UAResult<CommentContainer>) in
@@ -109,7 +109,7 @@ class CommentListViewModel {
     }
     
     func deleteComment(_ comment: Comment, at indexPath: IndexPath) {
-        _ = self.mainCoordinator.networkService.request(PrivateRouter.deleteComment(commentId: comment.id),
+        _ = self.appContext.networkService.request(PrivateRouter.deleteComment(commentId: comment.id),
                                                         completion: { (result: UAResult<CommentContainer>) in
             DispatchQueue.main.async {
                 switch result {
@@ -125,8 +125,8 @@ class CommentListViewModel {
     }
     
     func blockUser(_ user: User) {
-        guard let blockingUser = mainCoordinator.store.user.data else { return }
-        _ = self.mainCoordinator.networkService.request(PrivateRouter.blockUser(blockingUserId: blockingUser.id,
+        guard let blockingUser = appContext.store.user.data else { return }
+        _ = self.appContext.networkService.request(PrivateRouter.blockUser(blockingUserId: blockingUser.id,
                                                                                 blockedUserId: user.id),
                                                         completion: { (result: UAResult<BlockedUserContainer>) in
             switch result {

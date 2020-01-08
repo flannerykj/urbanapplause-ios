@@ -17,7 +17,7 @@ protocol PostDetailDelegate: class {
 
 class PostDetailViewController: UIViewController {
     weak var delegate: PostDetailDelegate?
-    var mainCoordinator: MainCoordinator
+    var appContext: AppContext
     var updatingCollections: [Collection] = []
     var addedToCollections: [Collection] = []
     
@@ -26,7 +26,7 @@ class PostDetailViewController: UIViewController {
             guard let post = post else { return }
             title = post.title
             if let file = post.PostImages?.first {
-                downloadJob = mainCoordinator.fileCache.getJobForFile(file)
+                downloadJob = appContext.fileCache.getJobForFile(file)
             }
             artistLabel.text = post.title
             setLocation(post.Location)
@@ -59,8 +59,8 @@ class PostDetailViewController: UIViewController {
             }
         }
     }
-    init(postId: Int, post: Post?, thumbImage: UIImage? = nil, mainCoordinator: MainCoordinator) {
-        self.mainCoordinator = mainCoordinator
+    init(postId: Int, post: Post?, thumbImage: UIImage? = nil, appContext: AppContext) {
+        self.appContext = appContext
         
         super.init(nibName: nil, bundle: nil)
         
@@ -73,7 +73,7 @@ class PostDetailViewController: UIViewController {
     
     func fetchPost(postID: Int) {
         self.isLoading = true
-        _ = mainCoordinator.networkService.request(PrivateRouter.getPost(id: postID),
+        _ = appContext.networkService.request(PrivateRouter.getPost(id: postID),
                                                    completion: { (result: UAResult<PostContainer>) in
             DispatchQueue.main.async {
                 self.isLoading = false
@@ -314,7 +314,7 @@ class PostDetailViewController: UIViewController {
         })
         alertController.addAction(savePostAction)
         
-        if let user = mainCoordinator.store.user.data,
+        if let user = appContext.store.user.data,
             let post = self.post, post.UserId == user.id {
             let deleteAction = UIAlertAction(title: "Delete post", style: .default, handler: { _ in
                 self.confirmDeletePost()
@@ -340,29 +340,23 @@ class PostDetailViewController: UIViewController {
         present(alertController, animated: true, completion: nil)
     }
     @objc func showImageDetail(_: Any) {
-        let vc = ImageCarouselViewController(files: self.post?.PostImages ?? [], mainCoordinator: mainCoordinator)
+        let vc = ImageCarouselViewController(files: self.post?.PostImages ?? [], appContext: appContext)
         navigationController?.pushViewController(vc, animated: true)
     }
-    @objc func edit(_ sender: UIBarButtonItem) {
-        let editVc = NewPostViewController(mainCoordinator: mainCoordinator)
-        editVc.editingPost = post
-        editVc.savedImages = downloadedImages
-        // editVc.delegate = self
-        present(UINavigationController(rootViewController: editVc), animated: true)
-    }
+    
 
     @objc func toggleVisited(_ sender: UIButton) {
-        guard self.mainCoordinator.authService.isAuthenticated else {
+        guard self.appContext.authService.isAuthenticated else {
             self.showAlertForLoginRequired(desiredAction: "save a visit",
-                                           mainCoordinator: self.mainCoordinator)
+                                           appContext: self.appContext)
             return
         }
-        guard let user = mainCoordinator.store.user.data,
+        guard let user = appContext.store.user.data,
             let post = self.post else {
                 return
         }
         let endpoint = PrivateRouter.addOrRemoveVisit(postId: post.id, userId: user.id)
-        _ = mainCoordinator.networkService.request(endpoint) { (result: UAResult<VisitInteractionContainer>) in
+        _ = appContext.networkService.request(endpoint) { (result: UAResult<VisitInteractionContainer>) in
             switch result {
             case .success(let container):
                 DispatchQueue.main.async {
@@ -382,7 +376,7 @@ class PostDetailViewController: UIViewController {
     }
     
     func updateVisitedButton() {
-        if let userId = self.mainCoordinator.store.user.data?.id,
+        if let userId = self.appContext.store.user.data?.id,
             let visited = self.post?.Visits?.contains(where: { $0.UserId == userId }) {
             
             visitsButton.isSelected = visited
@@ -391,18 +385,18 @@ class PostDetailViewController: UIViewController {
     }
     
     @objc func toggleApplause(_: Any) {
-        guard self.mainCoordinator.authService.isAuthenticated else {
+        guard self.appContext.authService.isAuthenticated else {
             self.showAlertForLoginRequired(desiredAction: "applaud",
-                                           mainCoordinator: self.mainCoordinator)
+                                           appContext: self.appContext)
             return
         }
         
         guard let post = self.post,
-            let userId = mainCoordinator.store.user.data?.id else {
+            let userId = appContext.store.user.data?.id else {
                 log.error("missing data for creating applause")
                 return
         }
-        _ = mainCoordinator.networkService.request(PrivateRouter.addOrRemoveClap(postId: post.id, userId: userId),
+        _ = appContext.networkService.request(PrivateRouter.addOrRemoveClap(postId: post.id, userId: userId),
                                                    completion: { (result: UAResult<ApplauseInteractionContainer>) in
                                                     switch result {
                                                     case .success(let container):
@@ -422,7 +416,7 @@ class PostDetailViewController: UIViewController {
         })
     }
     func updateApplaudedButton() {
-        if let userId = self.mainCoordinator.store.user.data?.id,
+        if let userId = self.appContext.store.user.data?.id,
             let applauded = self.post?.Claps?.contains(where: { $0.UserId == userId }) {
             applaudedButton.isSelected = applauded
             applaudedButton.setTitle(applauded ? "Applauded" : "Applaud", for: .normal)
@@ -430,7 +424,7 @@ class PostDetailViewController: UIViewController {
     }
     
     func blockUser(_ user: User) {
-        guard let blockingUser = mainCoordinator.store.user.data else { return }
+        guard let blockingUser = appContext.store.user.data else { return }
         let username = user.username ?? "this user"
         let msg = "You will no longer be show posts or comments from this user"
         let alertController = UIAlertController(title: "Block \(username)?", message: msg, preferredStyle: .alert)
@@ -439,7 +433,7 @@ class PostDetailViewController: UIViewController {
         })
         let blockAction = UIAlertAction(title: "Block", style: .destructive, handler: { _ in
             let endpoint = PrivateRouter.blockUser(blockingUserId: blockingUser.id, blockedUserId: user.id)
-            _ = self.mainCoordinator.networkService.request(endpoint,
+            _ = self.appContext.networkService.request(endpoint,
                                                        completion: { (result: UAResult<BlockedUserContainer>) in
                                                         DispatchQueue.main.async {
                                                             switch result {
@@ -498,7 +492,7 @@ class PostDetailViewController: UIViewController {
             alertController.dismiss(animated: true, completion: nil)
         })
         let deleteAction = UIAlertAction(title: "Delete", style: .destructive, handler: { _ in
-            _ = self.mainCoordinator.networkService.request(PrivateRouter.deletePost(id: post.id),
+            _ = self.appContext.networkService.request(PrivateRouter.deletePost(id: post.id),
                                                        completion: { (result: UAResult<PostContainer>) in
                                                         DispatchQueue.main.async {
                                                             switch result {
@@ -515,15 +509,15 @@ class PostDetailViewController: UIViewController {
         present(alertController, animated: true, completion: nil)
     }
     func savePost() {
-        guard let userId = mainCoordinator.store.user.data?.id else {
+        guard let userId = appContext.store.user.data?.id else {
             return
         }
         let galleriesViewModel = GalleryListViewModel(userId: userId,
                                                       includeGeneratedGalleries: false,
-                                                      mainCoordinator: mainCoordinator)
+                                                      appContext: appContext)
         
         let vc = GalleryListViewController(viewModel: galleriesViewModel,
-                                           mainCoordinator: mainCoordinator)
+                                           appContext: appContext)
         vc.navigationItem.title = "Add to galleries"
         vc.delegate = self
         present(UINavigationController(rootViewController: vc), animated: true, completion: nil)
@@ -559,7 +553,7 @@ class PostDetailViewController: UIViewController {
         self.present(errorAlert, animated: true, completion: nil)
     }
     func flagPost() {
-        let vc = ReportAnIssueViewController(store: mainCoordinator.store) { reportController, reason in
+        let vc = ReportAnIssueViewController(store: appContext.store) { reportController, reason in
             self.submitFlag(reason: reason, reportAnIssueController: reportController)
         }
         present(UINavigationController(rootViewController: vc), animated: true, completion: nil)
@@ -568,7 +562,7 @@ class PostDetailViewController: UIViewController {
     func addPostToCollection(_ collection: Collection, completion: @escaping (Bool) -> Void) {
         guard let post = self.post else { return }
         let endpoint = PrivateRouter.addToCollection(collectionId: collection.id, postId: post.id, annotation: "")
-        _ = mainCoordinator.networkService.request(endpoint, completion: { (result: UAResult<CollectionContainer>) in
+        _ = appContext.networkService.request(endpoint, completion: { (result: UAResult<CollectionContainer>) in
             DispatchQueue.main.async {
                 switch result {
                 case .success(let container):
@@ -587,7 +581,7 @@ class PostDetailViewController: UIViewController {
     func removePostFromCollection(_ collection: Collection, completion: @escaping (Bool) -> Void) {
         guard let post = self.post else { return }
         let endpoint = PrivateRouter.deleteFromCollection(collectionId: collection.id, postId: post.id)
-        _ = mainCoordinator.networkService.request(endpoint, completion: { (result: UAResult<CollectionContainer>) in
+        _ = appContext.networkService.request(endpoint, completion: { (result: UAResult<CollectionContainer>) in
             DispatchQueue.main.async {
                 switch result {
                 case .success(let container):
@@ -607,7 +601,7 @@ class PostDetailViewController: UIViewController {
     func submitFlag(reason: PostFlagReason, reportAnIssueController: ReportAnIssueViewController) {
         guard let post = self.post else { return }
         reportAnIssueController.self.isSubmitting = true
-        _ = mainCoordinator.networkService.request(PrivateRouter.createPostFlag(postId: post.id,
+        _ = appContext.networkService.request(PrivateRouter.createPostFlag(postId: post.id,
                                                                                 reason: reason),
                                                    completion: { (result: UAResult<PostFlagContainer>) in
                                                     DispatchQueue.main.async {
@@ -626,7 +620,11 @@ class PostDetailViewController: UIViewController {
 }
 
 extension PostDetailViewController: PostFormDelegate {
-    func didCreatePost(post: Post) {}
+    func didCreatePost(post: Post) {
+        // wait for upload images to complete
+    }
+    
+    func didCompleteUploadingImages(post: Post) {}
 
     func didDeletePost(post: Post) {
         DispatchQueue.main.async {
@@ -652,13 +650,13 @@ extension PostDetailViewController: UITextViewDelegate {
                 return $0.id == Int(idString)
             }) else { return false }
             let vc = ArtistProfileViewController(artist: artist,
-                                                 mainCoordinator: mainCoordinator)
+                                                 appContext: appContext)
             navigationController?.pushViewController(vc, animated: true)
         }
         if URL.pathComponents.contains("users") {
             // guard let idString = URL.pathComponents.last, let id = Int(idString) else { return false }
             guard let user = self.post?.User else { return false }
-            let vc = ProfileViewController(user: user, mainCoordinator: mainCoordinator)
+            let vc = ProfileViewController(user: user, appContext: appContext)
             navigationController?.pushViewController(vc, animated: true)
         }
         if URL.pathComponents.contains("locations") {

@@ -41,8 +41,8 @@ class AuthRequestTests: BaseTestCase {
   
         // create the URLSession from mock config
         let session = URLSessionMock(mockResponseData: data, mockResponseError: nil)
-        let mainCoordinator = MainCoordinator(keychainService: KeychainService(service: "ca.dothealth.test"))
-        let networkService = NetworkService(session: session, mainCoordinator: mainCoordinator)
+        let appContext = AppContext(keychainService: KeychainService(service: "ca.dothealth.test"))
+        let networkService = NetworkService(session: session, appContext: appContext)
 
         _ = networkService.request(endpoint, completion: {(res: UAResult<AuthResponse>) in
             let authResult = try? res.get()
@@ -69,9 +69,9 @@ class AuthRequestTests: BaseTestCase {
         
         // create the URLSession from mock config
         let session = URLSessionMock(mockResponseData: data, mockResponseStatusCode: 400, mockResponseError: nil)
-        let mainCoordinator = MainCoordinator(keychainService: KeychainService(service: "ca.dothealth.test"))
+        let appContext = AppContext(keychainService: KeychainService(service: "ca.dothealth.test"))
 
-        let networkService = NetworkService(session: session, mainCoordinator: mainCoordinator)
+        let networkService = NetworkService(session: session, appContext: appContext)
         
         _ = networkService.request(endpoint, completion: {(res: UAResult<AuthResponse>) in
             do {

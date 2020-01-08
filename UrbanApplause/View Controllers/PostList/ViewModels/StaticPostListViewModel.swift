@@ -11,7 +11,7 @@ import Foundation
 class StaticPostListViewModel: PostListViewModel {
     internal var _posts = [Post]()
     
-    var mainCoordinator: MainCoordinator
+    var appContext: AppContext
     var didUpdateData: ((_ added: [IndexPath], _ removed: [IndexPath], _ shouldReload: Bool) -> Void)?
     var didSetLoading: ((Bool) -> Void)?
     var didSetErrorMessage: ((String?) -> Void)?
@@ -19,9 +19,9 @@ class StaticPostListViewModel: PostListViewModel {
         return false
     }
     var currentPage: Int = 0
-    init(posts: [Post], mainCoordinator: MainCoordinator) {
+    init(posts: [Post], appContext: AppContext) {
         self._posts = posts
-        self.mainCoordinator = mainCoordinator
+        self.appContext = appContext
     }
     var errorMessage: String? = nil {
         didSet {

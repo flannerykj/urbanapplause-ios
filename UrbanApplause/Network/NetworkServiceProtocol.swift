@@ -198,3 +198,9 @@ extension NetworkServiceProtocol {
         return "Boundary-\(NSUUID().uuidString)"
     }
 }
+extension NSMutableData {
+    func appendString(string: String) {
+        let data = string.data(using: String.Encoding.utf8, allowLossyConversion: true)
+        append(data!)
+    }
+}

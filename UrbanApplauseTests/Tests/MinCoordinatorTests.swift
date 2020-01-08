@@ -10,6 +10,6 @@ import Foundation
 import XCTest
 @testable import UrbanApplause
 
-class MainCoordinatortests: BaseTestCase {
+class AppContexttests: BaseTestCase {
     
 }

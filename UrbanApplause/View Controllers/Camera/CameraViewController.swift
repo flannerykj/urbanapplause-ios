@@ -9,6 +9,7 @@
 import Foundation
 import AVFoundation
 import UIKit
+import MapKit
 
 // Orientation transition flow.
 //
@@ -18,12 +19,14 @@ import UIKit
 // 4. User presses capture button --> stillImageOutput's orientation set to match videoPreviewLayer.
 
 protocol CameraViewDelegate: class {
-    func cameraController(_ controller: CameraViewController, didFinishWithImage: UIImage?, data: Data?)
+    func cameraController(_ controller: CameraViewController, didFinishWithImage: UIImage?, data: Data?, atLocation location: CLLocation?)
 }
 
 class CameraViewController: UIViewController {
+    private var appContext: AppContext
     weak var delegate: CameraViewDelegate?
     
+    private var awaitingLocationToComplete = false
     private var isSessionRunning = false
     private var captureSession: AVCaptureSession?
     private var stillImageOutput: AVCapturePhotoOutput?
@@ -32,7 +35,8 @@ class CameraViewController: UIViewController {
     
     @objc dynamic var videoDeviceInput: AVCaptureDeviceInput!
     
-    init() {
+    init(appContext: AppContext) {
+        self.appContext = appContext
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -210,7 +214,7 @@ class CameraViewController: UIViewController {
             } else {
                 self.showAlertForDeniedPermissions(permissionType: "camera", onDismiss: {
                     self.dismiss(animated: true, completion: nil)
-                })
+                }, appContext: self.appContext)
             }
         }
     }
@@ -270,9 +274,11 @@ class CameraViewController: UIViewController {
                         // Step 5 - Setup live preview
                         self.previewView.videoPreviewLayer.session = self.captureSession
 
-                        self.previewView.videoPreviewLayer.connection?.videoOrientation =
-                            UIInterfaceOrientation(rawValue: UIApplication.shared.statusBarOrientation.rawValue)!
-                                .getAVOrientation()
+                        if let sharedApplication = self.appContext.sharedApplication {
+                            self.previewView.videoPreviewLayer.connection?.videoOrientation =
+                                UIInterfaceOrientation(rawValue: sharedApplication.statusBarOrientation.rawValue)!
+                                    .getAVOrientation()
+                        }
 
                         self.captureSession!.startRunning()
                         self.previewView.videoPreviewLayer.videoGravity = .resizeAspectFill
@@ -345,10 +351,49 @@ class CameraViewController: UIViewController {
 
     @objc private func finish(_: UIButton) {
         // Force orientation back to allowed value
+        
         UIDevice.current.setValue(UIInterfaceOrientation.portrait.rawValue, forKey: "orientation")
         let data = capturedPhoto?.fileDataRepresentation()
-        delegate?.cameraController(self, didFinishWithImage: capturedImageView.image, data: data)
+        if awaitingLocationToComplete {
+            // 2nd time user has pressed this - complete immediately
+            delegate?.cameraController(self, didFinishWithImage: capturedImageView.image, data: data, atLocation: nil)
+        }
+        let locationManager = CLLocationManager()
+        locationManager.delegate = self
+        if let location = locationManager.location {
+            delegate?.cameraController(self, didFinishWithImage: capturedImageView.image, data: data, atLocation: location)
+        } else {
+            self.awaitingLocationToComplete = true
+            locationManager.requestLocation()
+        }
         self.navigationController?.dismiss(animated: true, completion: nil)
+    }
+}
+
+extension CameraViewController: CLLocationManagerDelegate {
+    public func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        
+    }
+    
+    public func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+        if awaitingLocationToComplete {
+            if !(status == .authorizedAlways || status == .authorizedWhenInUse) {
+                delegate?.cameraController(self,
+                                           didFinishWithImage: capturedImageView.image,
+                                           data: capturedPhoto?.fileDataRepresentation(),
+                                           atLocation: nil)
+            }
+        }
+        
+    }
+    
+    public func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        if awaitingLocationToComplete, let location = locations.first {
+            delegate?.cameraController(self,
+            didFinishWithImage: capturedImageView.image,
+            data: capturedPhoto?.fileDataRepresentation(),
+            atLocation: location)
+        }
     }
 }
 

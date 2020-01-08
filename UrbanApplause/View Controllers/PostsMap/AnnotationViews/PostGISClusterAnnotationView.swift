@@ -38,17 +38,17 @@ class PostGISClusterAnnotationView: MKMarkerAnnotationView, PostAnnotationViewPr
     override init(annotation: MKAnnotation?, reuseIdentifier: String?) {
         super.init(annotation: annotation, reuseIdentifier: reuseIdentifier)
         markerTintColor = .clear
-        clusteringIdentifier = "postGISCluster"
+        clusteringIdentifier = nil
         addSubview(contentView)
         addSubview(clusterMembersCountView)
         clusterMembersCountView.centerYAnchor.constraint(equalTo: contentView.topAnchor).isActive = true
         clusterMembersCountView.centerXAnchor.constraint(equalTo: contentView.rightAnchor).isActive = true
         // contentView.backgroundColor = .green
-
+        displayPriority = .required
     }
     override func prepareForDisplay() {
         super.prepareForDisplay()
-        // displayPriority = .defaultHigh
+        
         contentView.setImage(nil)
         glyphText = ""
         

@@ -10,7 +10,7 @@ import Foundation
 import MapKit
 
 class DynamicPostListViewModel: PostListViewModel {
-    private var mainCoordinator: MainCoordinator
+    private var appContext: AppContext
     
     private let itemsPerPage = 10
     
@@ -54,7 +54,7 @@ class DynamicPostListViewModel: PostListViewModel {
          filterForArtist: Artist? = nil,
          filterForQuery: String? = nil,
          filterForCollection: Collection? = nil,
-         mainCoordinator: MainCoordinator) {
+         appContext: AppContext) {
         
         self.filterForPostedBy = filterForPostedBy
         self.filterForVisitedBy = filterForVisitedBy
@@ -62,7 +62,7 @@ class DynamicPostListViewModel: PostListViewModel {
         self.filterForArtist = filterForArtist
         self.filterForQuery = filterForQuery
         self.filterForCollection = filterForCollection
-        self.mainCoordinator = mainCoordinator
+        self.appContext = appContext
     }
     
     func getPosts(forceReload: Bool = false) {
@@ -93,7 +93,7 @@ class DynamicPostListViewModel: PostListViewModel {
                                 proximity: self.filterForProximity,
                                 bounds: self.filterForGeoBounds,
                                 include: ["claps", "collections", "comments", "visits"])
-        _ = mainCoordinator.networkService.request(PrivateRouter.getPosts(query: postQuery)
+        _ = appContext.networkService.request(PrivateRouter.getPosts(query: postQuery)
         ) { [weak self] (result: UAResult<PostsContainer>) in
             DispatchQueue.main.async {
                 self?.isLoading = false

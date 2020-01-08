@@ -35,7 +35,7 @@ class KeychainService {
     var service: String
     var accessGroup: String?
 
-    init(service: String = "dothealth.ca", accessGroup: String? = nil) {
+    init(service: String = "urbanapplause.com", accessGroup: String? = nil) {
         self.service = service
         self.accessGroup = accessGroup
     }

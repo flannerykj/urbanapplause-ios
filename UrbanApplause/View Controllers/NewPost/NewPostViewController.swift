@@ -17,6 +17,7 @@ import BSImagePicker
 protocol PostFormDelegate: class {
     func didDeletePost(post: Post)
     func didCreatePost(post: Post)
+    func didCompleteUploadingImages(post: Post)
 }
 
 class NewPostViewController: FormViewController, UINavigationControllerDelegate,
@@ -24,11 +25,11 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
     private let spacesFileRepository = SpacesFileRepository()
     var post: Post?
     var hasUnsavedChanges: Bool = false
-    var mainCoordinator: MainCoordinator
-    var imagesData: [Data]
+    var appContext: AppContext
+    var selectedImageData: Data
     weak var delegate: PostFormDelegate?
     var initialPlacemark: CLPlacemark?
-    lazy var networkService = self.mainCoordinator.networkService
+    lazy var networkService = self.appContext.networkService
     var showMoreOptions: Bool = false {
         didSet {
             log.debug("did set showMoreOptions: \(showMoreOptions) ")
@@ -79,27 +80,12 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
         return view
     }()
     
-    init(placemark: CLPlacemark? = nil, mainCoordinator: MainCoordinator) {
-        self.mainCoordinator = mainCoordinator
+    init(imageData: Data, placemark: CLPlacemark? = nil, appContext: AppContext) {
+        self.appContext = appContext
         self.initialPlacemark = placemark
-        self.imagesData = []
-        super.init(nibName: nil, bundle: nil)
+        self.selectedImageData = imageData
         
-        if let location = placemark?.location {
-            CLGeocoder().reverseGeocodeLocation(location,
-                                                completionHandler: { (placemarks, _) in
-                                                    
-                                                    if let placemarkWithInfo = placemarks?.first {
-                                                        DispatchQueue.main.async {
-                                                            if let locationRow = self.form.rowBy(tag: "location") as? LocationRow {
-                                                                locationRow.value = placemarkWithInfo
-                                                                locationRow.updateCell()
-                                                                self.hasUnsavedChanges = false // this shouldn't count as an unsaved change
-                                                            }
-                                                        }
-                                                    }
-            })
-        }
+        super.init(nibName: nil, bundle: nil)
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -125,7 +111,29 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
         navigationItem.rightBarButtonItem = saveButton
         self.newPostState = .initial
         // self.tableView.separatorInset = .zero
+        selectedImageView.image = UIImage(data: selectedImageData)
+
         createForm()
+        
+        let source: CGImageSource = CGImageSourceCreateWithData((selectedImageData as! CFMutableData), nil)!
+        let metadata = CGImageSourceCopyPropertiesAtIndex(source, 0,nil) as! [String:Any]
+        fillFormFromExifData(properties: metadata)
+
+        if let location = initialPlacemark?.location {
+            CLGeocoder().reverseGeocodeLocation(location,
+                                                completionHandler: { (placemarks, _) in
+                                                    
+                                                    if let placemarkWithInfo = placemarks?.first {
+                                                        DispatchQueue.main.async {
+                                                            if let locationRow = self.form.rowBy(tag: "location") as? LocationRow {
+                                                                locationRow.value = placemarkWithInfo
+                                                                locationRow.updateCell()
+                                                                self.hasUnsavedChanges = false // this shouldn't count as an unsaved change
+                                                            }
+                                                        }
+                                                    }
+            })
+        }
     }
     
     func onUpdateForm() {
@@ -142,52 +150,9 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
     
     func createForm() {
         form +++ Section("Photos")
-            <<< ButtonRow { row in
-                row.tag = "add_photo_button"
-                row.title = "Add a photo"
-                row.onCellSelection { cell, _ in
-                    let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-                    let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-                    let takePhotoAction = UIAlertAction(title: "Camera", style: .default, handler: { _ in
-                        let cameraController = CameraViewController()
-                        cameraController.delegate = self
-                        cameraController.modalPresentationStyle = .fullScreen
-                        cameraController.popoverPresentationController?.sourceView = self.view
-                        cameraController.popoverPresentationController?.sourceRect = self.view.frame
-                        self.present(cameraController, animated: true, completion: nil)
-                    })
-                    let pickPhotoAction = UIAlertAction(title: "Photo Library",
-                                                        style: .default, handler: { _ in
-                                                            
-                        let controller = BSImagePickerViewController()
-                        controller.maxNumberOfSelections = 1
-                        self.bs_presentImagePickerController(controller, animated: true,
-                                                             select: { (asset) -> Void in
-                                                                controller.dismiss(animated: true, completion: nil)
-                                                                self.handleSelectedPhotos([asset])
-                                                                // User selected an asset.
-                                                                // Do something with it, start upload perhaps?
-                                                                
-                        }, deselect: { (_) -> Void in
-                            // User deselected an assets.
-                            // Do something, cancel upload?
-                        }, cancel: { (_) -> Void in
-                            // User cancelled. And this where the assets currently selected.
-                        }, finish: { (_) -> Void in
-                            // self.photos = assets + self.photos
-                        }, completion: nil)
-                    })
-                    alertController.addAction(takePhotoAction)
-                    alertController.addAction(pickPhotoAction)
-                    alertController.addAction(cancelAction)
-                    alertController.popoverPresentationController?.sourceView = self.view
-                    alertController.popoverPresentationController?.sourceRect = cell.frame
-                    self.present(alertController, animated: true, completion: nil)
-                }
-            }
             <<< ViewRow<UIView> { (row) in
                 row.tag = "photos"
-                row.hidden = Condition(booleanLiteral: true)
+                // row.hidden = Condition(booleanLiteral: true)
             }
             .cellSetup { (cell, _) in
                 cell.view = UIView(frame: CGRect(x: 0,
@@ -231,7 +196,7 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
                                     $0.multivaluedRowToInsertAt = { index in
                                         // this gets called IMMEDIATELY after the add button is pressed.
                                         // Doesn't actually wait for artist to be selected from following controller.
-                                        let controller = ArtistSelectionViewController(mainCoordinator: self.mainCoordinator)
+                                        let controller = ArtistSelectionViewController(appContext: self.appContext)
                                         controller.delegate = self
                                         
                                         self.selectingArtistForIndex = index
@@ -353,7 +318,7 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
             locationRow.updateCell()
         }
     }
-    func setPhotosFromData(_ imagesData: [Data]) {
+    /*func setPhotosFromData(_ imagesData: [Data]) {
         self.hasUnsavedChanges = true
         self.imagesData = imagesData
         if let photoButtonRow = self.form.rowBy(tag: "add_photo_button") {
@@ -429,7 +394,7 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
                 })
             }
         }
-    }
+    } */
     
     func makeNewLocationBody(from placemark: CLPlacemark) -> [String: Any]? {
         var body = Parameters()
@@ -451,15 +416,11 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
         let formValues = form.values()
         var payload: [String: Any] = [:]
         
-        guard self.imagesData.count > 0 else {
-            self.showAlert(message: "Please select a photo")
-            return
-        }
         guard let placemark = formValues["location"] as? CLPlacemark, let location = placemark.location else {
             self.showAlert(message: "Please select a location")
             return
         }
-        guard let userId = mainCoordinator.store.user.data?.id else {
+        guard let userId = appContext.store.user.data?.id else {
             log.error("no user id")
             return
         }
@@ -513,6 +474,7 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
                                     DispatchQueue.main.async {
                                         switch result {
                                         case .success(let container):
+                                            self.delegate?.didCreatePost(post: container.post)
                                             self.saveImages(post: container.post)
                                         case .failure(let error):
                                             self.isLoading = false
@@ -525,13 +487,13 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
     
     func saveImages(post: Post) {
         self.newPostState = .uploadingImages
-        guard let userID = self.mainCoordinator.store.user.data?.id else {
+        guard let userID = self.appContext.store.user.data?.id else {
             log.error("no user")
             return
         }
         
         // Add new Post Images to Post
-        let endpoint = PrivateRouter.uploadImages(postId: post.id, userId: userID, imagesData: self.imagesData)
+        let endpoint = PrivateRouter.uploadImages(postId: post.id, userId: userID, imagesData: [selectedImageData])
         _ = networkService.request(endpoint, completion: { (result: UAResult<PostImagesContainer>) in
             DispatchQueue.main.async {
                 self.isLoading = false
@@ -541,19 +503,15 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
                     post.PostImages = container.images
                     
                     // Backend won't have finished compressing images yet, so save on frontend to dispaly immediately
-                    if self.imagesData.count == container.images.count { // images successfully saved matches what we have locally
-                        for i in 0..<container.images.count {
-                            let imageData = self.imagesData[i]
-                            let file = container.images[i]
-                            self.mainCoordinator.fileCache.addLocalData(imageData, for: file)
-                            log.debug("file: \(file)")
-                            if let thumbnail = file.thumbnail {
-                                log.debug("thumbnail: \(thumbnail)")
-                                self.mainCoordinator.fileCache.addLocalData(imageData, for: thumbnail)
-                            }
+                    if let file = container.images.first {
+                        self.appContext.fileCache.addLocalData(self.selectedImageData, for: file)
+                        log.debug("file: \(file)")
+                        if let thumbnail = file.thumbnail {
+                            log.debug("thumbnail: \(thumbnail)")
+                            self.appContext.fileCache.addLocalData(self.selectedImageData, for: thumbnail)
                         }
                     }
-                    self.delegate?.didCreatePost(post: post)
+                    self.delegate?.didCompleteUploadingImages(post: post)
                     self.dismiss(animated: true, completion: nil)
                 case .failure(let error):
                     self.showAlert(message: error.userMessage)
@@ -583,7 +541,7 @@ extension NewPostViewController: ArtistSelectionDelegate {
         }
     }
 }
-
+/*
 extension NewPostViewController: CameraViewDelegate {
     func cameraController(_ controller: CameraViewController, didFinishWithImage: UIImage?, data: Data?) {
         controller.dismiss(animated: true, completion: nil)
@@ -591,6 +549,7 @@ extension NewPostViewController: CameraViewDelegate {
         let source: CGImageSource = CGImageSourceCreateWithData((imageData as! CFMutableData), nil)!
         let metadata = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as! [String: Any]
         self.fillFormFromExifData(properties: metadata)
-        self.setPhotosFromData([imageData])
+        self.setPhotosFromData([selectedImageData])
     }
 }
+*/

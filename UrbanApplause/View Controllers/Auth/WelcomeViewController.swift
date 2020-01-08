@@ -11,11 +11,11 @@ import UIKit
 
 class WelcomeViewController: UIViewController {
     var store: Store
-    var mainCoordintor: MainCoordinator
+    var mainCoordintor: AppContext
     
-    init(store: Store, mainCoordinator: MainCoordinator) {
+    init(store: Store, appContext: AppContext) {
         self.store = store
-        self.mainCoordintor = mainCoordinator
+        self.mainCoordintor = appContext
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -59,12 +59,12 @@ class WelcomeViewController: UIViewController {
     
     @objc func goToLogin(_: Any) {
         navigationController?.pushViewController(AuthViewController(isNewUser: false,
-                                                                    mainCoordinator: self.mainCoordintor),
+                                                                    appContext: self.mainCoordintor),
                                                  animated: true)
     }
     @objc func goToRegistration(_: Any) {
         navigationController?.pushViewController(AuthViewController(isNewUser: true,
-                                                                    mainCoordinator: self.mainCoordintor),
+                                                                    appContext: self.mainCoordintor),
                                                  animated: true)
     }
 }

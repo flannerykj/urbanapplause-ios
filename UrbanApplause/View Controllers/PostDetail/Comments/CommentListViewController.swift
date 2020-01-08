@@ -14,7 +14,7 @@ protocol CommentListDelegate: class {
 }
 
 class CommentListViewController: UIViewController {
-    var mainCoordinator: MainCoordinator
+    var appContext: AppContext
     var viewModel: CommentListViewModel
     weak var delegate: CommentListDelegate?
 
@@ -25,8 +25,8 @@ class CommentListViewController: UIViewController {
     }
 
     init(viewModel: CommentListViewModel,
-         mainCoordinator: MainCoordinator) {
-        self.mainCoordinator = mainCoordinator
+         appContext: AppContext) {
+        self.appContext = appContext
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
         setModelCallbacks()
@@ -61,7 +61,7 @@ class CommentListViewController: UIViewController {
            dividerView.rightAnchor.constraint(equalTo: view.rightAnchor),
            dividerView.heightAnchor.constraint(equalToConstant: 1)
         ])
-        if mainCoordinator.authService.isAuthenticated {
+        if appContext.authService.isAuthenticated {
             saveCommentButton.titleLabel?.textAlignment = .right
             view.addSubview(newCommentTextArea)
             view.addSubview(saveCommentButton)
@@ -194,10 +194,10 @@ class CommentListViewController: UIViewController {
     }
     
     func flagComment(_ comment: Comment) {
-        let vc = ReportAnIssueViewController(store: mainCoordinator.store) { reportController, reason in
+        let vc = ReportAnIssueViewController(store: appContext.store) { reportController, reason in
             reportController.isSubmitting = true
             let endpoint = PrivateRouter.createCommentFlag(commentId: comment.id, reason: reason)
-            _ = self.mainCoordinator.networkService.request(endpoint) { (result: UAResult<CommentFlagContainer>) in
+            _ = self.appContext.networkService.request(endpoint) { (result: UAResult<CommentFlagContainer>) in
                 DispatchQueue.main.async {
                     reportController.self.isSubmitting = false
                     switch result {
@@ -271,7 +271,7 @@ extension CommentListViewController: UITableViewDataSource, UITableViewDelegate 
 extension CommentListViewController: CommentCellDelegate {
     func commentCell(_ sender: UIButton, showMoreOptionsForComment comment: Comment, atIndexPath indexPath: IndexPath) {
         let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-        if let user = self.mainCoordinator.store.user.data, let post = self.post, post.UserId == user.id {
+        if let user = self.appContext.store.user.data, let post = self.post, post.UserId == user.id {
             let deleteAction = UIAlertAction(title: "Delete comment", style: .default, handler: { _ in
                 self.confirmDeleteComment(comment, atIndexPath: indexPath)
             })
@@ -300,7 +300,7 @@ extension CommentListViewController: CommentCellDelegate {
     }
     
     func commentCell(didSelectUser user: User) {
-        // let vc = ProfileViewController(user: user, mainCoordinator: mainCoordinator)
+        // let vc = ProfileViewController(user: user, appContext: appContext)
         // navigationController?.pushViewController(vc, animated: true)
     }
     func confirmDeleteComment(_ comment: Comment, atIndexPath indexPath: IndexPath) {
@@ -319,7 +319,7 @@ extension CommentListViewController: CommentCellDelegate {
 }
 extension CommentListViewController: UITextViewDelegate {
     func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
-        self.showAuth(isNewUser: false, mainCoordinator: mainCoordinator)
+        self.showAuth(isNewUser: false, appContext: appContext)
         return false
     }
 }

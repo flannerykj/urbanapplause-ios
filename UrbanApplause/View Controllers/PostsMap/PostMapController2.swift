@@ -12,7 +12,7 @@ import MapKit
 
 class PostMapViewController2: UIViewController {
     var viewModel: PostMapViewModel2
-    var mainCoordinator: MainCoordinator
+    var appContext: AppContext
     var needsUpdate: Bool = false {
         didSet {
             self.updateMap(refreshCache: true)
@@ -26,8 +26,8 @@ class PostMapViewController2: UIViewController {
     var locationManager = CLLocationManager()
     var requestedZoomToCurrentLocation: Bool = false
     
-    init(viewModel: PostMapViewModel2, mainCoordinator: MainCoordinator) {
-        self.mainCoordinator = mainCoordinator
+    init(viewModel: PostMapViewModel2, appContext: AppContext) {
+        self.appContext = appContext
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
         self.viewModel.onError = self.handleError
@@ -54,7 +54,7 @@ class PostMapViewController2: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        if let username = self.mainCoordinator.store.user.data?.username {
+        if let username = self.appContext.store.user.data?.username {
             navigationItem.title = "Welcome, \(username)"
         }
     }
@@ -130,12 +130,7 @@ class PostMapViewController2: UIViewController {
     }
     
     func addNewPost(at placemark: CLPlacemark?) {
-        let vc = NewPostViewController(placemark: placemark, mainCoordinator: self.mainCoordinator)
-        vc.delegate = self
-        let nav = UINavigationController(rootViewController: vc)
-        nav.isModalInPresentation = true
-        nav.presentationController?.delegate = self
-        self.present(nav, animated: true, completion: {})
+        (self.tabBarController as? TabBarController)?.pickImageForNewPost(placemark: placemark)
     }
     
     required init?(coder: NSCoder) {
@@ -168,9 +163,9 @@ class PostMapViewController2: UIViewController {
                 if viewModel.isAtMaxZoom(visibleMapRect: mapView.visibleMapRect,
                                          mapPixelWidth: Double(mapView.bounds.width)) {
                     
-                    let wallViewModel = StaticPostListViewModel(posts: members, mainCoordinator: mainCoordinator)
+                    let wallViewModel = StaticPostListViewModel(posts: members, appContext: appContext)
                     let wallController = PostListViewController(viewModel: wallViewModel,
-                                                                mainCoordinator: mainCoordinator)
+                                                                appContext: appContext)
                     wallController.postListDelegate = self
                     navigationController?.pushViewController(wallController, animated: true)
                 } else {
@@ -196,7 +191,7 @@ class PostMapViewController2: UIViewController {
         let viewController = PostDetailViewController(postId: postID,
                                                       post: post,
                                                       thumbImage: thumbImage,
-                                                      mainCoordinator: mainCoordinator)
+                                                      appContext: appContext)
         navigationController?.pushViewController(viewController, animated: true)
     }
     func handleError(_ error: Error) {
@@ -226,7 +221,7 @@ class PostMapViewController2: UIViewController {
             locationManager.requestWhenInUseAuthorization()
             awaitingZoomToCurrentLocation = true
         case .restricted, .denied:
-            showAlertForDeniedPermissions(permissionType: "location")
+            showAlertForDeniedPermissions(permissionType: "location", appContext: appContext)
         case .authorizedAlways, .authorizedWhenInUse:
             if let location = locationManager.location {
                 self.zoomToLocation(location)
@@ -264,13 +259,13 @@ extension PostMapViewController2: MKMapViewDelegate {
             let gr = UITapGestureRecognizer(target: self, action: #selector(tappedAnnotation(sender:)))
             view.addGestureRecognizer(gr)
             if let annotationView = view as? PostGISClusterAnnotationView {
-                annotationView.fileCache = mainCoordinator.fileCache
+                annotationView.fileCache = appContext.fileCache
             }
             if let annotationView = view as? PostMKClusterAnnotationView {
-                annotationView.fileCache = mainCoordinator.fileCache
+                annotationView.fileCache = appContext.fileCache
             }
             if let annotationView = view as? PostAnnotationView {
-                annotationView.fileCache = mainCoordinator.fileCache
+                annotationView.fileCache = appContext.fileCache
             }
         }
     }
@@ -293,7 +288,7 @@ extension PostMapViewController2: CLLocationManagerDelegate {
         if self.awaitingZoomToCurrentLocation {
             if !locationAuthorized {
                 self.awaitingZoomToCurrentLocation = false
-                self.showAlertForDeniedPermissions(permissionType: "location")
+                self.showAlertForDeniedPermissions(permissionType: "location", appContext: appContext)
             } else {
                 if let location = locationManager.location {
                     self.zoomToLocation(location)
@@ -316,6 +311,10 @@ extension PostMapViewController2: CLLocationManagerDelegate {
 }
 extension PostMapViewController2: PostFormDelegate {
     func didCreatePost(post: Post) {
+        // wait for upload images to complete
+    }
+    
+    func didCompleteUploadingImages(post: Post) {
         self.updateMap(refreshCache: true)
         if let location = post.Location?.clLocation {
             self.zoomToLocation(location)

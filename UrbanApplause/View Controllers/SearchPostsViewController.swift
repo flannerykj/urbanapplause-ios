@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 
 class SearchPostsViewController: UIViewController {
-    var mainCoordinator: MainCoordinator
+    var appContext: AppContext
     var postListViewModel: DynamicPostListViewModel
     var searchResultsViewModel: DynamicPostListViewModel
     var postMapViewModel: PostMapViewModel2
@@ -22,11 +22,11 @@ class SearchPostsViewController: UIViewController {
     
     lazy var postListVC: PostListViewController = PostListViewController(listTitle: "Recently added",
                                                                          viewModel: postListViewModel,
-                                                                         mainCoordinator: mainCoordinator)
+                                                                         appContext: appContext)
     
     lazy var searchResultsVC = PostListViewController(viewModel: searchResultsViewModel,
                                                       requestOnLoad: false,
-                                                      mainCoordinator: mainCoordinator)
+                                                      appContext: appContext)
     
     lazy var searchController: UISearchController = {
         let controller = UISearchController(searchResultsController: searchResultsVC)
@@ -41,19 +41,19 @@ class SearchPostsViewController: UIViewController {
     }
 
     // MARK: - UIViewController Lifecycle
-    init(mainCoordinator: MainCoordinator) {
-        self.mainCoordinator = mainCoordinator
+    init(appContext: AppContext) {
+        self.appContext = appContext
         self.postListViewModel = DynamicPostListViewModel(filterForPostedBy: nil,
                                                    filterForArtist: nil,
                                                    filterForQuery: nil,
-                                                   mainCoordinator: mainCoordinator)
+                                                   appContext: appContext)
         
         self.searchResultsViewModel = DynamicPostListViewModel(filterForPostedBy: nil,
                                                     filterForArtist: nil,
                                                     filterForQuery: nil,
-                                                    mainCoordinator: mainCoordinator)
+                                                    appContext: appContext)
         
-        self.postMapViewModel = PostMapViewModel2(mainCoordinator: mainCoordinator)
+        self.postMapViewModel = PostMapViewModel2(appContext: appContext)
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -105,6 +105,10 @@ extension SearchPostsViewController: UISearchBarDelegate {
 
 extension SearchPostsViewController: PostFormDelegate {
     func didCreatePost(post: Post) {
+        // wait for upload images to complete
+    }
+    
+    func didCompleteUploadingImages(post: Post) {
         postListViewModel.getPosts(forceReload: true)
     }
     

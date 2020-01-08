@@ -11,11 +11,11 @@ import SafariServices
 
 class AuthViewController: UIViewController {
     private var viewModel: AuthViewModel
-    var mainCoordinator: MainCoordinator
+    var appContext: AppContext
     
-    init(isNewUser: Bool, mainCoordinator: MainCoordinator) {
-        self.viewModel = AuthViewModel(isNewUser: isNewUser, mainCoordinator: mainCoordinator)
-        self.mainCoordinator = mainCoordinator
+    init(isNewUser: Bool, appContext: AppContext) {
+        self.viewModel = AuthViewModel(isNewUser: isNewUser, appContext: appContext)
+        self.appContext = appContext
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -255,7 +255,7 @@ class AuthViewController: UIViewController {
         viewModel.submit(username: usernameField.text, email: emailField.text, password: passwordField.text)
     }
     @objc func resetPassword(_: Any) {
-        navigationController?.pushViewController(ForgotPasswordViewController(mainCoordinator: mainCoordinator),
+        navigationController?.pushViewController(ForgotPasswordViewController(appContext: appContext),
                                                  animated: true)
     }
     
@@ -296,7 +296,7 @@ extension AuthViewController: UITextViewDelegate {
     func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange) -> Bool {
         if URL.absoluteString == "" {
             if navigationController?.viewControllers.first == self {
-                let controller = AuthViewController(isNewUser: !viewModel.isNewUser, mainCoordinator: mainCoordinator)
+                let controller = AuthViewController(isNewUser: !viewModel.isNewUser, appContext: appContext)
                 navigationController?.pushViewController(controller, animated: true)
             } else {
                 navigationController?.popViewController(animated: true)

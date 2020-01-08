@@ -1,21 +1,23 @@
 PODS:
-  - AWSCore (2.12.1)
-  - AWSS3 (2.12.1):
-    - AWSCore (= 2.12.1)
+  - AWSCore (2.12.3)
+  - AWSS3 (2.12.3):
+    - AWSCore (= 2.12.3)
   - BSGridCollectionViewLayout (1.2.5)
   - BSImagePicker (2.10.3):
     - BSGridCollectionViewLayout (= 1.2.5)
     - BSImageView (= 1.0.3)
   - BSImageView (1.0.3)
   - Eureka (5.1.0)
-  - SwiftLint (0.37.0)
+  - SnapKit (5.0.1)
+  - SwiftLint (0.38.1)
   - ViewRow (0.8):
     - Eureka (>= 5.0.0)
 
 DEPENDENCIES:
   - AWSS3
   - BSImagePicker (~> 2.8)
-  - Eureka (~> 5.1.0)
+  - Eureka
+  - SnapKit
   - SwiftLint
   - ViewRow
 
@@ -27,19 +29,21 @@ SPEC REPOS:
     - BSImagePicker
     - BSImageView
     - Eureka
+    - SnapKit
     - SwiftLint
     - ViewRow
 
 SPEC CHECKSUMS:
-  AWSCore: 0a4431f74d9dbf084d420b887a6a21042b423c5c
-  AWSS3: 640fad8279e2c5b02d803a82ff5dd6ee75d65c39
+  AWSCore: a4b4aeb414bdfd55a5e8879adb4985c46da157d6
+  AWSS3: 511a7b646572686c7e193aa19bd6a5cc43ec2977
   BSGridCollectionViewLayout: 333dcb457a5a3bdd9212607ab5756553dcfe06cb
   BSImagePicker: 07404254f2fcdaf5a2eb403c0f8c337267ce8738
   BSImageView: a149459433a2687157d034c78e059d30ac7f2544
   Eureka: 18a5076dcf0c41f9cd9748aa1c42f4d11434bdae
-  SwiftLint: c078a14d7d7ade75e5507795d185e3da41d844d2
+  SnapKit: 97b92857e3df3a0c71833cce143274bf6ef8e5eb
+  SwiftLint: 0aeb99ca7ccfc222ef93e2560a35e669f5465e6c
   ViewRow: 8da541e9c019f3be63f4e28f311a62cac2045ecf
 
-PODFILE CHECKSUM: d9555c3a6ccd8dfa0d2aa6ab7adba961f44eb37d
+PODFILE CHECKSUM: b657114a5db5d82876669f186b0792f53752ee76
 
 COCOAPODS: 1.8.1

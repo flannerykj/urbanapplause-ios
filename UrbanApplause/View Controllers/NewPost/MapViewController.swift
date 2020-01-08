@@ -12,6 +12,7 @@ import MapKit
 import Eureka
 
 public class MapViewController: UIViewController, TypedRowControllerType {
+    var appContext: AppContext?
     var matchingItems: [MKMapItem] = []
     public var row: RowOf<CLPlacemark>!
     public var onDismissCallback: ((UIViewController) -> Void)?
@@ -127,7 +128,7 @@ public class MapViewController: UIViewController, TypedRowControllerType {
     @objc func useCurrentLocation(_: Any) {
         guard let authorization = self.locationTrackingAuthorization,
             (authorization == .authorizedWhenInUse || authorization == .authorizedAlways) else {
-            showAlertForDeniedPermissions(permissionType: "location")
+            showAlertForDeniedPermissions(permissionType: "location", appContext: appContext ?? AppContext())
             return
         }
         if let location = locationManager.location {

@@ -18,15 +18,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     let locationManager = CLLocationManager()
     static let geoCoder = CLGeocoder()
     var window: UIWindow?
-    let appCoordinator: MainCoordinator = MainCoordinator()
+    let appContext: AppContext = AppContext()
 
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // FirebaseConfiguration.shared.setLoggerLevel(FirebaseLoggerLevel.min)
         // FirebaseApp.configure()
 
-        appCoordinator.delegate = self
-
+        appContext.delegate = self
+        appContext.sharedApplication = UIApplication.shared
         #if DEBUG
             log.debug("debug")
         #else
@@ -39,14 +39,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window = UIWindow(frame: UIScreen.main.bounds)
         window?.rootViewController = rootViewController
         window?.makeKeyAndVisible()
-
-        appCoordinator.start()
+        
+        appContext.start()
 
         return true
     }
     func applicationDidReceiveMemoryWarning(_ application: UIApplication) {
         report_memory()
-        appCoordinator.fileCache.clearUnusedImages()
+        appContext.fileCache.clearUnusedImages()
     }
     
     func applicationWillResignActive(_ application: UIApplication) {
@@ -90,8 +90,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
 }
-extension AppDelegate: MainCoordinatorDelegate {
-    func mainCoordinator(setRootController controller: UIViewController) {
+extension AppDelegate: AppContextDelegate {
+    func appContextOpenSettings(completion: @escaping (Bool) -> Void) {
+        guard let settingsUrl = URL(string: UIApplication.openSettingsURLString) else {
+            return
+        }
+
+        if UIApplication.shared.canOpenURL(settingsUrl) {
+            UIApplication.shared.open(settingsUrl, completionHandler: { (success) in
+                log.debug("Settings opened: \(success)")
+                completion(success)
+            })
+        }
+    }
+    
+    func appContext(setRootController controller: UIViewController) {
         self.window?.rootViewController = controller
     }
 }
