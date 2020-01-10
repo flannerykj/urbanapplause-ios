@@ -69,18 +69,18 @@ public extension NetworkServiceProtocol {
             }
         }
     }
-
+    
     var decoder: JSONDecoder {
         let decoder = JSONDecoder()
         let strategy = JSONDecoder.DateDecodingStrategy.createStrategy(acceptedDateFormats: Date.Format.allCases)
         decoder.dateDecodingStrategy = strategy
         return decoder
     }
-
+    
     // Helper methods
     func handleError(data: Data?, response: URLResponse?, error: Error?) -> UAError? {
         if error?._code == -1001 {
-         //Domain=NSURLErrorDomain Code=-1001 "The request timed out."
+            //Domain=NSURLErrorDomain Code=-1001 "The request timed out."
             return NetworkError.requestTimeout
         }
         guard let httpResponse = response as? HTTPURLResponse else {
@@ -106,7 +106,7 @@ public extension NetworkServiceProtocol {
             return NetworkError.invalidCode(code: httpResponse.statusCode)
         }
     }
-
+    
     func buildRequest(from route: EndpointConfiguration) throws -> URLRequest {
         var request = URLRequest(url: route.baseURL.appendingPathComponent(route.path),
                                  cachePolicy: .useProtocolCachePolicy,
@@ -116,7 +116,7 @@ public extension NetworkServiceProtocol {
         do {
             try addHeaders(headers: self.getCustomHeaders(),
                            to: &request)
-
+            
             switch route.task {
             case .request:
                 request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -140,22 +140,22 @@ public extension NetworkServiceProtocol {
                 break
             }
             return request
-
+            
         } catch {
             log.error(error)
         }
         return request
     }
-
+    
     func addHeaders(headers: HTTPHeaders, to request: inout URLRequest) throws {
         for (key, value) in headers {
             request.setValue(value, forHTTPHeaderField: key)
         }
     }
-
+    
     func configureParameters(bodyParameters: Parameters?,
-                                     urlParameters: Parameters?,
-                                     request: inout URLRequest) throws {
+                             urlParameters: Parameters?,
+                             request: inout URLRequest) throws {
         do {
             if let bodyParameters = bodyParameters {
                 try JSONParameterEncoder.encode(urlRequest: &request, with: bodyParameters)
@@ -168,21 +168,21 @@ public extension NetworkServiceProtocol {
             throw error
         }
     }
-
+    
     func createFormDataBody(filePathKey: String,
-                                    boundary: String,
-                                    imagesData: [Data],
-                                    bodyParameters: [String: Any]) -> Data {
+                            boundary: String,
+                            imagesData: [Data],
+                            bodyParameters: [String: Any]) -> Data {
         let body = NSMutableData()
-
+        
         let boundaryPrefix = "--\(boundary)\r\n"
-
+        
         for (key, value) in bodyParameters {
             body.appendString(string: boundaryPrefix)
             body.appendString(string: "Content-Disposition: form-data; name=\"\(key)\"\r\n\r\n")
             body.appendString(string: "\(value)\r\n")
         }
-
+        
         for data in imagesData {
             let filename = UUID().uuidString
             let mimeType = (data as NSData).getMimeType() ?? ""
@@ -195,7 +195,7 @@ public extension NetworkServiceProtocol {
         }
         return body as Data
     }
-
+    
     func generateBoundaryString() -> String {
         return "Boundary-\(NSUUID().uuidString)"
     }

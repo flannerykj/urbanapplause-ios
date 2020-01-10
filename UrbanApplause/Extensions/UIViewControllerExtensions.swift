@@ -32,7 +32,7 @@ extension UIViewController {
                                        onDismiss: (() -> Void)? = nil,
                                        showOpenSettingsButton: Bool = true) {
         
-        var openSettingsCallback: (() -> Void)? = nil
+        var openSettingsCallback: (() -> Void)?
         
         if showOpenSettingsButton,
             let settingsURL = URL(string: UIApplication.openSettingsURLString),
@@ -44,7 +44,7 @@ extension UIViewController {
                 }
 
                 if UIApplication.shared.canOpenURL(settingsUrl) {
-                    UIApplication.shared.open(settingsUrl, completionHandler: { (success) in
+                    UIApplication.shared.open(settingsUrl, completionHandler: { _ in
                         onDismiss?()
                     })
                 }

@@ -37,7 +37,10 @@ class UATextArea: UITextView, UITextViewDelegate {
         toolbar.barStyle = UIBarStyle.default
         toolbar.items = [
             UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil),
-            UIBarButtonItem(title: Strings.DoneButtonTitle, style: .plain, target: self, action: #selector(dismissKeyboard(_:)))]
+            UIBarButtonItem(title: Strings.DoneButtonTitle,
+                            style: .plain,
+                            target: self,
+                            action: #selector(dismissKeyboard(_:)))]
             toolbar.sizeToFit()
         return toolbar
     }()

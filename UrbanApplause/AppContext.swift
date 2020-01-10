@@ -33,7 +33,7 @@ class AppContext: NSObject {
     lazy private(set) var authService = AuthService(keychainService: keychainService)
     lazy private(set) var fileCache: FileService = FileService()
     
-    lazy private(set) var networkService = APIClient(customHeaders: customHeaders, handleAuthError: { serverError in
+    lazy private(set) var networkService = APIClient(customHeaders: customHeaders, handleAuthError: { _ in
            self.endSession()
         })
 

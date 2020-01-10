@@ -20,20 +20,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     static let geoCoder = CLGeocoder()
     var window: UIWindow?
     let appContext: AppContext = AppContext()
-
+    
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // FirebaseConfiguration.shared.setLoggerLevel(FirebaseLoggerLevel.min)
         // FirebaseApp.configure()
-
+        
         appContext.delegate = self
         appContext.sharedApplication = UIApplication.shared
         #if DEBUG
-            log.debug("debug")
+        log.debug("debug")
         #else
-            log.debug("release")
+        log.debug("release")
         #endif
-
+        
         // UserDefaults.setBiometricPreference(preference: .none)
         // KeychainService().clear(itemAt: KeychainItem.credentials.userAccount)
         let rootViewController = LoadingViewController()
@@ -42,7 +42,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window?.makeKeyAndVisible()
         
         appContext.start()
-
+        
         return true
     }
     func applicationDidReceiveMemoryWarning(_ application: UIApplication) {
@@ -54,20 +54,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
         // Use this method to pause ongoing tasks, disable timers, and invalidate graphics rendering callbacks. Games should use this method to pause the game.
     }
-
+    
     func applicationDidEnterBackground(_ application: UIApplication) {
         // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
         // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
     }
-
+    
     func applicationWillEnterForeground(_ application: UIApplication) {
         // Called as part of the transition from the background to the active state; here you can undo many of the changes made on entering the background.
     }
-
+    
     func applicationDidBecomeActive(_ application: UIApplication) {
         // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
     }
-
+    
     func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
@@ -80,7 +80,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 task_info(mach_task_self_, task_flavor_t(MACH_TASK_BASIC_INFO), $0, &count)
             }
         }
-
+        
         if kerr == KERN_SUCCESS {
             print("Memory used in bytes: \(taskInfo.resident_size)")
         }
@@ -89,14 +89,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 (String(cString: mach_error_string(kerr), encoding: String.Encoding.ascii) ?? "unknown error"))
         }
     }
-
+    
 }
 extension AppDelegate: AppContextDelegate {
     func appContextOpenSettings(completion: @escaping (Bool) -> Void) {
         guard let settingsUrl = URL(string: UIApplication.openSettingsURLString) else {
             return
         }
-
+        
         if UIApplication.shared.canOpenURL(settingsUrl) {
             UIApplication.shared.open(settingsUrl, completionHandler: { (success) in
                 log.debug("Settings opened: \(success)")

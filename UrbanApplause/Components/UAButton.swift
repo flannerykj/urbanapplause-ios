@@ -230,7 +230,8 @@ struct MutableButtonProperties {
         button.rightImageView.tintColor = self.textColor
     }
     
-    static func createFromPreset(_ preset: ButtonStylePreset, forState state: UIButton.State) -> MutableButtonProperties {
+    static func createFromPreset(_ preset: ButtonStylePreset,
+                                 forState state: UIButton.State) -> MutableButtonProperties {
         switch state {
         case .selected:
             return MutableButtonProperties(backgroundColor: preset.selectedBackgroundColor,

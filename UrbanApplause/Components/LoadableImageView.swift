@@ -72,7 +72,7 @@ class LoadableImageView: UIImageView, LoadableImageViewProtocol {
             progressBar.leftAnchor.constraint(equalTo: self.leftAnchor),
             progressBar.rightAnchor.constraint(equalTo: self.rightAnchor),
             progressBar.bottomAnchor.constraint(equalTo: self.bottomAnchor),
-            progressBar.heightAnchor.constraint(equalToConstant: 10),
+            progressBar.heightAnchor.constraint(equalToConstant: 10)
             // errorImageView.centerXAnchor.constraint(equalTo: self.centerXAnchor),
             // errorImageView.centerYAnchor.constraint(equalTo: self.centerYAnchor)
         ])
