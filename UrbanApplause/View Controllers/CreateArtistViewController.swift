@@ -8,9 +8,11 @@
 
 import UIKit
 import Eureka
+import Shared
 
 protocol CreateArtistDelegate: class {
-    func didCreateArtist(_ artist: Artist)
+    func createArtistController(_ controller: CreateArtistViewController,
+                                didCreateArtist artist: Artist)
 }
 
 class CreateArtistViewController: FormViewController {
@@ -24,11 +26,6 @@ class CreateArtistViewController: FormViewController {
             } else {
                 navigationItem.rightBarButtonItem = saveButton
             }
-        }
-    }
-    var errorMessage: String? = nil {
-        didSet {
-            
         }
     }
     init(appContext: AppContext) {
@@ -46,25 +43,51 @@ class CreateArtistViewController: FormViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        form +++ Section("Name")
+        loader.startAnimating()
+        form +++ Section(Strings.NameFieldLabel)
             <<< TextRow {
                 $0.tag = "signing_name"
-                $0.add(rule: RuleRequired(msg: "Please provide a name for the artist", id: nil))
-                $0.add(rule: RuleMinLength(minLength: 1))
-                $0.add(rule: RuleMaxLength(maxLength: 100, msg: "Max length is 100", id: nil))
+                $0.add(rule: RuleRequired(msg: Strings.MissingArtistNameError, id: nil))
+                $0.add(rule: RuleMinLength(minLength: 1, msg: Strings.MinCharacterCountError(1)))
+                $0.add(rule: RuleMaxLength(maxLength: 100, msg: Strings.MaxCharacterCountError(100), id: nil))
                 $0.onChange { _ in
                     self.onUpdateForm()
                 }
                 $0.validationOptions = .validatesOnChange
             }
-            +++ Section("Bio")
+            +++ Section(Strings.BioFieldLabel)
             <<< TextAreaRow {
                 $0.tag = "bio"
-                $0.placeholder = "Optional"
-                $0.title = "Bio"
-        }
-        
+                $0.placeholder = Strings.OptionalFieldLabel
+                $0.title = Strings.BioFieldLabel
+            }
+            +++ Section(Strings.SocialFormSectionTitle)
+            <<< TwitterRow {
+                $0.tag = "instagram_handle"
+                $0.title = Strings.InstagramHandleFieldLabel
+                $0.placeholder = Strings.OptionalFieldLabel
+                $0.onChange { row in
+                    
+                }
+            }
+            <<< TwitterRow {
+                $0.tag = "twitter_handle"
+                $0.title = Strings.TwitterHandleFieldLabel
+                $0.placeholder = Strings.OptionalFieldLabel
+                $0.onChange { row in
+                    
+                }
+            }
+
+            <<< URLRow {
+                $0.title = Strings.FacebookURLFieldLabel
+                $0.placeholder = Strings.OptionalFieldLabel
+            }
+            <<< URLRow {
+                $0.title = Strings.WebsiteURLFieldLabel
+                $0.placeholder = Strings.OptionalFieldLabel
+
+            }
         navigationItem.rightBarButtonItem = saveButton
         saveButton.isEnabled = false
     }
@@ -82,11 +105,11 @@ class CreateArtistViewController: FormViewController {
                 case .failure(let error):
                     log.error(error)
                     self?.isLoading = false
-                    self?.errorMessage = error.userMessage
+                    self?.showAlert(title: Strings.ErrorAlertTitle, message: error.userMessage)
                 case .success(let artistContainer):
-                    self?.isLoading = false
-                    self?.navigationController?.popViewController(animated: true)
-                    self?.delegate?.didCreateArtist(artistContainer.artist)
+                    guard let s = self else { return }
+                    s.isLoading = false
+                    s.delegate?.createArtistController(s, didCreateArtist: artistContainer.artist)
                 }
             }
         }

@@ -7,6 +7,7 @@
 //
 import Foundation
 import UIKit
+import Shared
 
 class ImageDetailViewController: UIViewController, UIScrollViewDelegate {
     var file: File
@@ -42,14 +43,18 @@ class ImageDetailViewController: UIViewController, UIScrollViewDelegate {
         scrollView.delegate = self
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.addSubview(imageView)
-        imageView.fill(view: scrollView)
+        imageView.snp.makeConstraints {
+            $0.edges.equalTo(scrollView)
+        }
         return scrollView
     }()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         view.addSubview(scrollView)
-        scrollView.fill(view: view)
+        scrollView.snp.makeConstraints {
+            $0.edges.equalTo(view)
+        }
         view.backgroundColor = UIColor.backgroundLight
        
         if let job = self.imageDownloadJob {
@@ -71,7 +76,6 @@ class ImageDetailViewController: UIViewController, UIScrollViewDelegate {
     }
     
     func updateZoomScale(for image: UIImage) {
-        log.debug("image size: \(image.size)")
         scrollView.contentSize = image.size
         let scrollViewFrame = scrollView.frame
         let scaleWidth = scrollViewFrame.size.width / scrollView.contentSize.width

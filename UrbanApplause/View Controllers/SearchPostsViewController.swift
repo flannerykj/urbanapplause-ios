@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import Shared
 
 class SearchPostsViewController: UIViewController {
     var appContext: AppContext
@@ -20,7 +21,7 @@ class SearchPostsViewController: UIViewController {
         }
     }
     
-    lazy var postListVC: PostListViewController = PostListViewController(listTitle: "Recently added",
+    lazy var postListVC: PostListViewController = PostListViewController(listTitle: Strings.RecentlyAddedPostListTitle,
                                                                          viewModel: postListViewModel,
                                                                          appContext: appContext)
     
@@ -103,7 +104,7 @@ extension SearchPostsViewController: UISearchBarDelegate {
     }
 }
 
-extension SearchPostsViewController: PostFormDelegate {
+extension SearchPostsViewController: CreatePostControllerDelegate {
     func didCreatePost(post: Post) {
         // wait for upload images to complete
     }

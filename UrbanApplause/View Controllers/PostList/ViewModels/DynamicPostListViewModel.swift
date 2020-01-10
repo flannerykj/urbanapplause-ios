@@ -8,6 +8,7 @@
 
 import Foundation
 import MapKit
+import Shared
 
 class DynamicPostListViewModel: PostListViewModel {
     private var appContext: AppContext

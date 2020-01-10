@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import Shared
 
 class ForgotPasswordViewController: UIViewController {
     var appContext: AppContext
@@ -36,7 +37,7 @@ class ForgotPasswordViewController: UIViewController {
         let field = UATextField()
         field.leftView = icon
         field.leftViewMode = .always
-        field.placeholder = "Email address"
+        field.placeholder = Strings.EmailFieldLabel
         field.autocapitalizationType = .none
         field.textContentType = .emailAddress
         field.autocorrectionType = .no
@@ -47,7 +48,7 @@ class ForgotPasswordViewController: UIViewController {
         return field
     }()
     
-    lazy var submitButton = UAButton(type: .primary, title: "Submit", target: self, action: #selector(submit(_:)))
+    lazy var submitButton = UAButton(type: .primary, title: Strings.SubmitButtonTitle, target: self, action: #selector(submit(_:)))
     lazy var errorView = ErrorView()
     
     lazy var stackView: UIStackView = {
@@ -64,7 +65,7 @@ class ForgotPasswordViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        self.title = "Reset password"
+        self.title = Strings.ResetPasswordButtonTitle
         navigationController?.setNavigationBarHidden(false, animated: true)
     }
     
@@ -82,7 +83,7 @@ class ForgotPasswordViewController: UIViewController {
 
     @objc func submit(_ sender: Any) {
         guard let email = emailField.text, email.count > 0 else {
-            self.showAlert(message: "Please enter your email")
+            self.showAlert(message: Strings.MissingEmailError)
             return
         }
         self.isLoading = true
@@ -94,8 +95,8 @@ class ForgotPasswordViewController: UIViewController {
                 self.isLoading = false
                 switch result {
                 case .success:
-                    let successMessage = "An email has been sent to \(email) with instructions to reset your password."
-                    self.showAlert(title: "Success!",
+                    let successMessage = Strings.AuthResetPasswordSuccessMessage(emailAddress: email)
+                    self.showAlert(title: Strings.SuccessAlertTitle,
                                    message: successMessage, onDismiss: {
                         self.navigationController?.popViewController(animated: true)
                     })

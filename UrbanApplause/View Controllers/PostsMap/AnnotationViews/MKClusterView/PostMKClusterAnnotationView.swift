@@ -9,6 +9,7 @@
 import Foundation
 import UIKit
 import MapKit
+import Shared
 
 class PostMKClusterAnnotationView: MKAnnotationView, PostAnnotationViewProtocol {
     static let reuseIdentifier = "PostMKClusterAnnotationView"
@@ -40,7 +41,13 @@ class PostMKClusterAnnotationView: MKAnnotationView, PostAnnotationViewProtocol 
                     downloadJob = fileCache?.getJobForFile(coverPhotoFull)
                 }
             }
-            clusterMembersCountLabel.text = String(cluster.memberAnnotations.count)
+            let count = cluster.memberAnnotations.count
+            if count == 1 {
+                clusterMembersCountView.isHidden = true
+            } else {
+                clusterMembersCountLabel.text = String(count)
+                clusterMembersCountView.isHidden = false
+            }
         }
     }
     

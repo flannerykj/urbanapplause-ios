@@ -9,6 +9,7 @@
 import Foundation
 import UIKit
 import Eureka
+import Shared
 
 protocol EditProfileDelegate: class {
     func didUpdateUser(_ user: User)
@@ -48,9 +49,9 @@ class EditProfileViewController: FormViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        navigationItem.title = "Edit profile"
+        navigationItem.title = Strings.EditProfileButtonTitle
         view.backgroundColor = UIColor.backgroundMain
-        form +++ Section("Bio")
+        form +++ Section(Strings.BioFieldLabel)
             <<< TextAreaRow {
                 $0.tag = "bio"
                 $0.onChange { _ in

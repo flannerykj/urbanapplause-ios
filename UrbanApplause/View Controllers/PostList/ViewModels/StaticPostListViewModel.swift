@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Shared
 
 class StaticPostListViewModel: PostListViewModel {
     internal var _posts = [Post]()

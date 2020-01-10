@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import Shared
 
 protocol AppContextDelegate: AnyObject {
     func appContext(setRootController controller: UIViewController)
@@ -32,11 +33,10 @@ class AppContext: NSObject {
     lazy private(set) var authService = AuthService(keychainService: keychainService)
     lazy private(set) var fileCache: FileService = FileService()
     
-    lazy private(set) var networkService =  NetworkService(customHeaders: customHeaders, handleAuthError: { serverError in
+    lazy private(set) var networkService = APIClient(customHeaders: customHeaders, handleAuthError: { serverError in
            self.endSession()
         })
 
-    
     var customHeaders: [String: String] {
         var headers: [String: String] = [:]
         do {

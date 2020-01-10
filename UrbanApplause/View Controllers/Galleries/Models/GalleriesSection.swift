@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Shared
 
 enum GalleriesSection: Int, CaseIterable {
     case myCollections = 0
@@ -15,9 +16,9 @@ enum GalleriesSection: Int, CaseIterable {
     var title: String {
         switch self {
         case .myCollections:
-            return "My collections"
+            return Strings.MyGalleriesSectionTitle
         case .other:
-            return "Other"
+            return Strings.OtherGalleriesSectionTitle
         }
     }
 }

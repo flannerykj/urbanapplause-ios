@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import Shared
 
 protocol ArtistProfileDelegate: AnyObject {
     
@@ -21,13 +22,9 @@ class ArtistProfileViewController: UIViewController {
         let postsViewModel = DynamicPostListViewModel(filterForArtist: artist, filterForQuery: nil,
                                                    appContext: appContext)
         let postsVC = PostListViewController(viewModel: postsViewModel, appContext: appContext)
-
-        var title = "Work"
-        if let name = artist.signing_name {
-            title += " by \(name)"
-        }
         return [
-            ToolbarTabItem(title: title, viewController: postsVC, delegate: self),
+            ToolbarTabItem(title: Strings.WorkByArtist(artist.signing_name),
+                           viewController: postsVC, delegate: self)
         ]
     }()
     
@@ -112,11 +109,10 @@ class ArtistProfileViewController: UIViewController {
             bioLabel.font = TypographyStyle.body.font
         } else {
             bioLabel.isHidden = true
-            bioLabel.text = "No bio added"
             bioLabel.font = TypographyStyle.placeholder.font
         }
         if let dateString = artist.createdAt?.justTheDate {
-            memberSinceLabel.text = "Profile created on \(dateString)"
+            memberSinceLabel.text = "\(Strings.ProfileCreatedOnFieldLabel) \(dateString)"
         }
     }
 }

@@ -8,6 +8,7 @@
 
 import UIKit
 import Eureka
+import Shared
 
 protocol NewCollectionViewControllerDelegate: class {
     func didCreateCollection(collection: Collection)
@@ -33,17 +34,17 @@ class NewCollectionViewController: FormViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        navigationItem.title = "New Gallery"
+        navigationItem.title = Strings.NewGalleryScreenTitle
         navigationItem.rightBarButtonItem = saveButton
 
         form +++ Section()
             <<< TextRow { row in
-                row.title = "Title"
+                row.title = Strings.TitleFieldLabel
                 row.tag = "title"
             }
-            +++ Section("Description")
+            +++ Section(Strings.DescriptionFieldLabel)
             <<< TextAreaRow { row in
-                row.title = "Description"
+                row.title = Strings.DescriptionFieldLabel
                 row.tag = "description"
             }
             /* <<< SwitchRow() { row in
@@ -83,8 +84,6 @@ class NewCollectionViewController: FormViewController {
                     log.error("error creating collection: \(error)")
                 }
             }
-            
         }
     }
-
 }

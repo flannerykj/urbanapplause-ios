@@ -9,6 +9,7 @@
 import Foundation
 import UIKit
 import Eureka
+import Shared
 
 class ReportAnIssueViewController: UIViewController {
     
@@ -43,7 +44,7 @@ class ReportAnIssueViewController: UIViewController {
     lazy var tableHeaderView: UIView = {
         let horizontalPadding = StyleConstants.contentPadding * 2
         let verticalPadding = StyleConstants.contentPadding * 2
-        let label = UILabel(type: .h3, text: "What is your objection to this content?")
+        let label = UILabel(type: .h3, text: Strings.ReportIssueReasonPrompt)
         let size = label.sizeThatFits(CGSize(width: UIScreen.main.bounds.width - horizontalPadding,
                                              height: 1000))
         let view = UIView(frame: CGRect(x: 0,
@@ -75,7 +76,7 @@ class ReportAnIssueViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationItem.rightBarButtonItem = loaderButton
-        navigationItem.title = "Report an issue"
+        navigationItem.title = Strings.ReportIssueScreenTitle
         
         view.addSubview(tableView)
         tableView.fill(view: self.view)

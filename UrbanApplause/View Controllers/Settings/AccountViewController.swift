@@ -9,6 +9,7 @@
 import Foundation
 import UIKit
 import Eureka
+import Shared
 
 class AccountViewController: FormViewController {
     var appContext: AppContext
@@ -20,12 +21,12 @@ class AccountViewController: FormViewController {
         form +++ Section()
             <<< TextRow {
                 $0.tag = "email"
-                $0.title = "Email"
+                $0.title = Strings.EmailFieldLabel
                 $0.value = appContext.store.user.data?.email
             }
             <<< TextRow {
                 $0.tag = "username"
-                $0.title = "Username"
+                $0.title = Strings.UsernameFieldLabel
                 $0.value = appContext.store.user.data?.username
         }
         

@@ -11,8 +11,6 @@ import Social
 import MobileCoreServices
 import Photos
 
-let log = DHLogger.self
-
 @objc(ShareViewController)
 class ShareViewController: UIViewController {
     /*lazy var appContext = AppContext()

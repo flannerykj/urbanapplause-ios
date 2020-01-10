@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import Shared
 
 class IconButton: UIButton {
     private let minimumHitArea = CGSize(width: 44, height: 44)

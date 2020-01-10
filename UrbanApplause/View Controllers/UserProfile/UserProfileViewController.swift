@@ -6,6 +6,7 @@
 //  Copyright © 2020 Flannery Jefferson. All rights reserved.
 //
 import UIKit
+import Shared
 
 class ProfileViewController: UIViewController {
     var appContext: AppContext
@@ -98,7 +99,9 @@ class ProfileViewController: UIViewController {
             navigationItem.rightBarButtonItem = editButton
         }
         view.addSubview(tabsViewController.view!)
-        tabsViewController.view!.fill(view: view)
+        tabsViewController.view!.snp.makeConstraints {
+            $0.edges.equalTo(view)
+        }
         addChild(tabsViewController)
         tabsViewController.didMove(toParent: self)
         updateLabels()
@@ -132,11 +135,10 @@ class ProfileViewController: UIViewController {
             bioLabel.font = TypographyStyle.body.font
         } else {
             bioLabel.isHidden = !isAuthUser
-            bioLabel.text = "No bio added"
             bioLabel.font = TypographyStyle.placeholder.font
         }
         if let dateString = user.createdAt?.justTheDate {
-            memberSinceLabel.text = "Member since \(dateString)"
+            memberSinceLabel.text = "\(Strings.MemberSinceFieldLabel) \(dateString)"
         }
     }
    

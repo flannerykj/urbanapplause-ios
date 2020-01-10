@@ -8,15 +8,7 @@
 
 import Foundation
 import MapKit
-
-struct ProximityFilter {
-    var target: CLLocationCoordinate2D
-    var maxDistanceKm: CGFloat
-}
-struct GeoBoundsFilter {
-    var neCoord: CLLocationCoordinate2D
-    var swCoord: CLLocationCoordinate2D
-}
+import Shared
 
 // 1. When the user moves the map, the controller requests updated data from the view model via `public func getPosts(_:)`.
 // 2. The view model will either:

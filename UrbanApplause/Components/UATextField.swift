@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import Shared
 
 class UATextField: UITextField {
     let activeColor: UIColor = .systemTeal

@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import Shared
 
 class ImageCarouselViewController: UIViewController {
     var imageIndex: Int = 0
@@ -27,7 +28,9 @@ class ImageCarouselViewController: UIViewController {
         let scrollView = UIScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.addSubview(stackView)
-        stackView.fill(view: scrollView)
+        stackView.snp.makeConstraints {
+            $0.edges.equalTo(scrollView)
+        }
         scrollView.alwaysBounceVertical = false
         scrollView.delegate = self
         scrollView.isPagingEnabled = true
@@ -52,8 +55,10 @@ class ImageCarouselViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = UIColor.backgroundLight
         view.addSubview(scrollView)
-        scrollView.fill(view: self.view)
-        navigationItem.title = "Photo \(self.imageIndex + 1) of \(self.files.count)"
+        scrollView.snp.makeConstraints {
+            $0.edges.equalTo(view)
+        }
+        navigationItem.title = Strings.PhotoCarouselPaginationTitle(current: self.imageIndex + 1, total: self.files.count)
         
         let views = imageControllers.map {
             $0.view!

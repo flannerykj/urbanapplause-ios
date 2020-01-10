@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import Shared
 
 protocol CollectionDetailControllerDelegate: class {
     func collectionDetail(didDeleteCollection collection: Collection)
@@ -90,12 +91,12 @@ class GalleryDetailViewController: UIViewController {
     @objc func deleteCollection(_: Any) {
         
         guard case let Gallery.custom(collection) = gallery else { return }
-        let alertController = UIAlertController(title: "Delete this gallery?",
-                                                message: "This cannot be undone",
+        let alertController = UIAlertController(title: Strings.ConfirmDeleteGallery,
+                                                message: Strings.IrreversibleActionWarning,
                                                 preferredStyle: .actionSheet)
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        let cancelAction = UIAlertAction(title: Strings.CancelButtonTitle, style: .cancel, handler: nil)
 
-        let deleteAction = UIAlertAction(title: "Delete", style: .destructive, handler: { _ in
+        let deleteAction = UIAlertAction(title: Strings.DeleteButtonTitle, style: .destructive, handler: { _ in
             let indicator = UIActivityIndicatorView(frame: alertController.view.bounds)
             indicator.autoresizingMask = [.flexibleWidth, .flexibleHeight]
             indicator.startAnimating()

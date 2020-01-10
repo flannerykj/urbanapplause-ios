@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Shared
 
 class AuthViewModel {
     var appContext: AppContext
@@ -35,13 +36,17 @@ class AuthViewModel {
     func submit(username: String?, email: String?, password: String?) {
         self.errorMessage = nil
 
-        guard email != nil, password != nil else {
-            errorMessage = "Email and password are required"
+        guard email != nil else {
+            errorMessage = Strings.MissingEmailError
+            return
+        }
+        guard password != nil else {
+            self.errorMessage = isNewUser ? Strings.MissingNewPasswordError : Strings.MissingPasswordError
             return
         }
         if isNewUser {
             guard username != nil else {
-                self.errorMessage = "Username is required"
+                self.errorMessage = isNewUser ? Strings.MissingNewUsernameError : Strings.MissingUsernameError
                 return
             }
         }

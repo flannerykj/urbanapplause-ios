@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Shared
 
 class CommentListViewModel {
     private var appContext: AppContext
@@ -80,7 +81,7 @@ class CommentListViewModel {
             return
         }
         guard let content = contents else {
-            errorMessage = "Comment cannot be empty"
+            errorMessage = Strings.EmptyCommentError
             return
         }
         guard let user = appContext.store.user.data else {

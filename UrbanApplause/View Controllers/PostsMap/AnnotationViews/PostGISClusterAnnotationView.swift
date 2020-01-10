@@ -9,6 +9,7 @@
 import Foundation
 import UIKit
 import MapKit
+import Shared
 
 class PostGISClusterAnnotationView: MKMarkerAnnotationView, PostAnnotationViewProtocol {
     static let reuseIdentifier = "PostGISClusterAnnotationView"
@@ -38,17 +39,17 @@ class PostGISClusterAnnotationView: MKMarkerAnnotationView, PostAnnotationViewPr
     override init(annotation: MKAnnotation?, reuseIdentifier: String?) {
         super.init(annotation: annotation, reuseIdentifier: reuseIdentifier)
         markerTintColor = .clear
+        displayPriority = .required
         clusteringIdentifier = nil
         addSubview(contentView)
         addSubview(clusterMembersCountView)
         clusterMembersCountView.centerYAnchor.constraint(equalTo: contentView.topAnchor).isActive = true
         clusterMembersCountView.centerXAnchor.constraint(equalTo: contentView.rightAnchor).isActive = true
         // contentView.backgroundColor = .green
-        displayPriority = .required
     }
     override func prepareForDisplay() {
         super.prepareForDisplay()
-        
+        displayPriority = .required
         contentView.setImage(nil)
         glyphText = ""
         
@@ -58,7 +59,13 @@ class PostGISClusterAnnotationView: MKMarkerAnnotationView, PostAnnotationViewPr
             } else {
                 downloadJob = fileCache?.getJobForFile(postCluster.cover_image)
             }
-            clusterMembersCountLabel.text = String(postCluster.count)
+            
+            if postCluster.count == 1 {
+                clusterMembersCountView.isHidden = true
+            } else {
+                clusterMembersCountLabel.text = String(postCluster.count)
+                clusterMembersCountView.isHidden = false
+            }
         }
     }
 

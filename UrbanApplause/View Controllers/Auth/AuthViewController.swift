@@ -8,6 +8,8 @@
 
 import UIKit
 import SafariServices
+import Shared
+import SnapKit
 
 class AuthViewController: UIViewController {
     private var viewModel: AuthViewModel
@@ -30,7 +32,7 @@ class AuthViewController: UIViewController {
         let field = UATextField()
         field.leftView = icon
         field.leftViewMode = .always
-        field.placeholder = "Email address"
+        field.placeholder = Strings.EmailFieldLabel
         field.textContentType = .username
         field.autocapitalizationType = .none
         field.autocorrectionType = .no
@@ -48,7 +50,7 @@ class AuthViewController: UIViewController {
         let field = UATextField()
         field.leftView = icon
         field.leftViewMode = .always
-        field.placeholder = "Username"
+        field.placeholder = Strings.UsernameFieldLabel
         field.autocapitalizationType = .none
         // field.textContentType = .username
         field.autocorrectionType = .no
@@ -72,7 +74,7 @@ class AuthViewController: UIViewController {
         let field = UATextField()
         field.leftView = icon
         field.leftViewMode = .always
-        field.placeholder = "Password"
+        field.placeholder = Strings.PasswordFieldLabel
         field.autocapitalizationType = .none
         field.textContentType = viewModel.isNewUser ? .newPassword : .password
         field.isSecureTextEntry = true
@@ -87,13 +89,14 @@ class AuthViewController: UIViewController {
 
     lazy var agreeToTermsText: UITextView = {
         let textView = UITextView()
-        let prependText = "By signing up, I agree to the "
-        let tosLinkText = "Terms of Service"
-        let firstJoiner = " and "
-        let privacyPolicyLinkText = "Privacy Policy"
-        let secondJoiner = ", including "
-        let cookieUseLinkText = "Cookie Use"
-        let appendText = "."
+        let prependText = Strings.SignupAgreementPrependText
+        let tosLinkText = Strings.TermsOfServiceLinkText
+        let firstJoiner = Strings.SignupAgreementFirstJoinText
+        let privacyPolicyLinkText = Strings.PrivacyPolicyLinkText
+        let secondJoiner = Strings.SignupAgreementSecondJoinText
+        let cookieUseLinkText = Strings.CookieUseLinkText
+        let appendText = Strings.Period
+        
         let attributedString = NSMutableAttributedString(string: "\(prependText)\(tosLinkText)\(firstJoiner)\(privacyPolicyLinkText)\(secondJoiner)\(cookieUseLinkText)\(appendText)")
         
         // Set the 'click here' substring to be the link
@@ -133,9 +136,9 @@ class AuthViewController: UIViewController {
     lazy var toggleAuthText: UITextView = {
         let textView = UITextView()
         textView.isSelectable = true // prevents delay in responding to tap on linked text
-        let prependText = viewModel.isNewUser ? "Already have an account? " : "Don't have an account? "
-        let linkText = viewModel.isNewUser ? "Log in" : "Sign up"
-        let appendText = "."
+        let prependText = viewModel.isNewUser ? "\(Strings.AuthAlreadyHaveAnAccount) " : "\(Strings.AuthDontHaveAnAccount) "
+        let linkText = viewModel.isNewUser ? Strings.LogInButtonTitle : Strings.SignUpButtonTitle
+        let appendText = Strings.Period
         let attributedString = NSMutableAttributedString(string: "\(prependText)\(linkText)\(appendText)")
         
         // Set the 'click here' substring to be the link
@@ -168,10 +171,10 @@ class AuthViewController: UIViewController {
         return textView
     }()
 
-    lazy var submitButton = UAButton(type: .primary, title: "Submit", target: self, action: #selector(submit(_:)))
+    lazy var submitButton = UAButton(type: .primary, title: Strings.SubmitButtonTitle, target: self, action: #selector(submit(_:)))
     lazy var errorView = ErrorView()
     lazy var resetPasswordButton = UAButton(type: .link,
-                                            title: "I forgot my password",
+                                            title: Strings.ForgotPasswordButtonTitle,
                                             target: self, action: #selector(resetPassword(_:)))
 
     lazy var stackView: UIStackView = {
@@ -215,7 +218,7 @@ class AuthViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        self.title = viewModel.isNewUser ? "Register" : "Login"
+        self.title = viewModel.isNewUser ? Strings.SignUpButtonTitle : Strings.LogInButtonTitle
         navigationController?.setNavigationBarHidden(false, animated: true)
     }
     
@@ -224,7 +227,9 @@ class AuthViewController: UIViewController {
         
         view.backgroundColor = UIColor.backgroundMain
         view.addSubview(scrollView)
-        scrollView.fill(view: self.view)
+        scrollView.snp.makeConstraints {
+            $0.edges.equalTo(view)
+        }
         
         viewModel.didSetLoading = { isLoading in
             DispatchQueue.main.async {

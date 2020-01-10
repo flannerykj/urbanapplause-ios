@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import Shared
 
 class GalleriesViewController: UIViewController {
     var appContext: AppContext
@@ -36,7 +37,7 @@ class GalleriesViewController: UIViewController {
         galleryListVC.didMove(toParent: self)
         galleryListVC.delegate = self
         addChild(galleryListVC)
-        navigationItem.title = "Galleries"
+        navigationItem.title = Strings.GalleriesTabItemTitle
         
         let addButton = UIBarButtonItem(image: UIImage(systemName: "plus"),
                                         style: .plain,

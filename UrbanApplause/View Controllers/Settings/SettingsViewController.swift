@@ -9,6 +9,7 @@
 import Foundation
 import UIKit
 import SafariServices
+import Shared
 
 class SettingsViewController: UIViewController {
 
@@ -55,7 +56,7 @@ class SettingsViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        navigationItem.title = "Settings"
+        navigationItem.title = Strings.SettingsTabItemTitle
         view.addSubview(tableView)
         tableView.fill(view: self.view)
     }

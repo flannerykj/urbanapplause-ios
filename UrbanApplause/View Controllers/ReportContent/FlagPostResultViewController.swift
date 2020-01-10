@@ -8,13 +8,14 @@
 
 import Foundation
 import UIKit
+import Shared
 
 class ReportAnIssueResultViewController: UIViewController {
     
     let titleLabel = UILabel(type: .h3,
-                             text: "Thanks for reporting the issue!")
+                             text: Strings.ReportIssueSuccessMessageTitle)
     let subtitleLabel = UILabel(type: .body,
-                                text: "We've received your report and will review the content you've flagged for us.")
+                                text: Strings.ReportIssueSuccessMessageBody)
 
     lazy var stackView: UIStackView = {
         let stackView = UIStackView(arrangedSubviews: [titleLabel, subtitleLabel])
@@ -28,7 +29,7 @@ class ReportAnIssueResultViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = UIColor.backgroundMain
         let leftButton = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
-        navigationItem.leftBarButtonItem = leftButton // replace back button with emtpy item
+        navigationItem.leftBarButtonItem = leftButton // replace back button with emtpy item, so user can't resubmit form
         
         let doneButton = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(pressedDone(_:)))
         navigationItem.rightBarButtonItem = doneButton

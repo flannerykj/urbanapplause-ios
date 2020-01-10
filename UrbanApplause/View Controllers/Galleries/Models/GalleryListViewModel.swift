@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import UIKit
+import Shared
 
 class GalleryListViewModel {
     typealias Snapshot = NSDiffableDataSourceSnapshot<GalleriesSection, GalleryCellViewModel>
@@ -105,7 +106,7 @@ class GalleryListViewModel {
     }
     private func getCollections() {
         guard let userId = self.userId else {
-            self._errorMessage.value = "Must be logged in to view and create collections."
+            self._errorMessage.value = Strings.MustBeLoggedInToPerformAction(Strings.ViewAndCreateCollections)
             return
         }
         guard !collectionsLoading.value else {
@@ -117,7 +118,6 @@ class GalleryListViewModel {
         _ = appContext.networkService.request(endpoint) { [weak self] (result: UAResult<CollectionsContainer>) in
             DispatchQueue.main.async {
                 self!.collectionsLoading.value = false
-                log.debug("got collections")
                 switch result {
                 case .failure(let error):
                     log.error(error)

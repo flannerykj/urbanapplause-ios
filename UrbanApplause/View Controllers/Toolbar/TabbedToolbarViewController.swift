@@ -8,6 +8,8 @@
 
 import Foundation
 import UIKit
+import Shared
+import SnapKit
 
 protocol TabContentViewController: UIViewController {
     var tabContentDelegate: TabContentDelegate? { get set }
@@ -114,7 +116,9 @@ class TabbedToolbarViewController: UIViewController {
         scrollView.addSubview(controllerStackView)
         scrollView.isScrollEnabled = false
         scrollView.accessibilityIdentifier = "onboardingScrollView"
-        controllerStackView.fill(view: scrollView)
+        controllerStackView.snp.makeConstraints {
+            $0.edges.equalTo(scrollView)
+        }
         NSLayoutConstraint.activate([
             controllerStackView.heightAnchor.constraint(equalTo: scrollView.heightAnchor)
             ])

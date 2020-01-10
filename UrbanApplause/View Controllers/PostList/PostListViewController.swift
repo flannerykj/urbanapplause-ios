@@ -7,6 +7,7 @@
 //
 import UIKit
 import CoreLocation
+import Shared
 
 protocol PostListControllerDelegate: class {
     var canEditPosts: Bool { get }
@@ -62,14 +63,14 @@ class PostListViewController: UIViewController {
     }()
     
     lazy var loadMoreButton = UAButton(type: .link,
-                                       title: "Load more posts",
+                                       title: Strings.LoadMorePostsButtonTitle,
                                        target: self,
                                        action: #selector(pressedLoadMorePosts(_:)))
     
     let loadMoreSpinner = ActivityIndicator()
 
     lazy var tableFooterView: UIView = {
-        loadMoreButton.setTitle("Load more posts", for: .normal)
+        loadMoreButton.setTitle(Strings.LoadMorePostsButtonTitle, for: .normal)
         loadMoreButton.addTarget(self, action: #selector(pressedLoadMorePosts(_:)), for: .touchUpInside)
         loadMoreButton.titleLabel?.textAlignment = .center
         
@@ -158,7 +159,7 @@ class PostListViewController: UIViewController {
             self.tableHeaderLabel.textColor = UIColor.error
         } else if viewModel.posts.count == 0 && !viewModel.isLoading {
             self.tableHeaderView.frame = visibleHeaderFrame
-            self.tableHeaderLabel.text = "No posts to show"
+            self.tableHeaderLabel.text = Strings.NoPostsToShowMessage
             self.tableHeaderLabel.textColor = UIColor.lightGray
         } else {
             self.tableHeaderView.frame.size.height = 0

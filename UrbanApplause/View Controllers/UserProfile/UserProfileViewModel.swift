@@ -8,7 +8,7 @@
 
 
 import Foundation
-
+import Shared
 
 class UserProfileViewModel: NSObject {
     var didUpdateData: ((User?) -> Void)?

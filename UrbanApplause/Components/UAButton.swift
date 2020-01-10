@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import Shared
 
 class UAButton: UIButton {
     private let imageWidth: CGFloat = 24
@@ -169,9 +170,6 @@ class UAButton: UIButton {
         
         titleLabelToLeftImageConstraint.isActive = hasLeftImage
         titleLabelToRightEdgeConstraint.isActive = hasRightImage
-        
-        log.debug("has left image: \(hasLeftImage)")
-        log.debug("has right image: \(hasRightImage)")
 
         titleLabelToLeftEdgeConstraint.isActive = !hasLeftImage
         titleLabelToRightEdgeConstraint.isActive = !hasRightImage

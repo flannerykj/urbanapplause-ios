@@ -8,6 +8,8 @@
 
 import Foundation
 import UIKit
+import Shared
+import SnapKit
 
 protocol CommentListDelegate: class {
     func commentList(didUpdateComments comments: [Comment])
@@ -98,7 +100,9 @@ class CommentListViewController: UIViewController {
             ]
             textView.attributedText = text
             view.addSubview(textView)
-            textView.fillWithinMargins(view: view)
+            textView.snp.makeConstraints {
+                $0.edges.equalTo(view)
+            }
         }
         return view
     }()
@@ -119,7 +123,9 @@ class CommentListViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.addSubview(tableView)
-        tableView.fill(view: self.view)
+        tableView.snp.makeConstraints {
+            $0.edges.equalTo(view)
+        }
         let closeButton = UIBarButtonItem(barButtonSystemItem: .close, target: self, action: #selector(cancel(_:)))
         navigationItem.leftBarButtonItem = closeButton
         tableView.scrollViewAvoidKeyboard()

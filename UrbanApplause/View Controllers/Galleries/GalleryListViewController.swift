@@ -8,6 +8,7 @@
 
 import UIKit
 import Combine
+import Shared
 
 protocol GalleryListDelegate: class {
     func galleryList(_ controller: GalleryListViewController,
@@ -112,7 +113,6 @@ class GalleryListViewController: UIViewController {
 
         viewModel.isLoading.sink(receiveValue: { isLoading in
             DispatchQueue.main.async {
-                log.debug("is loading: \(isLoading)")
                 if isLoading {
                     self.refreshControl.beginRefreshing()
                 } else {

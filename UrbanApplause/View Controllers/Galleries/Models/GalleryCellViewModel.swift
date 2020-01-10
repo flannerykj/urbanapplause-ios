@@ -8,7 +8,7 @@
 
 import Foundation
 import Combine
-
+import Shared
 
 class GalleryCellViewModel: NSObject {
     var gallery: Gallery

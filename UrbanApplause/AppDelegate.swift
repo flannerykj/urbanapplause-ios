@@ -9,6 +9,7 @@
 import UIKit
 import CoreLocation
 import UserNotifications
+import Shared
 
 let log = DHLogger.self
 

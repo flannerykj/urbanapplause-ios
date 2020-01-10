@@ -8,6 +8,8 @@
 
 import Foundation
 import UIKit
+import Shared
+import SnapKit
 
 class ErrorView: UIView {
 
@@ -35,7 +37,9 @@ class ErrorView: UIView {
         translatesAutoresizingMaskIntoConstraints = false
         layoutMargins = UIEdgeInsets(top: 24, left: 24, bottom: 24, right: 24)
         addSubview(backgroundView)
-        backgroundView.fill(view: self)
+        backgroundView.snp.makeConstraints {
+            $0.edges.equalTo(self)
+        }
         layer.borderColor = UIColor.error.cgColor
         layer.borderWidth = 2
         layer.cornerRadius = 24

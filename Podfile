@@ -6,7 +6,6 @@ target 'UrbanApplause' do
   use_frameworks!
   pod 'Eureka'
   pod 'ViewRow'
-  pod 'BSImagePicker', '~> 2.8'
   pod 'SwiftLint'
   pod 'AWSS3'
   pod 'SnapKit'
@@ -17,6 +16,15 @@ target 'UrbanApplause' do
     # Pods for testing
   end
 
+  target 'Shared' do
+    inherit! :search_paths
+    # Pods for testing
+  end
+
+  target 'Test' do
+    inherit! :search_paths
+    # Pods for testing
+  end
   target 'UrbanApplauseTests' do
     inherit! :search_paths
     # Pods for testing

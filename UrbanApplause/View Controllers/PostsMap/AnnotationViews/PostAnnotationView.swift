@@ -9,6 +9,7 @@
 import Foundation
 import UIKit
 import MapKit
+import Shared
 
 protocol PostAnnotationViewProtocol {
     var contentView: AnnotationContentView { get set }

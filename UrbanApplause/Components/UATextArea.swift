@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import Shared
 
 class UATextArea: UITextView, UITextViewDelegate {
     var placeholder: String?
@@ -36,7 +37,7 @@ class UATextArea: UITextView, UITextViewDelegate {
         toolbar.barStyle = UIBarStyle.default
         toolbar.items = [
             UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil),
-            UIBarButtonItem(title: "Done", style: .plain, target: self, action: #selector(dismissKeyboard(_:)))]
+            UIBarButtonItem(title: Strings.DoneButtonTitle, style: .plain, target: self, action: #selector(dismissKeyboard(_:)))]
             toolbar.sizeToFit()
         return toolbar
     }()
@@ -57,7 +58,6 @@ class UATextArea: UITextView, UITextViewDelegate {
     override func becomeFirstResponder() -> Bool {
         let doBecome = super.becomeFirstResponder()
         if doBecome, textColor == placeholderTextColor {
-            log.debug("set text range")
             self.selectedTextRange = self.textRange(from: self.beginningOfDocument, to: self.beginningOfDocument)
         }
         return doBecome

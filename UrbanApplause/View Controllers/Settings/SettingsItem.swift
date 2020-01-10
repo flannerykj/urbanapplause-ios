@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import Shared
 
 enum SettingsItem {
     case account, createAccount, login, termsOfService, privacyPolicy, logout
@@ -15,17 +16,17 @@ enum SettingsItem {
     var title: String {
         switch self {
         case .account:
-            return "Account"
+            return Strings.AccountScreenTitle
         case .createAccount:
-            return "Create an account"
+            return Strings.CreateAccountButtonTitle
         case .login:
-            return "Log in"
+            return Strings.LogInButtonTitle
         case .termsOfService:
-            return "Terms of Service"
+            return Strings.TermsOfServiceLinkText
         case .privacyPolicy:
-            return "Privacy Policy"
+            return Strings.PrivacyPolicyLinkText
         case .logout:
-            return "Log out"
+            return Strings.LogOutButtonTitle
         }
     }
 

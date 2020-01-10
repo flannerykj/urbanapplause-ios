@@ -9,6 +9,8 @@
 import Foundation
 import UIKit
 import MapKit
+import Shared
+import SnapKit
 
 class PostMapViewController2: UIViewController {
     var viewModel: PostMapViewModel2
@@ -48,14 +50,16 @@ class PostMapViewController2: UIViewController {
         view.addSubview(activityIndicator)
         view.layer.cornerRadius = 24
         view.layer.masksToBounds = true
-        activityIndicator.fillWithinMargins(view: view)
+        activityIndicator.snp.makeConstraints {
+            $0.edges.equalTo(view)
+        }
         return view
     }()
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         if let username = self.appContext.store.user.data?.username {
-            navigationItem.title = "Welcome, \(username)"
+            navigationItem.title = Strings.WelcomeMessage(username: username)
         }
     }
     override func viewDidLoad() {
@@ -66,13 +70,15 @@ class PostMapViewController2: UIViewController {
         view.backgroundColor = UIColor.backgroundMain
         view.addSubview(mapView)
         mapView.translatesAutoresizingMaskIntoConstraints = false
-        mapView.fillWithinSafeArea(view: view)
+        mapView.snp.makeConstraints {
+            $0.edges.equalTo(view)
+        }
 
         mapView.addSubview(loadingView)
         loadingView.centerXAnchor.constraint(equalTo: mapView.centerXAnchor).isActive = true
         loadingView.topAnchor.constraint(equalTo: mapView.safeAreaLayoutGuide.topAnchor, constant: 24).isActive = true
         let backItem = UIBarButtonItem()
-        backItem.title = "Map"
+        backItem.title = Strings.MapTabItemTitle
         navigationItem.backBarButtonItem = backItem
         
         let locationButton = UIBarButtonItem(image: UIImage(systemName: "location"),
@@ -116,11 +122,11 @@ class PostMapViewController2: UIViewController {
                                         addressDictionary: [:])
             
             let ac = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-            let addPost = UIAlertAction(title: "Add a post here", style: .default, handler: { _ in
-                self.addNewPost(at: placemark)
+            let addPost = UIAlertAction(title: Strings.AddPostHereButtonTitle, style: .default, handler: { _ in
+                self.addNewPost(sender: self.mapView, at: placemark)
             })
             
-            let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+            let cancelAction = UIAlertAction(title: Strings.CancelButtonTitle, style: .cancel, handler: nil)
             ac.addAction(addPost)
             ac.addAction(cancelAction)
             ac.popoverPresentationController?.sourceView = self.mapView
@@ -129,8 +135,8 @@ class PostMapViewController2: UIViewController {
         }
     }
     
-    func addNewPost(at placemark: CLPlacemark?) {
-        (self.tabBarController as? TabBarController)?.pickImageForNewPost(placemark: placemark)
+    func addNewPost(sender: UIView, at placemark: CLPlacemark?) {
+        (self.tabBarController as? TabBarController)?.getImageForNewPost(sender: sender, placemark: placemark)
     }
     
     required init?(coder: NSCoder) {
@@ -213,7 +219,7 @@ class PostMapViewController2: UIViewController {
     }
     @objc func requestZoomToCurrentLocation(_: Any) {
         guard CLLocationManager.locationServicesEnabled() else {
-            showAlert(message: "Please enable location services under Settings.")
+            showAlert(message: Strings.LocationServicesNotEnabledError)
             return
         }
         switch CLLocationManager.authorizationStatus() {
@@ -221,7 +227,7 @@ class PostMapViewController2: UIViewController {
             locationManager.requestWhenInUseAuthorization()
             awaitingZoomToCurrentLocation = true
         case .restricted, .denied:
-            showAlertForDeniedPermissions(permissionType: "location", appContext: appContext)
+            showAlertForDeniedPermissions(permissionType: Strings.LocationPermissionType)
         case .authorizedAlways, .authorizedWhenInUse:
             if let location = locationManager.location {
                 self.zoomToLocation(location)
@@ -288,7 +294,7 @@ extension PostMapViewController2: CLLocationManagerDelegate {
         if self.awaitingZoomToCurrentLocation {
             if !locationAuthorized {
                 self.awaitingZoomToCurrentLocation = false
-                self.showAlertForDeniedPermissions(permissionType: "location", appContext: appContext)
+                self.showAlertForDeniedPermissions(permissionType: Strings.LocationPermissionType)
             } else {
                 if let location = locationManager.location {
                     self.zoomToLocation(location)
@@ -309,7 +315,7 @@ extension PostMapViewController2: CLLocationManagerDelegate {
         log.error(error)
     }
 }
-extension PostMapViewController2: PostFormDelegate {
+extension PostMapViewController2: CreatePostControllerDelegate {
     func didCreatePost(post: Post) {
         // wait for upload images to complete
     }
