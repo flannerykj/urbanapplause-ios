@@ -517,6 +517,30 @@
 			path = UrbanApplauseTests;
 			sourceTree = "<group>";
 		};
+		3A1B030A23CA58C000CFE9D6 /* Network */ = {
+			isa = PBXGroup;
+			children = (
+				3A72A5BE23C78A2000B64A06 /* NetworkServiceProtocol.swift */,
+				3A72A5C023C78A4900B64A06 /* NetworkServiceJob.swift */,
+				3A72A5C223C78A5800B64A06 /* EndpointConfiguration.swift */,
+				3A72A5C423C78A6400B64A06 /* HTTPMethod.swift */,
+				3A72A5CD23C78E6300B64A06 /* HTTPHeaders.swift */,
+				3A72A5C623C78A7000B64A06 /* HTTPTask.swift */,
+				3A72A5C823C78B1500B64A06 /* Parameters.swift */,
+			);
+			path = Network;
+			sourceTree = "<group>";
+		};
+		3A1B030B23CA5B1400CFE9D6 /* APIClient */ = {
+			isa = PBXGroup;
+			children = (
+				3A72A5B823C789EF00B64A06 /* AuthRouter.swift */,
+				3A72A5BA23C789F800B64A06 /* PrivateRouter.swift */,
+				3A72A5BC23C78A1100B64A06 /* APIClient.swift */,
+			);
+			path = APIClient;
+			sourceTree = "<group>";
+		};
 		3A1ECBF32267F6ED0055FC9B /* Components */ = {
 			isa = PBXGroup;
 			children = (
@@ -599,16 +623,8 @@
 				3A72A5A023C7787000B64A06 /* Errors.swift */,
 				3A72A57D23C7772A00B64A06 /* Result.swift */,
 				3A72A57A23C776ED00B64A06 /* Strings.swift */,
-				3A72A5B823C789EF00B64A06 /* AuthRouter.swift */,
-				3A72A5BA23C789F800B64A06 /* PrivateRouter.swift */,
-				3A72A5BC23C78A1100B64A06 /* APIClient.swift */,
-				3A72A5BE23C78A2000B64A06 /* NetworkServiceProtocol.swift */,
-				3A72A5C023C78A4900B64A06 /* NetworkServiceJob.swift */,
-				3A72A5C223C78A5800B64A06 /* EndpointConfiguration.swift */,
-				3A72A5C423C78A6400B64A06 /* HTTPMethod.swift */,
-				3A72A5CD23C78E6300B64A06 /* HTTPHeaders.swift */,
-				3A72A5C623C78A7000B64A06 /* HTTPTask.swift */,
-				3A72A5C823C78B1500B64A06 /* Parameters.swift */,
+				3A1B030B23CA5B1400CFE9D6 /* APIClient */,
+				3A1B030A23CA58C000CFE9D6 /* Network */,
 				3A72A57F23C7774900B64A06 /* APIModels */,
 			);
 			path = Shared;

@@ -13,5 +13,4 @@ public protocol EndpointConfiguration {
     var httpMethod: HTTPMethod { get }
     var path: String { get }
     var task: HTTPTask { get }
-    // func getRequiredHeaders(keychainService: KeychainService) throws -> HTTPHeaders
 }
