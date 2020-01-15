@@ -50,10 +50,4 @@ public enum AuthRouter: EndpointConfiguration {
             return .requestParameters(bodyParameters: ["user": ["email": email]], urlParameters: nil)
         }
     }
-    
-//    func getRequiredHeaders(keychainService: KeychainService) throws -> HTTPHeaders {
-//        var headers = HTTPHeaders()
-//        headers["Content-type"] = "application/json"
-//        return headers
-//    }
 }

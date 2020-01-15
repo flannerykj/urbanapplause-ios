@@ -42,7 +42,7 @@ private struct FormSectionKeys {
 
 class CreatePostViewController: FormViewController, UINavigationControllerDelegate,
 UIImagePickerControllerDelegate, UnsavedChangesController {
-    private var imageService: ImageService
+    private var imageService: ImageEXIFService
     private let spacesFileRepository = SpacesFileRepository()
     var post: Post?
     var hasUnsavedChanges: Bool = false
@@ -104,7 +104,7 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
         self.appContext = appContext
         self.initialPlacemark = placemark
         self.selectedImageData = imageData
-        self.imageService = ImageService(data: imageData)
+        self.imageService = ImageEXIFService(data: imageData)
         super.init(nibName: nil, bundle: nil)
     }
     

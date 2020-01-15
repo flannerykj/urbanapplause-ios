@@ -92,19 +92,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
 }
 extension AppDelegate: AppContextDelegate {
-    func appContextOpenSettings(completion: @escaping (Bool) -> Void) {
-        guard let settingsUrl = URL(string: UIApplication.openSettingsURLString) else {
-            return
-        }
-        
-        if UIApplication.shared.canOpenURL(settingsUrl) {
-            UIApplication.shared.open(settingsUrl, completionHandler: { (success) in
-                log.debug("Settings opened: \(success)")
-                completion(success)
-            })
-        }
-    }
-    
     func appContext(setRootController controller: UIViewController) {
         self.window?.rootViewController = controller
     }

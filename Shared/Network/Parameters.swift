@@ -18,7 +18,6 @@ public protocol ParameterEncoder {
 
 public struct URLParamterEncoder: ParameterEncoder {
     public static func encode(urlRequest: inout URLRequest, with parameters: Parameters) throws {
-        log.debug("params: \(parameters)")
         guard let url = urlRequest.url else { throw NetworkError.invalidURL }
 
         if var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false), !parameters.isEmpty {

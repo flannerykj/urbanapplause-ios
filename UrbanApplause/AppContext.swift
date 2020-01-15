@@ -12,7 +12,6 @@ import Shared
 
 protocol AppContextDelegate: AnyObject {
     func appContext(setRootController controller: UIViewController)
-    func appContextOpenSettings(completion: @escaping (Bool) -> Void)
 }
 
 class AppContext: NSObject {
@@ -76,14 +75,7 @@ class AppContext: NSObject {
         store = Store()
         self.navigateToApp()
     }
-    
-    public var canOpenSettings: Bool {
-        return delegate != nil
-    }
-    public func openSettings(completion: @escaping (Bool) -> Void) {
-        delegate?.appContextOpenSettings(completion: completion)
-    }
-    
+
     // MARK: - Private Methods
     private func navigateToApp() {
         store.user.data = authService.authUser

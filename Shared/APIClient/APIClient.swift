@@ -11,12 +11,6 @@ import UIKit
 
 fileprivate let log = DHLogger.self
 
-public protocol DownloadService: NSObject {
-    func download(_ route: EndpointConfiguration,
-                  sessionDelegate: URLSessionDownloadDelegate?,
-                  priority: NetworkServiceJobPriority) throws -> NetworkServiceJob?
-}
-
 public class APIClient: NSObject, NetworkServiceProtocol {
     private let maxActiveJobs = 5
     private let requestTimeoutInterval: Double = 180

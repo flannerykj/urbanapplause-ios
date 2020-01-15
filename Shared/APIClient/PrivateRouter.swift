@@ -262,40 +262,5 @@ public enum PrivateRouter: EndpointConfiguration {
             return .request
         }
     }
-    
-    /* var query: Parameters? {
-        switch self {
-        case .getCollections(let query), .getPosts(let query):
-            return query
-        default:
-            return nil
-        }
-    }
-    
-    var parameters: Parameters? {
-        switch self {
-        case .authenticate(let email, let password, _):
-            return ["user": ["email": email, "password": password], "refresh_token": "true"] as [String : Any]
-            
-        case .createPost(let values), .createUser(let values), .editPost(_, let values), .updateUser(let values), .createCollection(let values):
-            return values
-        case .addApplause(let postId):
-            return ["PostId": String(postId)]
-        default:
-            return nil
-        }
-    } */
-    
-//    func getRequiredHeaders(keychainService: KeychainService) throws -> HTTPHeaders {
-//        var headers = HTTPHeaders()
-//        headers["Content-type"] = "application/json"
-//        do {
-//            let authTokens: AuthResponse =
-//                try keychainService.load(itemAt: KeychainItem.tokens.userAccount)
-//            headers["Authorization"] = "Bearer \(authTokens.access_token)"
-//        } catch {
-//            log.warning(error)
-//        }
-//        return headers
-//    }
+
 }
