@@ -56,7 +56,7 @@ public class ImageEXIFService {
     
     public var dateFromExif: Date? {
         let source: CGImageSource = CGImageSourceCreateWithData((imageData as! CFMutableData), nil)!
-        guard let dict = CGImageSourceCopyPropertiesAtIndex(source, 0,nil) as? [CFString: Any],
+        guard let dict = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any],
             let tiffData = dict[kCGImagePropertyTIFFDictionary] as? [CFString: Any],
             let dateTimeString = tiffData[kCGImagePropertyTIFFDateTime] as? String else {
                 return nil

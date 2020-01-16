@@ -39,6 +39,7 @@ public class FileDownloadJob: NSObject {
                           onUpdateProgress: @escaping (Float) -> Void = { _ in },
                           onSubscriptionRemoved: @escaping () -> Void = {}) -> FileDownloadSubscriber {
         self.lastSubscriptionAt = Date()
+        
         let subscriber = FileDownloadSubscriber(subscriberID: UUID().uuidString,
                                                onSuccess: onSuccess,
                                                onError: onError,
@@ -116,7 +117,6 @@ public class FileDownloadJob: NSObject {
             if data != nil {
                  self.imageData = data
             } else {
-                log.error(error)
                 self.error = S3Error.downloadError(error?.localizedDescription)
             }
         })

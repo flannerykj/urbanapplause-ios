@@ -15,9 +15,17 @@ import ViewRow
 import Shared
 
 protocol CreatePostControllerDelegate: class {
-    func didDeletePost(post: Post)
-    func didCreatePost(post: Post)
-    func didCompleteUploadingImages(post: Post)
+    func createPostController(_ controller: CreatePostViewController,
+                              didDeletePost post: Post)
+    func createPostController(_ controller: CreatePostViewController,
+                              didCreatePost post: Post)
+    func createPostController(_ controller: CreatePostViewController,
+                              didUploadImageData: Data,
+                              forPost post: Post)
+    func createPostController(_ controller: CreatePostViewController,
+                              didBeginUploadForData: Data,
+                              forPost post: Post,
+                              job: NetworkServiceJob?)
 }
 
 private struct FormFieldKeys {
@@ -111,6 +119,9 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    override var prefersStatusBarHidden: Bool {
+        return false
+    }
     
     var loader = ActivityIndicator()
     lazy var loaderButton = UIBarButtonItem(customView: loader)
@@ -123,14 +134,27 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
         super.viewDidLoad()
         view.backgroundColor = UIColor.lightGray
         loader.startAnimating()
+        
         navigationItem.title = Strings.NewPostScreenTitle
-        
-        let closeButton = UIBarButtonItem(barButtonSystemItem: .cancel,
-                                          target: self,
-                                          action: #selector(cancel(_:)))
-        navigationItem.leftBarButtonItem = closeButton
-        
+
         navigationItem.rightBarButtonItem = saveButton
+        if navigationController == nil {
+            let navigationBar = UINavigationBar()
+            navigationBar.translatesAutoresizingMaskIntoConstraints = false
+            
+            navigationBar.barTintColor = UIColor.lightGray
+            view.addSubview(navigationBar)
+            NSLayoutConstraint.activate([
+                navigationBar.rightAnchor.constraint(equalTo: view.rightAnchor),
+                navigationBar.leftAnchor.constraint(equalTo: view.leftAnchor),
+                navigationBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+                navigationBar.heightAnchor.constraint(equalToConstant: 50)
+            ])
+            navigationBar.items = [navigationItem]
+        } else {
+            navigationController?.setNavigationBarHidden(false, animated: true)
+        }
+        
         self.newPostState = .initial
         // self.tableView.separatorInset = .zero
         selectedImageView.image = UIImage(data: selectedImageData)
@@ -219,9 +243,13 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
                                         let controller = ArtistSelectionViewController(appContext: self.appContext)
                                         controller.delegate = self
                                         self.selectingArtistForIndex = index
-                                        self.present(UINavigationController(rootViewController: controller),
-                                                     animated: true,
-                                                     completion: nil)
+                                        if let nav = self.navigationController {
+                                            nav.pushViewController(controller, animated: true)
+                                        } else {
+                                            self.present(UINavigationController(rootViewController: controller),
+                                                         animated: true,
+                                                         completion: nil)
+                                        }
                                         return UAPushRow<Artist> {
                                             $0.tag = FormFieldKeys.artistAtIndex(index)
                                             $0.displayValueFor = {
@@ -274,7 +302,6 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
         }
         if let locationRow = self.form.rowBy(tag: FormFieldKeys.location) as? LocationRow,
             let placemark = imageService.placemarkFromExif {
-            
             guard let location = placemark.location else { return }
             CLGeocoder().reverseGeocodeLocation(location,
                                                 completionHandler: { (placemarks, _) in
@@ -288,6 +315,11 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
             locationRow.value = placemark
             locationRow.updateCell()
         }
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        navigationController?.setNavigationBarHidden(true, animated: true)
     }
     
     func makeNewLocationBody(from placemark: CLPlacemark) -> [String: Any]? {
@@ -365,7 +397,7 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
                                     DispatchQueue.main.async {
                                         switch result {
                                         case .success(let container):
-                                            self.delegate?.didCreatePost(post: container.post)
+                                            self.delegate?.createPostController(self, didCreatePost: container.post)
                                             self.saveImages(post: container.post)
                                         case .failure(let error):
                                             self.isLoading = false
@@ -382,10 +414,13 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
             log.error("no user")
             return
         }
-        
+        guard let pngData = UIImage(data: selectedImageData)?.png else {
+            log.error("Unable to convert to png")
+            return
+        }
         // Add new Post Images to Post
-        let endpoint = PrivateRouter.uploadImages(postId: post.id, userId: userID, imagesData: [selectedImageData])
-        _ = networkService.request(endpoint, completion: { (result: UAResult<PostImagesContainer>) in
+        let endpoint = PrivateRouter.uploadImages(postId: post.id, userId: userID, imagesData: [pngData])
+        let job = networkService.request(endpoint, completion: { (result: UAResult<PostImagesContainer>) in
             DispatchQueue.main.async {
                 self.isLoading = false
                 self.newPostState = .initial
@@ -395,18 +430,19 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
                     
                     // Backend won't have finished compressing images yet, so save on frontend to dispaly immediately
                     if let file = container.images.first {
-                        self.appContext.fileCache.addLocalData(self.selectedImageData, for: file)
+                        self.appContext.fileCache.addLocalData(pngData, for: file)
                         if let thumbnail = file.thumbnail {
-                            self.appContext.fileCache.addLocalData(self.selectedImageData, for: thumbnail)
+                            self.appContext.fileCache.addLocalData(pngData, for: thumbnail)
                         }
                     }
-                    self.delegate?.didCompleteUploadingImages(post: post)
+                    self.delegate?.createPostController(self, didUploadImageData: pngData, forPost: post)
                     self.dismiss(animated: true, completion: nil)
                 case .failure(let error):
                     self.showAlert(message: error.userMessage)
                 }
             }
         })
+        delegate?.createPostController(self, didBeginUploadForData: selectedImageData, forPost: post, job: job)
     }
     @objc func cancel(_ sender: UIBarButtonItem) {
         self.confirmDiscardChanges()
@@ -415,7 +451,11 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
 
 extension CreatePostViewController: ArtistSelectionDelegate {
     func artistSelectionController(_ controller: ArtistSelectionViewController, didSelectArtist artist: Artist?) {
-        controller.dismiss(animated: true, completion: nil)
+        if let nav = controller.navigationController {
+            nav.popViewController(animated: true)
+        } else {
+            controller.dismiss(animated: true, completion: nil)
+        }
         guard let artistsSection = self.form.sectionBy(tag: FormSectionKeys.artists) as? MultivaluedSection else {
             return
         }

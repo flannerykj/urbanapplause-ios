@@ -185,7 +185,7 @@ public extension NetworkServiceProtocol {
         
         for data in imagesData {
             let filename = UUID().uuidString
-            let mimeType = (data as NSData).getMimeType() ?? ""
+            let mimeType = data.getMimeType() ?? ""
             body.appendString(string: boundaryPrefix)
             body.appendString(string: "Content-Disposition: form-data; name=\"\(filePathKey)\"; filename=\"\(filename)\"\r\n")
             body.appendString(string: "Content-Type: \(mimeType)\r\n\r\n")

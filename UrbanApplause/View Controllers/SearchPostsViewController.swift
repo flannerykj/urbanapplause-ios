@@ -105,15 +105,19 @@ extension SearchPostsViewController: UISearchBarDelegate {
 }
 
 extension SearchPostsViewController: CreatePostControllerDelegate {
-    func didCreatePost(post: Post) {
-        // wait for upload images to complete
-    }
-    
-    func didCompleteUploadingImages(post: Post) {
+    func createPostController(_ controller: CreatePostViewController, didDeletePost post: Post) {
         postListViewModel.getPosts(forceReload: true)
     }
     
-    func didDeletePost(post: Post) {
-        postListViewModel.getPosts(forceReload: true)
+    func createPostController(_ controller: CreatePostViewController, didCreatePost post: Post) {
+        
     }
+    func createPostController(_ controller: CreatePostViewController, didBeginUploadForData: Data, forPost post: Post, job: NetworkServiceJob?) {
+        
+    }
+    
+    func createPostController(_ controller: CreatePostViewController, didUploadImageData: Data, forPost post: Post) {
+        
+    }
+    
 }

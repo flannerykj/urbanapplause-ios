@@ -10,6 +10,19 @@ import Foundation
 import UIKit
 
 public extension UIImage {
+    var png: Data? {
+        guard let flattened = flattened else { return nil }
+        return flattened.pngData()  // Swift 4.2 or later
+        // return UIImagePNGRepresentation(flattened)  // Swift 4.1  or earlier
+    }
+    var flattened: UIImage? {
+        if imageOrientation == .up { return self }
+        UIGraphicsBeginImageContextWithOptions(size, false, scale)
+        defer { UIGraphicsEndImageContext() }
+        draw(in: CGRect(origin: .zero, size: size))
+        return UIGraphicsGetImageFromCurrentImageContext()
+    }
+    
     func imageResize (sizeChange: CGSize) -> UIImage {
         let hasAlpha = true
         let scale: CGFloat = 0.0 // Use scale factor of main screen

@@ -105,7 +105,7 @@ class TabBarController: UITabBarController {
     public func getImageForNewPost(sender: UIView, placemark: CLPlacemark? = nil) {
         self.selectedPlacemark = placemark
         if appContext.authService.isAuthenticated {
-            self.imagePicker.present(from: sender)
+            self.imagePicker.showActionSheet(from: sender)
         } else {
             self.showAlertForLoginRequired(desiredAction: "post",
                                            appContext: self.appContext)
@@ -184,40 +184,46 @@ class UATabBar: UITabBar {
         middleButton.center = CGPoint(x: UIScreen.main.bounds.width - buttonOffset, y: -buttonOffset)
         addSubview(middleButton)
     }
-    
-    
-    
 }
 extension TabBarController: CreatePostControllerDelegate {
-    func didCreatePost(post: Post) {
-        // wait for upload images to complete
+    func createPostController(_ controller: CreatePostViewController, didDeletePost post: Post) {
+        mapRootVC.createPostController(controller, didDeletePost: post)
+        searchRootVC.createPostController(controller, didDeletePost: post)
     }
     
-    func didCompleteUploadingImages(post: Post) {
-        self.searchRootVC.didDeletePost(post: post)
-        self.mapRootVC.didCompleteUploadingImages(post: post)
+    func createPostController(_ controller: CreatePostViewController, didCreatePost post: Post) {
+        mapRootVC.createPostController(controller, didCreatePost: post)
+        searchRootVC.createPostController(controller, didCreatePost: post)
     }
     
-    func didDeletePost(post: Post) {
-        self.searchRootVC.didCompleteUploadingImages(post: post)
-        self.mapRootVC.didDeletePost(post: post)
+    func createPostController(_ controller: CreatePostViewController, didUploadImageData: Data, forPost post: Post) {
+        mapRootVC.createPostController(controller, didUploadImageData: didUploadImageData, forPost: post)
+        searchRootVC.createPostController(controller, didUploadImageData: didUploadImageData, forPost: post)
+    }
+    
+    func createPostController(_ controller: CreatePostViewController, didBeginUploadForData: Data, forPost post: Post, job: NetworkServiceJob?) {
+        mapRootVC.createPostController(controller, didBeginUploadForData: didBeginUploadForData, forPost: post, job: job)
+        searchRootVC.createPostController(controller, didBeginUploadForData: didBeginUploadForData, forPost: post, job: job)
     }
 }
 extension TabBarController: ImagePickerDelegate {
-    func didSelect(imageData: Data?) {
-        guard let data = imageData else {
-            log.error("no data")
+    func imagePickerDidCancel(pickerController: UIImagePickerController?) {
+        pickerController?.dismiss(animated: true, completion: nil)
+    }
+    func imagePicker(pickerController: UIImagePickerController?, didSelectImage imageData: Data?) {
+        guard let data = imageData, let picker = pickerController else {
             return
         }
-        createNewPost(withImageData: data)
+        createNewPost(pickerController: picker, withImageData: data)
     }
-    private func createNewPost(withImageData imageData: Data) {
+    private func createNewPost(pickerController: UIImagePickerController, withImageData imageData: Data) {
         let controller = CreatePostViewController(imageData: imageData, placemark: self.selectedPlacemark, appContext: self.appContext)
         controller.delegate = self
-        let nav = UINavigationController(rootViewController: controller)
-        // prevent swipe to dismiss so we can check for unsaved changes in didAttemptToDismiss.
-        nav.isModalInPresentation = true
-        nav.presentationController?.delegate = self
-        self.present(nav, animated: true, completion: nil)
+//        let nav = UINavigationController(rootViewController: controller)
+//        // prevent swipe to dismiss so we can check for unsaved changes in didAttemptToDismiss.
+//        nav.isModalInPresentation = true
+//        nav.presentationController?.delegate = self
+        pickerController.pushViewController(controller, animated: true)
+        // self.present(nav, animated: true, completion: nil)
     }
 }

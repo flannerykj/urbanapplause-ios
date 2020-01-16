@@ -36,7 +36,7 @@ class PostMapViewModel2 {
     private var lastLoadedZoomScale: Double = 0
     private var loadedAllPostsForRect: MKMapRect?
     private var visibleMapPixelWidth: Double?
-    private var lastRequestedMapContent: RequestedMapContent = .postClusters
+    private var lastRequestedMapContent: RequestedMapContent? = nil
 
     var isLoading: Bool = false {
         didSet {
@@ -223,10 +223,14 @@ class PostMapViewModel2 {
         return true
     }
     func getMapGeoBounds(visibleMapRect: MKMapRect) -> GeoBoundsFilter {
+        log.debug("get geo bounds for rect: \(visibleMapRect)")
         let neMapPoint = MKMapPoint(x: visibleMapRect.maxX, y: visibleMapRect.origin.y)
         let swMapPoint = MKMapPoint(x: visibleMapRect.origin.x, y: visibleMapRect.maxY)
         let neCoord = neMapPoint.coordinate
         let swCoord = swMapPoint.coordinate
+        log.debug("neCoord: \(neCoord)")
+        log.debug("swCoord: \(swCoord)")
+
         return GeoBoundsFilter(neCoord: neCoord, swCoord: swCoord)
     }
     public func resetCache() {

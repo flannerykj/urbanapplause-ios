@@ -108,11 +108,11 @@ public extension Strings {
 
     static let MissingArtistNameError = NSLocalizedString("Please provide a name for the artist", comment: "")
     static func MaxCharacterCountError(_ characterCount: Int) -> String {
-        let format = NSLocalizedString("Maximum character count is %@", comment: "")
+        let format = NSLocalizedString("Maximum character count is %d", comment: "")
         return String(format: format, characterCount)
     }
     static func MinCharacterCountError(_ characterCount: Int) -> String {
-        let format = NSLocalizedString("Minimum character count is %@", comment: "")
+        let format = NSLocalizedString("Minimum character count is %d", comment: "")
         return String(format: format, characterCount)
     }
     static let MissingLocationError = NSLocalizedString("Please select a location.", comment: "")

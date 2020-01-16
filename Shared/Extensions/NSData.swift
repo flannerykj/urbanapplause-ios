@@ -8,24 +8,28 @@
 
 import Foundation
 
-public extension NSData {
+public extension Data {
     func getMimeType() -> String? {
-        var values = [UInt8](repeating: 0, count: self.length)
-        self.getBytes(&values, length: self.length)
+        var b: UInt8 = 0
+        self.copyBytes(to: &b, count: 1)
 
-        guard let firstByte = values.first else { return nil }
-        switch firstByte {
+        switch b {
         case 0xFF:
             return "image/jpeg"
         case 0x89:
             return "image/png"
         case 0x47:
             return "image/gif"
-        // case 0x49:
-        case 0x4D:
+        case 0x4D, 0x49:
             return "image/tiff"
+        case 0x25:
+            return "application/pdf"
+        case 0xD0:
+            return "application/vnd"
+        case 0x46:
+            return "text/plain"
         default:
-            return nil
+            return "application/octet-stream"
         }
     }
 

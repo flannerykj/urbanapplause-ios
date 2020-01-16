@@ -15,11 +15,7 @@ import SnapKit
 class PostMapViewController2: UIViewController {
     var viewModel: PostMapViewModel2
     var appContext: AppContext
-    var needsUpdate: Bool = false {
-        didSet {
-            self.updateMap(refreshCache: true)
-        }
-    }
+    var needsUpdate: Bool = false
     var awaitingZoomToCurrentLocation: Bool = false
 
     lazy var scaleView: MKScaleView = MKScaleView(mapView: mapView)
@@ -198,6 +194,7 @@ class PostMapViewController2: UIViewController {
                                                       post: post,
                                                       thumbImage: thumbImage,
                                                       appContext: appContext)
+        viewController.delegate = self
         navigationController?.pushViewController(viewController, animated: true)
     }
     func handleError(_ error: Error) {
@@ -215,7 +212,9 @@ class PostMapViewController2: UIViewController {
         if refreshCache {
             viewModel.resetCache()
         }
-        viewModel.requestMapData(visibleMapRect: mapView.visibleMapRect, mapPixelWidth: Double(mapView.bounds.width))
+        viewModel.requestMapData(visibleMapRect: mapView.visibleMapRect,
+                                 mapPixelWidth: Double(mapView.bounds.width),
+                                 forceReload: refreshCache)
     }
     @objc func requestZoomToCurrentLocation(_: Any) {
         guard CLLocationManager.locationServicesEnabled() else {
@@ -284,8 +283,6 @@ extension PostMapViewController2: MKMapViewDelegate {
         // called as soon as map stops moving.
         // self.updatePostsForVisibleRegion()
     }
-    
-    
 }
 
 extension PostMapViewController2: CLLocationManagerDelegate {
@@ -316,19 +313,24 @@ extension PostMapViewController2: CLLocationManagerDelegate {
     }
 }
 extension PostMapViewController2: CreatePostControllerDelegate {
-    func didCreatePost(post: Post) {
-        // wait for upload images to complete
+    func createPostController(_ controller: CreatePostViewController, didDeletePost post: Post) {
+        self.updateMap(refreshCache: true)
     }
     
-    func didCompleteUploadingImages(post: Post) {
+    func createPostController(_ controller: CreatePostViewController, didCreatePost post: Post) {
+        
+    }
+    
+    func createPostController(_ controller: CreatePostViewController, didUploadImageData: Data, forPost post: Post) {
         self.updateMap(refreshCache: true)
         if let location = post.Location?.clLocation {
             self.zoomToLocation(location)
         }
     }
     
-    func didDeletePost(post: Post) {
-        self.updateMap(refreshCache: true)
+    func createPostController(_ controller: CreatePostViewController,
+                              didBeginUploadForData: Data,
+                              forPost post: Post, job: NetworkServiceJob?) {
     }
 }
 extension PostMapViewController2: PostListControllerDelegate {
@@ -338,5 +340,18 @@ extension PostMapViewController2: PostListControllerDelegate {
     
     func didDeletePost(_ post: Post, atIndexPath indexPath: IndexPath) {
         viewModel.removePost(post)
+    }
+}
+extension PostMapViewController2: PostDetailDelegate {
+    func postDetail(_ controller: PostDetailViewController, didUpdatePost post: Post) {
+        self.updateMap(refreshCache: true)
+    }
+    
+    func postDetail(_ controller: PostDetailViewController, didBlockUser user: User) {
+        self.updateMap(refreshCache: true)
+    }
+    
+    func postDetail(_ controller: PostDetailViewController, didDeletePost post: Post) {
+        self.updateMap(refreshCache: true)
     }
 }

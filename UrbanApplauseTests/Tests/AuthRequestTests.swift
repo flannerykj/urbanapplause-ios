@@ -78,7 +78,7 @@ class AuthRequestTests: BaseTestCase {
                 _ = try res.get()
                 XCTFail("Should return an error")
             } catch {
-                print("error: \(error)")
+                log.error("error: \(error)")
                 XCTAssertEqual((error as? UAError)?.userMessage, "That email or password is not valid")
                 expectation.fulfill()
             }

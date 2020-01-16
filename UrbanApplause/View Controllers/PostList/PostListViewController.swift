@@ -145,7 +145,6 @@ class PostListViewController: UIViewController {
                 self.updateTableFooter()
             }
         }
-        self.refreshControl.beginRefreshing()
         viewModel.getPosts(forceReload: false)
         updateTableFooter()
         refreshControl.addTarget(self, action: #selector(refreshControlTriggered(_:)), for: .valueChanged)

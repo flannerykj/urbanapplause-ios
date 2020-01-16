@@ -13,7 +13,9 @@ import Photos
 private let log = DHLogger.self
 
 public protocol ImagePickerDelegate: class {
-    func didSelect(imageData: Data?)
+    func imagePicker(pickerController: UIImagePickerController?, didSelectImage imageData: Data?)
+    func imagePickerDidCancel(pickerController: UIImagePickerController?)
+
 }
 
 open class ImagePicker: NSObject {
@@ -29,34 +31,48 @@ open class ImagePicker: NSObject {
 
         self.presentationController = presentationController
         self.delegate = delegate
-
+        
+        self.pickerController.modalPresentationStyle = .custom
+        self.pickerController.transitioningDelegate = self
         self.pickerController.delegate = self
-        self.pickerController.allowsEditing = true
+        self.pickerController.allowsEditing = false // remove square overlay showing crop guidlines
         self.pickerController.mediaTypes = ["public.image"]
     }
-
-    private func action(for type: UIImagePickerController.SourceType, title: String) -> UIAlertAction? {
-        guard UIImagePickerController.isSourceTypeAvailable(type) else {
-            return nil
-        }
-
-        return UIAlertAction(title: title, style: .default) { [unowned self] _ in
-            self.pickerController.sourceType = type
-            self.presentationController?.present(self.pickerController, animated: true)
+    public func showActionSheet(from sourceView: UIView) {
+        let status = PHPhotoLibrary.authorizationStatus()
+        switch status {
+        case .notDetermined:
+            PHPhotoLibrary.requestAuthorization({status in
+                DispatchQueue.main.async {
+                    if status == .authorized {
+                        self._showActionSheet(from: sourceView)
+                    } else {
+                        self.delegate?.imagePicker(pickerController: nil, didSelectImage: nil)
+                    }
+                }
+            })
+        case .denied, .restricted:
+            self.presentationController?.showAlertForDeniedPermissions(permissionType: "photo library",
+                                                                       handleOpenSettings: nil)
+            self.delegate?.imagePicker(pickerController: nil, didSelectImage: nil)
+            return
+        case .authorized:
+            _showActionSheet(from: sourceView)
+        @unknown default:
+            self.delegate?.imagePicker(pickerController: nil, didSelectImage: nil)
         }
     }
 
-    public func present(from sourceView: UIView) {
-
+    private func _showActionSheet(from sourceView: UIView) {
         let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
 
-        if let action = self.action(for: .camera, title: "Take photo") {
+        if let action = self.createAction(for: .camera, title: "Take photo") {
             alertController.addAction(action)
         }
-        if let action = self.action(for: .savedPhotosAlbum, title: "Camera roll") {
-            alertController.addAction(action)
-        }
-        if let action = self.action(for: .photoLibrary, title: "Photo library") {
+//        if let action = self.action(for: .savedPhotosAlbum, title: "Camera roll") {
+//            alertController.addAction(action)
+//        }
+        if let action = self.createAction(for: .photoLibrary, title: "Photo library") {
             alertController.addAction(action)
         }
 
@@ -70,17 +86,22 @@ open class ImagePicker: NSObject {
 
         self.presentationController?.present(alertController, animated: true)
     }
+    
+    private func createAction(for type: UIImagePickerController.SourceType, title: String) -> UIAlertAction? {
+        guard UIImagePickerController.isSourceTypeAvailable(type) else {
+            return nil
+        }
 
-    private func pickerController(_ controller: UIImagePickerController, didSelect data: Data?) {
-        controller.dismiss(animated: true, completion: nil)
-        self.delegate?.didSelect(imageData: data)
+        return UIAlertAction(title: title, style: .default) { [unowned self] _ in
+            self.pickerController.sourceType = type
+            self.presentationController?.present(self.pickerController, animated: true)
+        }
     }
 }
 
 extension ImagePicker: UIImagePickerControllerDelegate {
-
     public func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-        self.pickerController(picker, didSelect: nil)
+        delegate?.imagePickerDidCancel(pickerController: picker)
     }
 
     public func imagePickerController(_ picker: UIImagePickerController,
@@ -96,7 +117,8 @@ extension ImagePicker: UIImagePickerControllerDelegate {
                                                           resultHandler: { data, typeIdentifier, orientation, _ in
                                                             DispatchQueue.main.async {
                                                                 if let imgData = data {
-                                                                    self.pickerController(picker, didSelect: imgData)
+                                                                    self.delegate?.imagePicker(pickerController: picker,
+                                                                                               didSelectImage: imgData)
                                                                 } else {
                                                                     log.error("could not get image data")
                                                                 }
@@ -104,16 +126,22 @@ extension ImagePicker: UIImagePickerControllerDelegate {
             })
         } else {
             // user took a picture with camera
-           guard let image = info[.originalImage] as? UIImage,
+            guard let image = info[.editedImage] as? UIImage,
                 let imageData = image.pngData() else {
                 log.error("Camera returned no data")
                 return
             }
-            self.pickerController(picker, didSelect: imageData)
+            self.delegate?.imagePicker(pickerController: picker, didSelectImage: imageData)
         }
     }
 }
 
 extension ImagePicker: UINavigationControllerDelegate {
 
+}
+extension ImagePicker: UIAdaptivePresentationControllerDelegate {
+    
+}
+extension ImagePicker: UIViewControllerTransitioningDelegate {
+    
 }

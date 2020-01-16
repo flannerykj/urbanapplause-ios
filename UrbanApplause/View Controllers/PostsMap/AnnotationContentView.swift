@@ -50,6 +50,7 @@ class AnnotationContentView: UIView {
     }()
     private var activityIndicator: UIActivityIndicatorView = {
         let indicator = UIActivityIndicatorView()
+        indicator.color = UIColor.systemGray3
         indicator.translatesAutoresizingMaskIntoConstraints = false
         return indicator
     }()

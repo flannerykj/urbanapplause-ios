@@ -525,22 +525,12 @@ class PostDetailViewController: UIViewController {
     }
     func onDeletePostSuccess(post: Post) {
         self.post = post
-        delegate?.postDetail(self, didDeletePost: post)
+        self.delegate?.postDetail(self, didDeletePost: post)
         if let nav = self.navigationController, nav.viewControllers.first != self {
             self.navigationController?.popViewController(animated: true)
         } else {
             self.dismiss(animated: true, completion: nil)
         }
-        
-        let successAlert = UIAlertController(title: Strings.DeletePostSuccessMessage,
-                                             message: nil,
-                                             preferredStyle: .alert)
-        
-        let okAction = UIAlertAction(title: Strings.OKButtonTitle, style: .default, handler: { _ in
-            successAlert.dismiss(animated: true, completion: nil)
-        })
-        successAlert.addAction(okAction)
-        self.present(successAlert, animated: true, completion: nil)
     }
     func onDeletePostError(_ error: UAError, post: Post) {
         log.error(error)
@@ -621,17 +611,23 @@ class PostDetailViewController: UIViewController {
 }
 
 extension PostDetailViewController: CreatePostControllerDelegate {
-    func didCreatePost(post: Post) {
-        // wait for upload images to complete
-    }
-    
-    func didCompleteUploadingImages(post: Post) {}
-    
-    func didDeletePost(post: Post) {
+    func createPostController(_ controller: CreatePostViewController, didDeletePost post: Post) {
         DispatchQueue.main.async {
             // self.delegate?.shouldReloadPosts()
             self.navigationController?.popToRootViewController(animated: true)
         }
+    }
+    
+    func createPostController(_ controller: CreatePostViewController, didCreatePost post: Post) {
+        
+    }
+    
+    func createPostController(_ controller: CreatePostViewController, didUploadImageData: Data, forPost post: Post) {
+        
+    }
+    
+    func createPostController(_ controller: CreatePostViewController, didBeginUploadForData: Data, forPost post: Post, job: NetworkServiceJob?) {
+        
     }
 }
 
@@ -743,6 +739,4 @@ extension PostDetailViewController: GalleryListDelegate {
         }
         return nil
     }
-    
-    
 }

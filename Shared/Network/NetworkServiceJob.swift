@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Combine
 
 public enum NetworkServiceJobPriority {
     case primary // requested by user - complete as soon as possible
@@ -21,7 +22,7 @@ public class NetworkServiceJob {
     weak var sessionDataDelegate: URLSessionDataDelegate?
     var priority: NetworkServiceJobPriority
     var taskStartedAt: Date?
-    
+
     public func startTask() {
         self.taskStartedAt = Date()
         self.task.resume()

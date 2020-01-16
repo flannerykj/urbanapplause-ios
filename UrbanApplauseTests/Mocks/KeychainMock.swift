@@ -14,7 +14,6 @@ class KeychainServiceMock: KeychainService {
     
     init() {
         super.init(service: UUID().uuidString)
-        print("init mock storage: \(mockStorage)")
     }
     
     override func load<T>(itemAt userAccount: String,

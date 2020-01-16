@@ -35,6 +35,7 @@ class StaticPostListViewModel: PostListViewModel {
         }
     }
     func getPosts(forceReload: Bool) {
+        self.isLoading = false
         self.didUpdateData?([], [], true)
     }
 }
