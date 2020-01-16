@@ -20,6 +20,9 @@
 		3A11152E236F75CB00341B89 /* AuthRequestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A11152D236F75CB00341B89 /* AuthRequestTests.swift */; };
 		3A111532236F761800341B89 /* FileManager+Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A111531236F761800341B89 /* FileManager+Tests.swift */; };
 		3A111534236F762400341B89 /* Data.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A111533236F762400341B89 /* Data.swift */; };
+		3A12794D23D089610086AB6C /* SearchArtistGroupsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A12794C23D089610086AB6C /* SearchArtistGroupsViewController.swift */; };
+		3A12794F23D089990086AB6C /* ArtistGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A12794E23D089990086AB6C /* ArtistGroup.swift */; };
+		3A12795323D089F30086AB6C /* CreateArtistGroupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A12795223D089F30086AB6C /* CreateArtistGroupViewController.swift */; };
 		3A179A702360F10200E0C3FF /* ActivityIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A179A6F2360F10200E0C3FF /* ActivityIndicator.swift */; };
 		3A179A722360F56900E0C3FF /* CreateArtistViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A179A712360F56900E0C3FF /* CreateArtistViewController.swift */; };
 		3A1B030D23CA5E1D00CFE9D6 /* Notifcations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A1B030C23CA5E1D00CFE9D6 /* Notifcations.swift */; };
@@ -260,6 +263,9 @@
 		3A11152D236F75CB00341B89 /* AuthRequestTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthRequestTests.swift; sourceTree = "<group>"; };
 		3A111531236F761800341B89 /* FileManager+Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FileManager+Tests.swift"; sourceTree = "<group>"; };
 		3A111533236F762400341B89 /* Data.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Data.swift; sourceTree = "<group>"; };
+		3A12794C23D089610086AB6C /* SearchArtistGroupsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchArtistGroupsViewController.swift; sourceTree = "<group>"; };
+		3A12794E23D089990086AB6C /* ArtistGroup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtistGroup.swift; sourceTree = "<group>"; };
+		3A12795223D089F30086AB6C /* CreateArtistGroupViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateArtistGroupViewController.swift; sourceTree = "<group>"; };
 		3A179A6F2360F10200E0C3FF /* ActivityIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityIndicator.swift; sourceTree = "<group>"; };
 		3A179A712360F56900E0C3FF /* CreateArtistViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateArtistViewController.swift; sourceTree = "<group>"; };
 		3A1B030C23CA5E1D00CFE9D6 /* Notifcations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notifcations.swift; sourceTree = "<group>"; };
@@ -600,6 +606,7 @@
 			children = (
 				3AF4850021E2785100FBC33E /* CreatePostViewController.swift */,
 				3A3BF9E9235635A4005F8354 /* SearchArtistsViewController.swift */,
+				3A12794C23D089610086AB6C /* SearchArtistGroupsViewController.swift */,
 				3A755E2F2355AD6900276555 /* CustomCells.swift */,
 				3AED042E235614C200383982 /* MapViewController.swift */,
 				3A1DCE162385947F0028D117 /* NewPostState.swift */,
@@ -650,6 +657,7 @@
 		3A72A57F23C7774900B64A06 /* APIModels */ = {
 			isa = PBXGroup;
 			children = (
+				3A12794E23D089990086AB6C /* ArtistGroup.swift */,
 				3A72A58023C7775F00B64A06 /* AuthResponse.swift */,
 				3A72A58223C7778900B64A06 /* Artist.swift */,
 				3A72A58423C7779900B64A06 /* BlockedUser.swift */,
@@ -784,6 +792,7 @@
 				3AF4850621E298EE00FBC33E /* LoadingViewController.swift */,
 				3A31872D2353251A00D59F79 /* TabBarController.swift */,
 				3A179A712360F56900E0C3FF /* CreateArtistViewController.swift */,
+				3A12795223D089F30086AB6C /* CreateArtistGroupViewController.swift */,
 				3A9467F923631F8200C446F7 /* SearchPostsViewController.swift */,
 				3AE86AEA23BE42B50097DB1A /* Toolbar */,
 				3AE86AE323BE41740097DB1A /* UserProfile */,
@@ -1365,6 +1374,7 @@
 				3A72A57B23C776ED00B64A06 /* Strings.swift in Sources */,
 				3A72A5DC23C7906500B64A06 /* UIImage.swift in Sources */,
 				3A72A5A523C7788A00B64A06 /* Visit.swift in Sources */,
+				3A12794F23D089990086AB6C /* ArtistGroup.swift in Sources */,
 				3A72A57323C7761C00B64A06 /* StyleConstants.swift in Sources */,
 				3A72A57523C7762E00B64A06 /* ButtonStylePreset.swift in Sources */,
 				3A72A5BF23C78A2000B64A06 /* NetworkServiceProtocol.swift in Sources */,
@@ -1488,7 +1498,9 @@
 				3ACB5B31236C64850004FA31 /* ForgotPasswordViewController.swift in Sources */,
 				3A22219823B0AF4300FE9262 /* GalleryCell.swift in Sources */,
 				3A56B42323635C82000F2A42 /* GalleryDetailViewController.swift in Sources */,
+				3A12794D23D089610086AB6C /* SearchArtistGroupsViewController.swift in Sources */,
 				3AE86AEC23BE42C00097DB1A /* TabbedToolbar.swift in Sources */,
+				3A12795323D089F30086AB6C /* CreateArtistGroupViewController.swift in Sources */,
 				3AB575AF2274A28400C8F597 /* GalleryListViewController.swift in Sources */,
 				3A7553AC2365D98A00634C32 /* CommentListViewController.swift in Sources */,
 				3A72A5EC23C7954100B64A06 /* UIViewControllerExtensions.swift in Sources */,

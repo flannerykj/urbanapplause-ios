@@ -32,6 +32,7 @@ private struct FormFieldKeys {
     static let photos = "photos"
     static let location = "location"
     static let addArtistButton = "add_artist_button"
+    static let addArtistGroupButton = "add_artistGroup_button"
     static let toggleFieldsButton = "toggle_fields_button"
     static let active = "active"
     static let locationFixed = "is_location_fixed"
@@ -39,17 +40,22 @@ private struct FormFieldKeys {
     static func artistAtIndex(_ index: Int) -> String {
         return "artist_\(index)"
     }
+    static func artistGroupAtIndex(_ index: Int) -> String {
+        return "artistGroup_\(index)"
+    }
     static let recordedAt = "recordedAt"
     static let description = "description"
 }
 
 private struct FormSectionKeys {
     static let artists = "artists"
+    static let artistGroups = "artist_groups"
     static let toggleableFields = "toggleable_fields"
 }
 
 class CreatePostViewController: FormViewController, UINavigationControllerDelegate,
 UIImagePickerControllerDelegate, UnsavedChangesController {
+    private var hideNavbarOnDisappear: Bool // Set true if previous vc (i.e. UIImagePicker) requires navigationController's navbar to be hidden.
     private var imageService: ImageEXIFService
     private let spacesFileRepository = SpacesFileRepository()
     var post: Post?
@@ -79,6 +85,7 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
         }
     }
     var selectingArtistForIndex: Int = 0
+    var selectingArtistGroupForIndex: Int = 0
     var editingPost: Post?
     var savedImages: [Int: UIImage] = [:]
     
@@ -108,8 +115,9 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
         return view
     }()
     
-    init(imageData: Data, placemark: CLPlacemark? = nil, appContext: AppContext) {
+    init(imageData: Data, placemark: CLPlacemark? = nil, hideNavbarOnDisappear: Bool, appContext: AppContext) {
         self.appContext = appContext
+        self.hideNavbarOnDisappear = hideNavbarOnDisappear
         self.initialPlacemark = placemark
         self.selectedImageData = imageData
         self.imageService = ImageEXIFService(data: imageData)
@@ -258,6 +266,41 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
                                         }
                                     }
             }
+            +++ MultivaluedSection(multivaluedOptions: [.Insert, .Reorder, .Delete],
+                                   header: Strings.ArtistGroupsFieldLabel,
+                                   footer: "") {
+                                    $0.tag = FormSectionKeys.artistGroups
+                                    
+                                    $0.addButtonProvider = { section in
+                                        return ButtonRow {
+                                            $0.tag = FormFieldKeys.addArtistGroupButton
+                                            $0.title = Strings.AddAnArtistGroupButtonTitle
+                                            
+                                        }.cellUpdate { cell, _ in
+                                            cell.textLabel?.textAlignment = .left
+                                        }
+                                    }
+                                    $0.multivaluedRowToInsertAt = { index in
+                                        // this gets called IMMEDIATELY after the add button is pressed.
+                                        // Doesn't actually wait for artist to be selected from following controller.
+                                        let controller = ArtistGroupSelectionViewController(appContext: self.appContext)
+                                        controller.delegate = self
+                                        self.selectingArtistGroupForIndex = index
+                                        if let nav = self.navigationController {
+                                            nav.pushViewController(controller, animated: true)
+                                        } else {
+                                            self.present(UINavigationController(rootViewController: controller),
+                                                         animated: true,
+                                                         completion: nil)
+                                        }
+                                        return UAPushRow<ArtistGroup> {
+                                            $0.tag = FormFieldKeys.artistGroupAtIndex(index)
+                                            $0.displayValueFor = {
+                                                $0?.name
+                                            }
+                                        }
+                                    }
+            }
             +++ Section()
             <<< ButtonRow {
                 $0.tag = FormFieldKeys.toggleFieldsButton
@@ -319,7 +362,9 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        navigationController?.setNavigationBarHidden(true, animated: true)
+        if hideNavbarOnDisappear {
+            navigationController?.setNavigationBarHidden(true, animated: true)
+        }
     }
     
     func makeNewLocationBody(from placemark: CLPlacemark) -> [String: Any]? {
@@ -362,6 +407,7 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
             payload["surface_type"] = surfaceType
         }
         
+        // Artists
         let artistKeys: [String] = formValues.keys.filter { $0.contains("artist") && !$0.contains("button") }
         var artists: [Artist] = []
         for artistKey in artistKeys {
@@ -370,6 +416,17 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
             }
         }
         payload["artists"] = artists.map { String($0.id) }.joined(separator: ",")
+        
+        // ArtistGroups
+        let artistGroupKeys: [String] = formValues.keys.filter { $0.contains("artist_group") && !$0.contains("button") }
+        var artistGroups: [ArtistGroup] = []
+        for groupKey in artistGroupKeys {
+            if let group = formValues[groupKey] as? ArtistGroup {
+                artistGroups.append(group)
+            }
+        }
+        payload["artist_groups"] = artistGroups.map { String($0.id) }.joined(separator: ",")
+        
         let geocoder = CLGeocoder()
         // Look up the location to get user-friendly location info from coords
         self.isLoading = true
@@ -470,4 +527,29 @@ extension CreatePostViewController: ArtistSelectionDelegate {
             artistRow.value = selectedArtist
         }
     }
+}
+extension CreatePostViewController: ArtistGroupSelectionDelegate {
+    func artistGroupSelectionController(_ controller: ArtistGroupSelectionViewController, didSelectArtistGroup artistGroup: ArtistGroup?) {
+        
+        if let nav = controller.navigationController {
+            nav.popViewController(animated: true)
+        } else {
+            controller.dismiss(animated: true, completion: nil)
+        }
+        guard let artistGroupsSection = self.form.sectionBy(tag: FormSectionKeys.artistGroups) as? MultivaluedSection else {
+            return
+        }
+        guard let selectedGroup = artistGroup else {
+            // remove the empty row that is automatically added as soon as user hits add button
+            artistGroupsSection.remove(at: self.selectingArtistGroupForIndex)
+            return
+        }
+        
+        if let artistRow: UAPushRow<ArtistGroup> = artistGroupsSection.rowBy(tag: FormFieldKeys.artistAtIndex(selectingArtistForIndex)) {
+            self.hasUnsavedChanges = true
+            artistRow.value = selectedGroup
+        }
+    }
+    
+    
 }

@@ -1,22 +1,22 @@
 //
-//  SearchArtistsViewController.swift
+//  SearchArtistGroupsViewController.swift
 //  UrbanApplause
 //
-//  Created by Flannery Jefferson on 2019-10-15.
-//  Copyright © 2019 Flannery Jefferson. All rights reserved.
+//  Created by Flannery Jefferson on 2020-01-16.
+//  Copyright © 2020 Flannery Jefferson. All rights reserved.
 //
 
 import Foundation
 import UIKit
 import Shared
 
-protocol ArtistSelectionDelegate: class {
-    func artistSelectionController(_ controller: ArtistSelectionViewController,
-                                   didSelectArtist artist: Artist?)
+protocol ArtistGroupSelectionDelegate: class {
+    func artistGroupSelectionController(_ controller: ArtistGroupSelectionViewController,
+                                   didSelectArtistGroup artistGroup: ArtistGroup?)
 }
-class ArtistSelectionViewController: UITableViewController {
+class ArtistGroupSelectionViewController: UITableViewController {
     var appContext: AppContext
-    var selectedArtist: Artist?
+    var selectedArtistGroup: ArtistGroup?
     
     var isLoading = false {
         didSet {
@@ -27,7 +27,7 @@ class ArtistSelectionViewController: UITableViewController {
             }
         }
     }
-    var artists = [Artist]() {
+    var artistGroups = [ArtistGroup]() {
         didSet {
             self.tableView.reloadData()
         }
@@ -38,7 +38,7 @@ class ArtistSelectionViewController: UITableViewController {
         }
     }
     
-    weak var delegate: ArtistSelectionDelegate?
+    weak var delegate: ArtistGroupSelectionDelegate?
     var multiSelectionEnabled: Bool = false
     
     lazy var searchBar = UISearchBar(frame: CGRect(x: 0, y: 0, width: 100, height: 60))
@@ -62,46 +62,46 @@ class ArtistSelectionViewController: UITableViewController {
     }
     override func viewDidLoad() {
         super.viewDidLoad()
-        searchBar.placeholder = Strings.ArtistSearchPlaceholder
+        searchBar.placeholder = Strings.ArtistGroupSearchPlaceholder
         activityIndicator.hidesWhenStopped = true
         let addButton = UIBarButtonItem(title: Strings.CreateNewButtonTitle,
                                         style: .plain,
                                         target: self,
-                                        action: #selector(createArtist(_:)))
+                                        action: #selector(createArtistGroup(_:)))
         navigationItem.rightBarButtonItem = addButton
     }
     
-    @objc func createArtist(_: Any) {
-        let vc = CreateArtistViewController(appContext: self.appContext)
+    @objc func createArtistGroup(_: Any) {
+        let vc = CreateArtistGroupViewController(appContext: self.appContext)
         vc.delegate = self
         navigationController?.pushViewController(vc, animated: true)
     }
     
-    func getArtists(query: String) {
-        let endpoint = PrivateRouter.getArtists(query: ["search": query])
-        _ = appContext.networkService.request(endpoint) { [weak self] (result: UAResult<ArtistsContainer>) in
+    func getArtistGroups(query: String) {
+        let endpoint = PrivateRouter.getArtistGroups(query: ["search": query])
+        _ = appContext.networkService.request(endpoint) { [weak self] (result: UAResult<ArtistGroupsContainer>) in
             DispatchQueue.main.async {
                 switch result {
                 case .failure(let error):
                     log.error(error)
                     self?.isLoading = false
                     self?.errorMessage = error.userMessage
-                case .success(let artistsContainer):
+                case .success(let artistGroupsContainer):
                     self?.isLoading = false
-                    self?.artists = artistsContainer.artists
+                    self?.artistGroups = artistGroupsContainer.artist_groups
                 }
             }
         }
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return artists.count
+        return artistGroups.count
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "UITableViewCell", for: indexPath)
-        let selectedItem = artists[indexPath.row]
-        cell.textLabel?.text = "\(selectedItem.signing_name ?? "")"
+        let selectedItem = artistGroups[indexPath.row]
+        cell.textLabel?.text = "\(selectedItem.name ?? "")"
         cell.detailTextLabel?.text = ""
         return cell
     }
@@ -124,20 +124,20 @@ class ArtistSelectionViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        self.selectedArtist = artists[indexPath.row]
-        delegate?.artistSelectionController(self, didSelectArtist: self.selectedArtist)
+        self.selectedArtistGroup = artistGroups[indexPath.row]
+        delegate?.artistGroupSelectionController(self, didSelectArtistGroup: self.selectedArtistGroup)
     }
 }
 
-extension ArtistSelectionViewController: UISearchBarDelegate {
+extension ArtistGroupSelectionViewController: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        self.getArtists(query: searchText)
+        self.getArtistGroups(query: searchText)
     }
 }
-extension ArtistSelectionViewController: CreateArtistDelegate {
-    func createArtistController(_ controller: CreateArtistViewController, didCreateArtist artist: Artist) {
-        self.selectedArtist = artist
-        delegate?.artistSelectionController(self, didSelectArtist: artist)
+extension ArtistGroupSelectionViewController: CreateArtistGroupDelegate {
+    func createArtistGroupController(_ controller: CreateArtistGroupViewController, didCreateArtistGroup artistGroup: ArtistGroup) {
+        self.selectedArtistGroup = artistGroup
+        delegate?.artistGroupSelectionController(self, didSelectArtistGroup: artistGroup)
         if navigationController?.viewControllers.first == controller {
             navigationController?.popViewController(animated: true)
         }

@@ -39,8 +39,13 @@ public enum PrivateRouter: EndpointConfiguration {
     // artists
     case getArtists(query: Parameters?)
     case getArtist(artistId: Int)
-
     case createArtist(values: Parameters)
+
+    // artist groups
+    
+    case getArtistGroups(query: Parameters?)
+    case getArtistGroup(groupId: Int)
+    case createArtistGroup(values: Parameters)
     
     // applause
     case addOrRemoveClap(postId: Int, userId: Int)
@@ -80,7 +85,7 @@ public enum PrivateRouter: EndpointConfiguration {
         case .editPost, .updateUser, .updateCollection, .updateCollectionPost:
             return .put
         case .authenticate, .createPost, .createUser, .addOrRemoveClap, .addOrRemoveVisit, .createCollection,
-             .addToCollection, .uploadImages, .createArtist, .createComment, .createPostFlag, .blockUser:
+             .addToCollection, .uploadImages, .createArtist, .createArtistGroup, .createComment, .createPostFlag, .blockUser:
             return .post
         default:
             return .get
@@ -112,6 +117,10 @@ public enum PrivateRouter: EndpointConfiguration {
             return "artists"
         case .getArtist(let artistId):
             return "artists/\(artistId)"
+        case .getArtistGroups, .createArtistGroup:
+            return "artist_groups"
+        case .getArtistGroup(let groupId):
+            return "artist_groups/\(groupId)"
         case .deletePostImage(let postId, let imageId):
             return "posts/\(postId)/images/\(imageId)"
         case .getLocationPosts(let locationId):
@@ -169,6 +178,12 @@ public enum PrivateRouter: EndpointConfiguration {
             return .requestParameters(bodyParameters: nil, urlParameters: ["include": "posts"])
         case .createArtist(let values):
             return .requestParameters(bodyParameters: ["artist": values], urlParameters: nil)
+        case .getArtistGroups(let queryParams):
+           return .requestParameters(bodyParameters: nil, urlParameters: queryParams)
+       case .getArtistGroup:
+           return .requestParameters(bodyParameters: nil, urlParameters: ["include": "posts"])
+       case .createArtistGroup(let values):
+           return .requestParameters(bodyParameters: ["artist_group": values], urlParameters: nil)
         case .createPost(let values), .editPost(_, let values):
             return .requestParameters(bodyParameters: ["post": values], urlParameters: nil)
         case .createUser(let values), .updateUser(_, let values):

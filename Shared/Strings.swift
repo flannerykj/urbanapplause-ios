@@ -21,7 +21,8 @@ public extension Strings {
         let format = NSLocalizedString("Photo %d of %d", comment: "")
         return String(format: format, current, total)
     }
-    static let ArtistSearchPlaceholder = NSLocalizedString("Search for an artist", comment: "")
+    static let ArtistSearchPlaceholder = NSLocalizedString("Search for a artist", comment: "")
+    static let ArtistGroupSearchPlaceholder = NSLocalizedString("Search for a gallery or crew", comment: "")
     static let NewPostScreenTitle = NSLocalizedString("New post", comment: "")
     static let AccountScreenTitle = NSLocalizedString("Account", comment: "")
     static let ReportIssueScreenTitle = NSLocalizedString("Report an issue", comment: "")
@@ -105,6 +106,7 @@ public extension Strings {
     static let MissingUsernameError = NSLocalizedString("Please enter your username.", comment: "")
     static let MissingPasswordError = NSLocalizedString("Please enter your password.", comment: "")
     static let EmptyCommentError = NSLocalizedString("Comment cannot be empty", comment: "")
+    static let MissingArtistGroupNameError = NSLocalizedString("Please provide a name for the group", comment: "")
 
     static let MissingArtistNameError = NSLocalizedString("Please provide a name for the artist", comment: "")
     static func MaxCharacterCountError(_ characterCount: Int) -> String {
@@ -135,6 +137,8 @@ public extension Strings {
     static let SocialFormSectionTitle = NSLocalizedString("Social", comment: "")
     static let LocationFieldLabel = NSLocalizedString("Location", comment: "")
     static let ArtistsFieldLabel = NSLocalizedString("Artists", comment: "")
+    static let ArtistGroupTypeFieldLabel = NSLocalizedString("Group type", comment: "Crew or gallery")
+    static let ArtistGroupsFieldLabel = NSLocalizedString("Crews & Galleries", comment: "")
     static let LocationIsFixedFieldLabel = NSLocalizedString("Location is fixed", comment: "")
     static let SurfaceTypeFieldLabel = NSLocalizedString("Surface type", comment: "")
     static let PhotographedOnFieldLabel = NSLocalizedString("Photographed on", comment: "")
@@ -150,6 +154,9 @@ public extension Strings {
     static let ShowFewerFieldsButtonTitle = NSLocalizedString("Show fewer fields", comment: "")
     static let AddAnArtistButtonTitle = NSLocalizedString("Add an artist",
                                                           comment: "Button title for adding an artist to a post")
+    static let AddAnArtistGroupButtonTitle = NSLocalizedString("Add a crew or gallery",
+                                                          comment: "Button title for adding an artist group to a post")
+    
     static let EditProfileButtonTitle = NSLocalizedString("Edit profile", comment: "")
     static let LogInButtonTitle = NSLocalizedString("Log in", comment: "")
     static let SignUpButtonTitle = NSLocalizedString("Sign up", comment: "")

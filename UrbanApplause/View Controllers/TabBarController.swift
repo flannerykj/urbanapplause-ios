@@ -217,7 +217,10 @@ extension TabBarController: ImagePickerDelegate {
         createNewPost(pickerController: picker, withImageData: data)
     }
     private func createNewPost(pickerController: UIImagePickerController, withImageData imageData: Data) {
-        let controller = CreatePostViewController(imageData: imageData, placemark: self.selectedPlacemark, appContext: self.appContext)
+        let controller = CreatePostViewController(imageData: imageData,
+                                                  placemark: self.selectedPlacemark,
+                                                  hideNavbarOnDisappear: true,
+                                                  appContext: self.appContext)
         controller.delegate = self
 //        let nav = UINavigationController(rootViewController: controller)
 //        // prevent swipe to dismiss so we can check for unsaved changes in didAttemptToDismiss.
