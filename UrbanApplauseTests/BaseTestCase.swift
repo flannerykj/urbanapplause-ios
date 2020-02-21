@@ -13,7 +13,7 @@ class BaseTestCase: XCTestCase {
     let timeout: TimeInterval = 5
     
     static var testDirectoryURL: URL {
-        return FileManager.temporaryDirectoryURL.appendingPathComponent("ca.urbanapplause.tests")
+        return FileManager.temporaryDirectoryURL.appendingPathComponent("com.flannerykj.KijijiTakeHomeTests")
     }
     var testDirectoryURL: URL { return BaseTestCase.testDirectoryURL }
     

@@ -1,5 +1,5 @@
 //
-//  PostListViewModel.swift
+//  ArtistListViewModel.swift
 //  UrbanApplause
 //
 //  Created by Flannery Jefferson on 2020-01-16.
@@ -9,11 +9,11 @@
 import Foundation
 import Shared
 
-public class PostListViewModel: ListViewModel {
-    public typealias T = Post
+public class ArtistListViewModel: ListViewModel {
+    public typealias T = Artist
     var appContext: AppContext
 
-    public var _listItems: [Post] = []
+    public var _listItems: [Artist] = []
     
     public var didUpdateListItems: (([IndexPath], [IndexPath], Bool) -> Void)?
     public var didSetLoading: ((Bool) -> Void)?
@@ -21,14 +21,7 @@ public class PostListViewModel: ListViewModel {
     public var showOptionToLoadMore: Bool {
         return false
     }
-    public var currentPage: Int = 0
-
     
-    init(posts: [Post], appContext: AppContext) {
-        self.appContext = appContext
-        self._listItems = posts
-    }
-
     public func fetchListItems(forceReload: Bool) {
         self.isLoading = false
         self.didUpdateListItems?([], [], true)
@@ -43,5 +36,11 @@ public class PostListViewModel: ListViewModel {
         didSet {
             self.didSetLoading?(isLoading)
         }
+    }
+    
+    public var currentPage: Int = 0
+    
+    init(appContext: AppContext) {
+        self.appContext = appContext
     }
 }

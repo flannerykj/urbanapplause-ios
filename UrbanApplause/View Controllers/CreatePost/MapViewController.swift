@@ -38,6 +38,10 @@ public class MapViewController: UIViewController, TypedRowControllerType {
                                                         target: self,
                                                         action: #selector(useCurrentLocation(_:)))
     
+    public override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.setNavigationBarHidden(false, animated: true)
+    }
     public override func viewDidLoad() {
         super.viewDidLoad()
         

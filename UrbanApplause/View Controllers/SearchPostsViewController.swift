@@ -17,11 +17,11 @@ class SearchPostsViewController: UIViewController {
     var postMapViewModel: PostMapViewModel2
     var needsUpdate: Bool = false {
         didSet {
-            self.postListViewModel.getPosts(forceReload: true)
+            self.postListViewModel.fetchListItems(forceReload: true)
         }
     }
     
-    lazy var postListVC: PostListViewController = PostListViewController(listTitle: Strings.RecentlyAddedPostListTitle,
+    lazy var postListVC: PostListViewController = PostListViewController(listTitle: Strings.RecentlyAdded_PostListTitle,
                                                                          viewModel: postListViewModel,
                                                                          appContext: appContext)
     
@@ -95,18 +95,18 @@ extension SearchPostsViewController: UISearchControllerDelegate {
 extension SearchPostsViewController: UISearchBarDelegate {
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         let query = searchBar.text
-        searchResultsViewModel.filterForQuery = query
-        searchResultsViewModel.getPosts(forceReload: true)
+        searchResultsViewModel.setSearchQuery(query)
+        searchResultsViewModel.fetchListItems(forceReload: true)
     }
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-        searchResultsViewModel.filterForQuery = nil
-        searchResultsViewModel.getPosts(forceReload: true)
+        searchResultsViewModel.setSearchQuery(nil)
+        searchResultsViewModel.fetchListItems(forceReload: true)
     }
 }
 
 extension SearchPostsViewController: CreatePostControllerDelegate {
     func createPostController(_ controller: CreatePostViewController, didDeletePost post: Post) {
-        postListViewModel.getPosts(forceReload: true)
+        postListViewModel.fetchListItems(forceReload: true)
     }
     
     func createPostController(_ controller: CreatePostViewController, didCreatePost post: Post) {

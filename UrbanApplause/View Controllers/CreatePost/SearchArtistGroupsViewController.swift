@@ -12,7 +12,7 @@ import Shared
 
 protocol ArtistGroupSelectionDelegate: class {
     func artistGroupSelectionController(_ controller: ArtistGroupSelectionViewController,
-                                   didSelectArtistGroup artistGroup: ArtistGroup?)
+                                        didSelectArtistGroup artistGroup: ArtistGroup?)
 }
 class ArtistGroupSelectionViewController: UITableViewController {
     var appContext: AppContext
@@ -49,7 +49,7 @@ class ArtistGroupSelectionViewController: UITableViewController {
         super.init(nibName: nil, bundle: nil)
         tableView.tableHeaderView = searchBar
         searchBar.delegate = self
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "UITableViewCell")
+        tableView.register(SearchResultCell.self, forCellReuseIdentifier: SearchResultCell.reuseID)
         tableView.tableFooterView = UIView()
     }
     
@@ -99,10 +99,10 @@ class ArtistGroupSelectionViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "UITableViewCell", for: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: SearchResultCell.reuseID, for: indexPath)
         let selectedItem = artistGroups[indexPath.row]
-        cell.textLabel?.text = "\(selectedItem.name ?? "")"
-        cell.detailTextLabel?.text = ""
+        cell.textLabel?.text = selectedItem.name
+        cell.detailTextLabel?.text = selectedItem.group_type.rawValue
         return cell
     }
     
@@ -141,5 +141,17 @@ extension ArtistGroupSelectionViewController: CreateArtistGroupDelegate {
         if navigationController?.viewControllers.first == controller {
             navigationController?.popViewController(animated: true)
         }
+    }
+}
+
+
+class SearchResultCell: UITableViewCell {
+    static let reuseID = "SearchResultCell"
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: .value1, reuseIdentifier: reuseIdentifier)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 }

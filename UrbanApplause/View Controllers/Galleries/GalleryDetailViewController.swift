@@ -135,7 +135,7 @@ extension GalleryDetailViewController: PostListControllerDelegate {
     func didDeletePost(_ post: Post, atIndexPath indexPath: IndexPath) {
         guard case let Gallery.custom(collection) = gallery else { return }
         self.postListVC.tableView.beginUpdates()
-        self.postListVC.viewModel.removePost(atIndex: indexPath.row)
+        self.postListVC.viewModel.removeListItem(atIndex: indexPath.row)
         self.postListVC.tableView.deleteRows(at: [indexPath], with: .automatic)
         self.postListVC.tableView.endUpdates()
         

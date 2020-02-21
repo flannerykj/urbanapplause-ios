@@ -18,6 +18,7 @@ protocol PostDetailDelegate: class {
 }
 
 class PostDetailViewController: UIViewController {
+    private var postId: Int
     weak var delegate: PostDetailDelegate?
     var appContext: AppContext
     var updatingCollections: [Collection] = []
@@ -33,7 +34,7 @@ class PostDetailViewController: UIViewController {
             artistLabel.text = post.title
             setLocation(post.Location)
             setUser(post.User)
-            setArtists(post.Artists ?? [])
+            setArtists(post.Artists ?? [], groups: post.ArtistGroups ?? [])
             dateLabel.text = post.createdAt?.timeSince()
             
             mapView.addAnnotation(post)
@@ -47,9 +48,9 @@ class PostDetailViewController: UIViewController {
     var isLoading: Bool = false {
         didSet {
             if isLoading {
-                self.activityIndicator.startAnimating()
+                self.refreshControl.beginRefreshing()
             } else {
-                self.activityIndicator.stopAnimating()
+                self.refreshControl.endRefreshing()
             }
         }
     }
@@ -62,20 +63,18 @@ class PostDetailViewController: UIViewController {
         }
     }
     init(postId: Int, post: Post?, thumbImage: UIImage? = nil, appContext: AppContext) {
+        self.postId = postId
         self.appContext = appContext
         
         super.init(nibName: nil, bundle: nil)
         
         self.post = post
         photoView.state = .complete(thumbImage)
-        self.fetchPost(postID: postId)
     }
-    
-    let activityIndicator = ActivityIndicator()
-    
-    func fetchPost(postID: Int) {
+        
+    func fetchPost() {
         self.isLoading = true
-        _ = appContext.networkService.request(PrivateRouter.getPost(id: postID),
+        _ = appContext.networkService.request(PrivateRouter.getPost(id: self.postId),
                                               completion: { (result: UAResult<PostContainer>) in
                                                 DispatchQueue.main.async {
                                                     self.isLoading = false
@@ -112,6 +111,7 @@ class PostDetailViewController: UIViewController {
     }
     
     var downloadedImages: [Int: UIImage] = [:]
+    lazy var refreshControl = UIRefreshControl()
     
     lazy var photoView = LoadableImageView(initialState: .empty)
     
@@ -156,18 +156,17 @@ class PostDetailViewController: UIViewController {
         return textView
     }()
     
-    func setArtists(_ artists: [Artist]) {
+    func setArtists(_ artists: [Artist], groups: [ArtistGroup]) {
         let prependText = "\(Strings.ArtistsFieldLabel): "
         
-        let artistNames = artists.filter {
-            $0.signing_name != nil
-        }.map { $0.signing_name ?? "" }
-        let artistNameSeperator = ", "
+        let linkables: [LinkConvertible] = artists + groups
+
+        let linkSeparator = ", "
         
         var allText = prependText
         let noneAddedText = Strings.NoneAddedMessage
-        if artistNames.count > 0 {
-            allText += artistNames.joined(separator: artistNameSeperator)
+        if linkables.count > 0 {
+            allText += linkables.map { $0.linkText }.joined(separator: linkSeparator)
         } else {
             allText += noneAddedText
         }
@@ -177,15 +176,14 @@ class PostDetailViewController: UIViewController {
         attributedText.style(as: .body)
         
         var charIndex: Int = prependText.count
-        for artist in artists {
-            guard let name = artist.signing_name else { continue }
+        for link in linkables {
             attributedText.style(as: .link,
-                                 withLink: "www.urbanapplause.com/app/artists/\(artist.id)",
-                for: NSRange(location: charIndex, length: name.count))
-            charIndex += name.count + artistNameSeperator.count
+                                 withLink: "www.urbanapplause.com/app/\(link.internalPath)",
+                for: NSRange(location: charIndex, length: link.linkText.count))
+            charIndex += link.linkText.count + linkSeparator.count
         }
         
-        if artistNames.count == 0 {
+        if linkables.count == 0 {
             attributedText.style(as: .placeholder,
                                  for: NSRange(location: prependText.count, length: noneAddedText.count))
         }
@@ -265,6 +263,8 @@ class PostDetailViewController: UIViewController {
         let scrollView = UIScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.addSubview(contentStackView)
+        scrollView.refreshControl = refreshControl
+        
         contentStackView.snp.makeConstraints {
             $0.edges.equalTo(scrollView)
         }
@@ -276,7 +276,8 @@ class PostDetailViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        self.fetchPost()
+        refreshControl.addTarget(self, action: #selector(refreshPostInfo(_:)), for: .valueChanged)
         let gr = UITapGestureRecognizer(target: self, action: #selector(showImageDetail(_:)))
         photoView.isUserInteractionEnabled = true
         photoView.addGestureRecognizer(gr)
@@ -294,9 +295,6 @@ class PostDetailViewController: UIViewController {
             photoView.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.height * 0.4),
             mapView.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.height * 0.5)
         ])
-        view.addSubview(activityIndicator)
-        activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
         visitsButton.setLeftImage(UIImage(systemName: "checkmark")?.withRenderingMode(.alwaysTemplate))
         applaudedButton.setLeftImage(UIImage(named: "applause")?.withRenderingMode(.alwaysTemplate))
         
@@ -350,7 +348,9 @@ class PostDetailViewController: UIViewController {
         navigationController?.pushViewController(vc, animated: true)
     }
     
-    
+    @objc func refreshPostInfo(_: Any) {
+        fetchPost()
+    }
     @objc func toggleVisited(_ sender: UIButton) {
         guard self.appContext.authService.isAuthenticated else {
             self.showAlertForLoginRequired(desiredAction: Strings.SaveAVisitAction,
@@ -641,6 +641,7 @@ extension PostDetailViewController: MKMapViewDelegate {
 
 extension PostDetailViewController: UITextViewDelegate {
     func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
+        log.debug("url: \(URL.absoluteString)")
         if URL.pathComponents.contains("artists") {
             guard let idString = URL.pathComponents.last else { return false }
             guard let artist = self.post?.Artists?.first(where: {
@@ -648,6 +649,14 @@ extension PostDetailViewController: UITextViewDelegate {
             }) else { return false }
             let vc = ArtistProfileViewController(artist: artist,
                                                  appContext: appContext)
+            navigationController?.pushViewController(vc, animated: true)
+        }
+        if URL.pathComponents.contains("artist_groups") {
+            guard let idString = URL.pathComponents.last else { return false }
+            guard let group = self.post?.ArtistGroups?.first(where: {
+                return $0.id == Int(idString)
+            }) else { return false }
+            let vc = ArtistGroupDetailViewController(groupID: group.id, group: group, appContext: appContext)
             navigationController?.pushViewController(vc, animated: true)
         }
         if URL.pathComponents.contains("users") {

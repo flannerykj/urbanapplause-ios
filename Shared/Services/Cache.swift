@@ -10,7 +10,7 @@ import Foundation
 
 // https://www.swiftbysundell.com/articles/caching-in-swift/
 
-public final class Cache<Key: Hashable, Value> {
+public class Cache<Key: Hashable, Value> {
     private let wrapped = NSCache<WrappedKey, Entry>()
 
     public func insert(_ value: Value, forKey key: Key) {

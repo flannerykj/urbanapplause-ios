@@ -41,7 +41,7 @@ private struct FormFieldKeys {
         return "artist_\(index)"
     }
     static func artistGroupAtIndex(_ index: Int) -> String {
-        return "artistGroup_\(index)"
+        return "artist_group_\(index)"
     }
     static let recordedAt = "recordedAt"
     static let description = "description"
@@ -84,8 +84,8 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
             }
         }
     }
-    var selectingArtistForIndex: Int = 0
-    var selectingArtistGroupForIndex: Int = 0
+    var selectingArtistForIndex: Int?
+    var selectingArtistGroupForIndex: Int?
     var editingPost: Post?
     var savedImages: [Int: UIImage] = [:]
     
@@ -415,10 +415,12 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
                 artists.append(artist)
             }
         }
+        log.debug("form values: \(formValues)")
         payload["artists"] = artists.map { String($0.id) }.joined(separator: ",")
         
         // ArtistGroups
         let artistGroupKeys: [String] = formValues.keys.filter { $0.contains("artist_group") && !$0.contains("button") }
+        log.debug("artist group keys: \(artistGroupKeys)")
         var artistGroups: [ArtistGroup] = []
         for groupKey in artistGroupKeys {
             if let group = formValues[groupKey] as? ArtistGroup {
@@ -426,7 +428,7 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
             }
         }
         payload["artist_groups"] = artistGroups.map { String($0.id) }.joined(separator: ",")
-        
+        log.debug("payload: \(payload)")
         let geocoder = CLGeocoder()
         // Look up the location to get user-friendly location info from coords
         self.isLoading = true
@@ -436,7 +438,6 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
                                             if error == nil {
                                                 guard let firstPlacemark = placemarks?[0],
                                                     let locationBody = self.makeNewLocationBody(from: firstPlacemark) else { return }
-                                                
                                                 payload["location"] = locationBody
                                                 self.savePost(body: payload)
                                             } else {
@@ -484,7 +485,6 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
                 switch result {
                 case .success(let container):
                     post.PostImages = container.images
-                    
                     // Backend won't have finished compressing images yet, so save on frontend to dispaly immediately
                     if let file = container.images.first {
                         self.appContext.fileCache.addLocalData(pngData, for: file)
@@ -513,18 +513,20 @@ extension CreatePostViewController: ArtistSelectionDelegate {
         } else {
             controller.dismiss(animated: true, completion: nil)
         }
-        guard let artistsSection = self.form.sectionBy(tag: FormSectionKeys.artists) as? MultivaluedSection else {
+        guard let artistsSection = self.form.sectionBy(tag: FormSectionKeys.artists) as? MultivaluedSection,
+        let selectingAtIndex = self.selectingArtistForIndex else {
             return
         }
         guard let selectedArtist = artist else {
             // remove the empty row that is automatically added as soon as user hits add button
-            artistsSection.remove(at: self.selectingArtistForIndex)
+            artistsSection.remove(at: selectingAtIndex)
             return
         }
         
-        if let artistRow: UAPushRow<Artist> = artistsSection.rowBy(tag: FormFieldKeys.artistAtIndex(selectingArtistForIndex)) {
+        if let artistRow: UAPushRow<Artist> = artistsSection.rowBy(tag: FormFieldKeys.artistAtIndex(selectingAtIndex)) {
             self.hasUnsavedChanges = true
             artistRow.value = selectedArtist
+            artistRow.updateCell()
         }
     }
 }
@@ -536,18 +538,19 @@ extension CreatePostViewController: ArtistGroupSelectionDelegate {
         } else {
             controller.dismiss(animated: true, completion: nil)
         }
-        guard let artistGroupsSection = self.form.sectionBy(tag: FormSectionKeys.artistGroups) as? MultivaluedSection else {
+        guard let artistGroupsSection = self.form.sectionBy(tag: FormSectionKeys.artistGroups) as? MultivaluedSection,
+        let selectingAtIndex = self.selectingArtistGroupForIndex else {
             return
         }
         guard let selectedGroup = artistGroup else {
             // remove the empty row that is automatically added as soon as user hits add button
-            artistGroupsSection.remove(at: self.selectingArtistGroupForIndex)
+            artistGroupsSection.remove(at: selectingAtIndex)
             return
         }
-        
-        if let artistRow: UAPushRow<ArtistGroup> = artistGroupsSection.rowBy(tag: FormFieldKeys.artistAtIndex(selectingArtistForIndex)) {
+        if let artistGroupRow: UAPushRow<ArtistGroup> = artistGroupsSection.rowBy(tag: FormFieldKeys.artistGroupAtIndex(selectingAtIndex)) {
             self.hasUnsavedChanges = true
-            artistRow.value = selectedGroup
+            artistGroupRow.value = selectedGroup
+            artistGroupRow.updateCell()
         }
     }
     

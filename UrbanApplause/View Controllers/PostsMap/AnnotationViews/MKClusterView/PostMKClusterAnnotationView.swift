@@ -17,7 +17,7 @@ class PostMKClusterAnnotationView: MKAnnotationView, PostAnnotationViewProtocol 
     
     override func prepareForDisplay() {
         super.prepareForDisplay()
-        displayPriority = .defaultHigh
+        // displayPriority = .defaultHigh
         contentView.setImage(nil)
         if let cluster = annotation as? MKClusterAnnotation {
             if let posts = cluster.memberAnnotations as? [Post] {
@@ -38,6 +38,7 @@ class PostMKClusterAnnotationView: MKAnnotationView, PostAnnotationViewProtocol 
                 if let coverPhotoThumb = sorted.first?.cover_image_thumb {
                     downloadJob = fileCache?.getJobForFile(coverPhotoThumb)
                 } else if let coverPhotoFull = sorted.first?.cover_image {
+                    log.debug("getting for cover photo full")
                     downloadJob = fileCache?.getJobForFile(coverPhotoFull)
                 }
             }

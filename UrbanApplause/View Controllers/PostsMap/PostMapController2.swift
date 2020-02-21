@@ -39,13 +39,9 @@ class PostMapViewController2: UIViewController {
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false
         activityIndicator.tintColor = UIColor.systemPink
         activityIndicator.animate()
-        // activityIndicator.color = UIColor.systemPink
-        // view.backgroundColor = .white
         view.translatesAutoresizingMaskIntoConstraints = false
         view.layoutMargins = StyleConstants.defaultPaddingInsets
         view.addSubview(activityIndicator)
-        view.layer.cornerRadius = 24
-        view.layer.masksToBounds = true
         activityIndicator.snp.makeConstraints {
             $0.edges.equalTo(view)
         }
@@ -93,14 +89,10 @@ class PostMapViewController2: UIViewController {
         viewModel.onUpdateMarkers = { clustersAdded, clearExistingClusters in
             DispatchQueue.main.async {
                 if clearExistingClusters {
-                    log.debug("clear existing")
                     self.mapView.removeAnnotations(self.mapView.annotations)
                 }
                 if let clusters = clustersAdded {
-                    log.debug("add clusters: \(clustersAdded)")
                     self.mapView.addAnnotations(clusters)
-                    // self.mapView.showAnnotations(clusters, animated: true)
-                    log.debug("map annotations: \(self.mapView.annotations)")
                 }
             }
         }
@@ -165,7 +157,7 @@ class PostMapViewController2: UIViewController {
                 if viewModel.isAtMaxZoom(visibleMapRect: mapView.visibleMapRect,
                                          mapPixelWidth: Double(mapView.bounds.width)) {
                     
-                    let wallViewModel = StaticPostListViewModel(posts: members, appContext: appContext)
+                    let wallViewModel = PostListViewModel(posts: members, appContext: appContext)
                     let wallController = PostListViewController(viewModel: wallViewModel,
                                                                 appContext: appContext)
                     wallController.postListDelegate = self
@@ -200,7 +192,7 @@ class PostMapViewController2: UIViewController {
     func handleError(_ error: Error) {
         log.error(error)
         let message = (error as? UAError)?.userMessage ?? error.localizedDescription
-        showAlert(message: message)
+        showAlert(title: Strings.ErrorAlertTitle, message: message)
     }
 
     override func viewDidLayoutSubviews() {
@@ -209,6 +201,7 @@ class PostMapViewController2: UIViewController {
     }
     
     func updateMap(refreshCache: Bool = false) {
+        log.debug("refreshCache: \(refreshCache)")
         if refreshCache {
             viewModel.resetCache()
         }

@@ -132,8 +132,6 @@
 		3A76EA7521DAD3C200FEDEC8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3A76EA7421DAD3C200FEDEC8 /* Assets.xcassets */; };
 		3A76EA7821DAD3C200FEDEC8 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3A76EA7621DAD3C200FEDEC8 /* LaunchScreen.storyboard */; };
 		3A76EA8021DAD52A00FEDEC8 /* AuthViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A76EA7F21DAD52A00FEDEC8 /* AuthViewController.swift */; };
-		3A850AE223ABE96700E74F05 /* PostListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A850AE123ABE96700E74F05 /* PostListViewModel.swift */; };
-		3A850AE423ABE99100E74F05 /* StaticPostListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A850AE323ABE99100E74F05 /* StaticPostListViewModel.swift */; };
 		3A8D2434235538D200B98A9B /* PostImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A8D2433235538D200B98A9B /* PostImageCell.swift */; };
 		3A9127FC2366129F005944BE /* CommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A9127FB2366129F005944BE /* CommentCell.swift */; };
 		3A9467FA23631F8200C446F7 /* SearchPostsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A9467F923631F8200C446F7 /* SearchPostsViewController.swift */; };
@@ -165,6 +163,17 @@
 		3ADB124023702906004C1FA1 /* KeychainMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ADB123F23702906004C1FA1 /* KeychainMock.swift */; };
 		3ADD72C92383269A0007CAEF /* SettingsItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ADD72C82383269A0007CAEF /* SettingsItem.swift */; };
 		3ADEA8032391EA1D006B4EFF /* PostGISClusterAnnotationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ADEA8022391EA1D006B4EFF /* PostGISClusterAnnotationView.swift */; };
+		3AE4627723D0C11E0062C869 /* ArtistGroupDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AE4627623D0C11E0062C869 /* ArtistGroupDetailViewController.swift */; };
+		3AE4627923D0C1C90062C869 /* ArtistGroupDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AE4627823D0C1C90062C869 /* ArtistGroupDetailViewModel.swift */; };
+		3AE4627B23D0C8C10062C869 /* LinkConvertible.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AE4627A23D0C8C10062C869 /* LinkConvertible.swift */; };
+		3AE4627D23D0DF200062C869 /* UIViewControllerExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AE4627C23D0DF200062C869 /* UIViewControllerExtensions.swift */; };
+		3AE4627F23D0ECFE0062C869 /* PostQuery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AE4627E23D0ECFE0062C869 /* PostQuery.swift */; };
+		3AE4628223D0F40B0062C869 /* ArtistListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AE4628123D0F40B0062C869 /* ArtistListViewController.swift */; };
+		3AE4628323D0F5E20062C869 /* ListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A850AE123ABE96700E74F05 /* ListViewModel.swift */; };
+		3AE4628523D0F6B90062C869 /* DynamicArtistListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AE4628423D0F6B90062C869 /* DynamicArtistListViewModel.swift */; };
+		3AE4628723D0F6F50062C869 /* ArtistQuery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AE4628623D0F6F50062C869 /* ArtistQuery.swift */; };
+		3AE4628B23D0FEBA0062C869 /* PostListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AE4628A23D0FEBA0062C869 /* PostListViewModel.swift */; };
+		3AE4628D23D1002E0062C869 /* ArtistListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AE4628C23D1002E0062C869 /* ArtistListViewModel.swift */; };
 		3AE80DB7236F77BC0081A854 /* BaseTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AE80DB6236F77BC0081A854 /* BaseTestCase.swift */; };
 		3AE86ADF23BE3B150097DB1A /* ArtistProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AE86ADE23BE3B150097DB1A /* ArtistProfileViewController.swift */; };
 		3AE86AE223BE3B310097DB1A /* ArtistProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AE86AE123BE3B310097DB1A /* ArtistProfileViewModel.swift */; };
@@ -363,8 +372,7 @@
 		3A76EA8C21DB249500FEDEC8 /* UIView+Fill.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Fill.swift"; sourceTree = "<group>"; };
 		3A76EA8E21DB25F900FEDEC8 /* UILabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UILabel.swift; sourceTree = "<group>"; };
 		3A76EA9B21DBEC8800FEDEC8 /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
-		3A850AE123ABE96700E74F05 /* PostListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostListViewModel.swift; sourceTree = "<group>"; };
-		3A850AE323ABE99100E74F05 /* StaticPostListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StaticPostListViewModel.swift; sourceTree = "<group>"; };
+		3A850AE123ABE96700E74F05 /* ListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListViewModel.swift; sourceTree = "<group>"; };
 		3A8D2433235538D200B98A9B /* PostImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostImageCell.swift; sourceTree = "<group>"; };
 		3A8DDE83236B0C0500B4521D /* UIScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIScrollView.swift; sourceTree = "<group>"; };
 		3A9127F923660785005944BE /* String.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = String.swift; sourceTree = "<group>"; };
@@ -410,6 +418,16 @@
 		3ADB12442370303F004C1FA1 /* FileDownloadJob.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileDownloadJob.swift; sourceTree = "<group>"; };
 		3ADD72C82383269A0007CAEF /* SettingsItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsItem.swift; sourceTree = "<group>"; };
 		3ADEA8022391EA1D006B4EFF /* PostGISClusterAnnotationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostGISClusterAnnotationView.swift; sourceTree = "<group>"; };
+		3AE4627623D0C11E0062C869 /* ArtistGroupDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtistGroupDetailViewController.swift; sourceTree = "<group>"; };
+		3AE4627823D0C1C90062C869 /* ArtistGroupDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtistGroupDetailViewModel.swift; sourceTree = "<group>"; };
+		3AE4627A23D0C8C10062C869 /* LinkConvertible.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinkConvertible.swift; sourceTree = "<group>"; };
+		3AE4627C23D0DF200062C869 /* UIViewControllerExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIViewControllerExtensions.swift; sourceTree = "<group>"; };
+		3AE4627E23D0ECFE0062C869 /* PostQuery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostQuery.swift; sourceTree = "<group>"; };
+		3AE4628123D0F40B0062C869 /* ArtistListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtistListViewController.swift; sourceTree = "<group>"; };
+		3AE4628423D0F6B90062C869 /* DynamicArtistListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicArtistListViewModel.swift; sourceTree = "<group>"; };
+		3AE4628623D0F6F50062C869 /* ArtistQuery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtistQuery.swift; sourceTree = "<group>"; };
+		3AE4628A23D0FEBA0062C869 /* PostListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostListViewModel.swift; sourceTree = "<group>"; };
+		3AE4628C23D1002E0062C869 /* ArtistListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtistListViewModel.swift; sourceTree = "<group>"; };
 		3AE80DB6236F77BC0081A854 /* BaseTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseTestCase.swift; sourceTree = "<group>"; };
 		3AE86ADC23BE30910097DB1A /* NSMutableAttributedString.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSMutableAttributedString.swift; sourceTree = "<group>"; };
 		3AE86ADE23BE3B150097DB1A /* ArtistProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtistProfileViewController.swift; sourceTree = "<group>"; };
@@ -638,6 +656,8 @@
 				3A72A57D23C7772A00B64A06 /* Result.swift */,
 				3A72A57A23C776ED00B64A06 /* Strings.swift */,
 				3A1B030C23CA5E1D00CFE9D6 /* Notifcations.swift */,
+				3A850AE123ABE96700E74F05 /* ListViewModel.swift */,
+				3AE4627A23D0C8C10062C869 /* LinkConvertible.swift */,
 				3A1B030B23CA5B1400CFE9D6 /* APIClient */,
 				3A1B030A23CA58C000CFE9D6 /* Network */,
 				3A72A57F23C7774900B64A06 /* APIModels */,
@@ -658,8 +678,9 @@
 			isa = PBXGroup;
 			children = (
 				3A12794E23D089990086AB6C /* ArtistGroup.swift */,
-				3A72A58023C7775F00B64A06 /* AuthResponse.swift */,
 				3A72A58223C7778900B64A06 /* Artist.swift */,
+				3AE4628623D0F6F50062C869 /* ArtistQuery.swift */,
+				3A72A58023C7775F00B64A06 /* AuthResponse.swift */,
 				3A72A58423C7779900B64A06 /* BlockedUser.swift */,
 				3A72A58623C777AD00B64A06 /* Clap.swift */,
 				3A72A58823C777BA00B64A06 /* Collection.swift */,
@@ -674,6 +695,7 @@
 				3A72A59823C7783600B64A06 /* PostCluster.swift */,
 				3A72A59A23C7784100B64A06 /* PostFlag.swift */,
 				3A72A59C23C7785000B64A06 /* PostImage.swift */,
+				3AE4627E23D0ECFE0062C869 /* PostQuery.swift */,
 				3A97B33D23C7B9D300F4E25A /* PostSurfaceType.swift */,
 				3A72A59E23C7786400B64A06 /* ServerResponse.swift */,
 				3A72A5A223C7787E00B64A06 /* User.swift */,
@@ -716,6 +738,7 @@
 				3A76EA8A21DB1C0800FEDEC8 /* UIStackView.swift */,
 				3A76EA8521DB19C900FEDEC8 /* UITextField.swift */,
 				3A0C8FB723B8F72D0068AECA /* UITextView.swift */,
+				3AE4627C23D0DF200062C869 /* UIViewControllerExtensions.swift */,
 				3AF4850C21E29A4D00FBC33E /* UIViewController+Alert.swift */,
 				3A3F720323849AFA0075FBFE /* UIViewController+Keyboard.swift */,
 				3A76EA8C21DB249500FEDEC8 /* UIView+Fill.swift */,
@@ -794,6 +817,8 @@
 				3A179A712360F56900E0C3FF /* CreateArtistViewController.swift */,
 				3A12795223D089F30086AB6C /* CreateArtistGroupViewController.swift */,
 				3A9467F923631F8200C446F7 /* SearchPostsViewController.swift */,
+				3AE4628023D0F3F40062C869 /* ArtistList */,
+				3AE4627523D0C10C0062C869 /* ArtistGroupDetail */,
 				3AE86AEA23BE42B50097DB1A /* Toolbar */,
 				3AE86AE323BE41740097DB1A /* UserProfile */,
 				3AE86AE023BE3B240097DB1A /* ArtistProfile */,
@@ -812,9 +837,8 @@
 		3A850AE523ABE99B00E74F05 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
-				3A850AE123ABE96700E74F05 /* PostListViewModel.swift */,
+				3AE4628A23D0FEBA0062C869 /* PostListViewModel.swift */,
 				3AEA33762352003400ECBF8C /* DynamicPostListViewModel.swift */,
-				3A850AE323ABE99100E74F05 /* StaticPostListViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -925,6 +949,33 @@
 				3ADB124223703027004C1FA1 /* FileError.swift */,
 			);
 			path = FileService;
+			sourceTree = "<group>";
+		};
+		3AE4627523D0C10C0062C869 /* ArtistGroupDetail */ = {
+			isa = PBXGroup;
+			children = (
+				3AE4627623D0C11E0062C869 /* ArtistGroupDetailViewController.swift */,
+				3AE4627823D0C1C90062C869 /* ArtistGroupDetailViewModel.swift */,
+			);
+			path = ArtistGroupDetail;
+			sourceTree = "<group>";
+		};
+		3AE4628023D0F3F40062C869 /* ArtistList */ = {
+			isa = PBXGroup;
+			children = (
+				3AE4628123D0F40B0062C869 /* ArtistListViewController.swift */,
+				3AE4629023D105200062C869 /* ViewModels */,
+			);
+			path = ArtistList;
+			sourceTree = "<group>";
+		};
+		3AE4629023D105200062C869 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				3AE4628C23D1002E0062C869 /* ArtistListViewModel.swift */,
+				3AE4628423D0F6B90062C869 /* DynamicArtistListViewModel.swift */,
+			);
+			path = ViewModels;
 			sourceTree = "<group>";
 		};
 		3AE86AE023BE3B240097DB1A /* ArtistProfile */ = {
@@ -1393,11 +1444,13 @@
 				3A72A5DE23C7906500B64A06 /* String.swift in Sources */,
 				3A72A5C923C78B1500B64A06 /* Parameters.swift in Sources */,
 				3A72A59523C7781600B64A06 /* Location.swift in Sources */,
+				3AE4627F23D0ECFE0062C869 /* PostQuery.swift in Sources */,
 				3A72A5EE23C795F200B64A06 /* Environment.swift in Sources */,
 				3A1B030D23CA5E1D00CFE9D6 /* Notifcations.swift in Sources */,
 				3A1B030F23CA5FA200CFE9D6 /* Reachability.swift in Sources */,
 				3A72A5CE23C78E6300B64A06 /* HTTPHeaders.swift in Sources */,
 				3A72A5E523C7906500B64A06 /* UIEdgeInsets.swift in Sources */,
+				3AE4627B23D0C8C10062C869 /* LinkConvertible.swift in Sources */,
 				3A72A5D823C7906500B64A06 /* UILabel.swift in Sources */,
 				3A72A5D023C7905B00B64A06 /* NSData.swift in Sources */,
 				3A72A5D623C7906500B64A06 /* UIViewController+Alert.swift in Sources */,
@@ -1412,6 +1465,7 @@
 				3A72A5B423C7846800B64A06 /* Logger.swift in Sources */,
 				3A72A58323C7778900B64A06 /* Artist.swift in Sources */,
 				3A72A57923C7765B00B64A06 /* UADimensions.swift in Sources */,
+				3AE4628723D0F6F50062C869 /* ArtistQuery.swift in Sources */,
 				3A72A5C323C78A5800B64A06 /* EndpointConfiguration.swift in Sources */,
 				3A72A59923C7783600B64A06 /* PostCluster.swift in Sources */,
 				3A72A58723C777AD00B64A06 /* Clap.swift in Sources */,
@@ -1444,7 +1498,9 @@
 				3A72A59F23C7786400B64A06 /* ServerResponse.swift in Sources */,
 				3A72A5BD23C78A1100B64A06 /* APIClient.swift in Sources */,
 				3A72A58523C7779900B64A06 /* BlockedUser.swift in Sources */,
+				3AE4627D23D0DF200062C869 /* UIViewControllerExtensions.swift in Sources */,
 				3A72A5E123C7906500B64A06 /* Double.swift in Sources */,
+				3AE4628323D0F5E20062C869 /* ListViewModel.swift in Sources */,
 				3A72A5F123C7961900B64A06 /* FileService.swift in Sources */,
 				3A72A5F723C7961900B64A06 /* ImageEXIFService.swift in Sources */,
 				3A72A58F23C777EB00B64A06 /* Coordinate.swift in Sources */,
@@ -1471,7 +1527,6 @@
 				3AE86ADF23BE3B150097DB1A /* ArtistProfileViewController.swift in Sources */,
 				3A9127FC2366129F005944BE /* CommentCell.swift in Sources */,
 				3AF4851721E2B1C500FBC33E /* PostCell.swift in Sources */,
-				3A850AE423ABE99100E74F05 /* StaticPostListViewModel.swift in Sources */,
 				3A22219623B0AE5500FE9262 /* GalleriesTableDataSource.swift in Sources */,
 				3A179A722360F56900E0C3FF /* CreateArtistViewController.swift in Sources */,
 				3AD94795238F361600B5BF3B /* PostMKClusterAnnotationView.swift in Sources */,
@@ -1492,16 +1547,17 @@
 				3A28764C226B80B100BCAE61 /* PostDetailViewController.swift in Sources */,
 				3AA7672223507BEA00A70DE4 /* AuthViewModel.swift in Sources */,
 				3AE86AE723BE41890097DB1A /* UserProfileViewModel.swift in Sources */,
-				3A850AE223ABE96700E74F05 /* PostListViewModel.swift in Sources */,
 				3A22219123AD4C8200FE9262 /* GalleryCellViewModel.swift in Sources */,
 				3AF4850721E298EE00FBC33E /* LoadingViewController.swift in Sources */,
 				3ACB5B31236C64850004FA31 /* ForgotPasswordViewController.swift in Sources */,
 				3A22219823B0AF4300FE9262 /* GalleryCell.swift in Sources */,
 				3A56B42323635C82000F2A42 /* GalleryDetailViewController.swift in Sources */,
 				3A12794D23D089610086AB6C /* SearchArtistGroupsViewController.swift in Sources */,
+				3AE4627923D0C1C90062C869 /* ArtistGroupDetailViewModel.swift in Sources */,
 				3AE86AEC23BE42C00097DB1A /* TabbedToolbar.swift in Sources */,
 				3A12795323D089F30086AB6C /* CreateArtistGroupViewController.swift in Sources */,
 				3AB575AF2274A28400C8F597 /* GalleryListViewController.swift in Sources */,
+				3AE4628D23D1002E0062C869 /* ArtistListViewModel.swift in Sources */,
 				3A7553AC2365D98A00634C32 /* CommentListViewController.swift in Sources */,
 				3A72A5EC23C7954100B64A06 /* UIViewControllerExtensions.swift in Sources */,
 				3A28764E226B83A300BCAE61 /* ImageDetailViewController.swift in Sources */,
@@ -1511,20 +1567,24 @@
 				3ABC6A03236E7542009C180D /* PostAnnotation.swift in Sources */,
 				3AEA33772352003400ECBF8C /* DynamicPostListViewModel.swift in Sources */,
 				3A8D2434235538D200B98A9B /* PostImageCell.swift in Sources */,
+				3AE4627723D0C11E0062C869 /* ArtistGroupDetailViewController.swift in Sources */,
 				3A22219323B0AE4100FE9262 /* GalleriesSection.swift in Sources */,
 				3A746E1D2372DC6100F36EFB /* NonClippingLabel.swift in Sources */,
 				3A7553AE2365D9A400634C32 /* CommentListViewModel.swift in Sources */,
 				3AF484F621DFCC8800FBC33E /* PostListViewController.swift in Sources */,
 				3A179A702360F10200E0C3FF /* ActivityIndicator.swift in Sources */,
+				3AE4628523D0F6B90062C869 /* DynamicArtistListViewModel.swift in Sources */,
 				3A76EA8021DAD52A00FEDEC8 /* AuthViewController.swift in Sources */,
 				3AB12E06236B6ED600A4E163 /* FlagPostViewController.swift in Sources */,
 				3A6FE0A623B7D0D50018018F /* AccountViewController.swift in Sources */,
 				3A1DCE172385947F0028D117 /* NewPostState.swift in Sources */,
+				3AE4628223D0F40B0062C869 /* ArtistListViewController.swift in Sources */,
 				3A56B42523635DC0000F2A42 /* GalleriesViewController.swift in Sources */,
 				3ACB5B41236CED7E0004FA31 /* ImageCarouselViewController.swift in Sources */,
 				3A6FE0A423B681EE0018018F /* LoadableImageView.swift in Sources */,
 				3AD94793238F35D600B5BF3B /* PostMapController2.swift in Sources */,
 				3A56B42723636008000F2A42 /* GalleryListViewModel.swift in Sources */,
+				3AE4628B23D0FEBA0062C869 /* PostListViewModel.swift in Sources */,
 				3ACAE1002390AB9F0025FB25 /* CircularLoader.swift in Sources */,
 				3A31872E2353251A00D59F79 /* TabBarController.swift in Sources */,
 				3AB575B12274A9E500C8F597 /* NewCollectionViewController.swift in Sources */,

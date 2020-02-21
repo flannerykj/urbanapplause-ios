@@ -43,6 +43,7 @@ public extension Strings {
     
     // Status messages
     static let NoPostsToShowMessage = NSLocalizedString("No posts to show", comment: "")
+    static let NoArtistsToShowMessage = NSLocalizedString("No posts to show", comment: "")
     static let NoneAddedMessage = NSLocalizedString("None added", comment: "")
     static let GettingLocationStatus = NSLocalizedString("Getting location data...", comment: "")
     static let SavingPostStatus = NSLocalizedString("Saving post...", comment: "")
@@ -82,14 +83,34 @@ public extension Strings {
     static let IrreversibleActionWarning = NSLocalizedString("This cannot be undone.", comment: "")
     static let DeletePostSuccessMessage = NSLocalizedString("Your post has been deleted.", comment: "")
     
-    // Post list titles
-    static let RecentlyAddedPostListTitle = NSLocalizedString("Recently added", comment: "")
-    static func WorkByArtist(_ artistName: String?) -> String {
+    // List titles
+    static let RecentlyAdded_PostListTitle = NSLocalizedString("Recently added", comment: "")
+    static func Artist_PostListTitle(_ artistName: String?) -> String {
         if let name = artistName {
             let format = NSLocalizedString("Work by %@", comment: "")
             return String(format: format, name)
         }
         return NSLocalizedString("Work", comment: "")
+    }
+    static func ArtistGroup_PostListTitle(_ group: ArtistGroup) -> String {
+        let format = NSLocalizedString("Work by %@", comment: "")
+        return String(format: format, group.name)
+    }
+    static func ArtistGroup_ArtistListTitle(_ group: ArtistGroup) -> String {
+        let format = NSLocalizedString("Work by %@", comment: "")
+        return String(format: format, group.name)
+    }
+    
+    // Table row counts
+    static func CountPosts(_ count: Int) -> String {
+        if count == 1 { return NSLocalizedString("1 post", comment: "") }
+        let format = NSLocalizedString("%d posts", comment: "")
+        return String(format: format, count)
+    }
+    static func CountArtists(_ count: Int) -> String {
+        if count == 1 { return NSLocalizedString("1 artist", comment: "") }
+        let format = NSLocalizedString("%d artists", comment: "")
+        return String(format: format, count)
     }
     // Errors
     static let MissingPermissionsErrorMessage = NSLocalizedString("Please enable @ permissions in your Settings", comment: "")
@@ -123,6 +144,7 @@ public extension Strings {
     // Tab bar
 
     // Field Labels
+    static let ArtFieldLabel = NSLocalizedString("Art", comment: "Alternative to 'Posts'")
     static let PasswordFieldLabel = NSLocalizedString("Password", comment: "")
     static let UsernameFieldLabel = NSLocalizedString("Username", comment: "")
     static let OptionalFieldLabel = NSLocalizedString("Optional", comment: "")
@@ -142,7 +164,7 @@ public extension Strings {
     static let LocationIsFixedFieldLabel = NSLocalizedString("Location is fixed", comment: "")
     static let SurfaceTypeFieldLabel = NSLocalizedString("Surface type", comment: "")
     static let PhotographedOnFieldLabel = NSLocalizedString("Photographed on", comment: "")
-    static let PostIsVisibleFieldLabel = NSLocalizedString("Photos", comment: "")
+    static let PostIsVisibleFieldLabel = NSLocalizedString("Still visible", comment: "")
     static let MemberSinceFieldLabel = NSLocalizedString("Member since", comment: "")
     static let ProfileCreatedOnFieldLabel = NSLocalizedString("Profile created on", comment: "")
     static let PostedByFieldLabel = NSLocalizedString("Posted by", comment: "")
@@ -167,6 +189,7 @@ public extension Strings {
     static let CancelButtonTitle = NSLocalizedString("Cancel", comment: "")
     static let OKButtonTitle = NSLocalizedString("OK", comment: "")
     static let LoadMorePostsButtonTitle = NSLocalizedString("Load more posts", comment: "")
+    static let LoadMoreArtistsButtonTitle = NSLocalizedString("Load more artists", comment: "")
     static let VisitedButtonTitle =  NSLocalizedString("Visited", comment: "")
     static let ApplaudedButtonTitle =  NSLocalizedString("Applauded", comment: "")
     static let ApplaudButtonTitle =  NSLocalizedString("Applaud", comment: "")

@@ -124,10 +124,11 @@ class PostMapViewModel2 {
         self.lastRequestedMapContent = .posts
         self.isLoading = true
         var filterForGeoBounds: GeoBoundsFilter?
+        
         if let nextRect = visibleMapRect {
-            filterForGeoBounds = getMapGeoBounds(visibleMapRect: nextRect)
+            let requestRect = nextRect.insetBy(dx: -(nextRect.width/2), dy: -(nextRect.height/3))
+            filterForGeoBounds = getMapGeoBounds(visibleMapRect: requestRect)
         }
-
         let query = PostQuery(page: 0,
                             limit: 100,
                             userId: nil,

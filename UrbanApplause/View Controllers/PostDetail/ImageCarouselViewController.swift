@@ -40,7 +40,7 @@ class ImageCarouselViewController: UIViewController {
     init(files: [File], appContext: AppContext) {
         self.files = files
         self.appContext = appContext
-        self.imageDownloadJobs = files.map { appContext.fileCache.getJobForFile($0)! }
+        self.imageDownloadJobs = files.map { appContext.fileCache.getJobForFile($0) }
         self.imageControllers = files.map { ImageDetailViewController(file: $0,
                                                                       placeholderImage: nil,
                                                                       appContext: appContext) }

@@ -23,7 +23,7 @@ class ArtistProfileViewController: UIViewController {
                                                    appContext: appContext)
         let postsVC = PostListViewController(viewModel: postsViewModel, appContext: appContext)
         return [
-            ToolbarTabItem(title: Strings.WorkByArtist(artist.signing_name),
+            ToolbarTabItem(title: Strings.Artist_PostListTitle(artist.signing_name),
                            viewController: postsVC, delegate: self)
         ]
     }()

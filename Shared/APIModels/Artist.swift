@@ -17,13 +17,18 @@ public struct Artist: Codable {
     public var bio: String?
     public var createdAt: Date?
     public var Posts: [Post]?
+    public var ArtistGroups: [ArtistGroup]?
 }
+
+public extension Artist {
+    static var includeParams: [String] {
+        return ["posts", "artist_groups"]
+    }
+}
+extension Artist: Equatable {}
 
 public struct ArtistsContainer: Codable {
     public var artists: [Artist]
-}
-extension Artist: Equatable {
-    
 }
 
 public struct ArtistContainer: Codable {

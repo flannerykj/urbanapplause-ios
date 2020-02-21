@@ -8,6 +8,8 @@
 
 import Foundation
 
+// fileprivate let log = DHLogger.self
+
 public enum PrivateRouter: EndpointConfiguration {
     // auth
     case authenticate(email: String, password: String, username: String?, newUser: Bool)
@@ -181,7 +183,7 @@ public enum PrivateRouter: EndpointConfiguration {
         case .getArtistGroups(let queryParams):
            return .requestParameters(bodyParameters: nil, urlParameters: queryParams)
        case .getArtistGroup:
-           return .requestParameters(bodyParameters: nil, urlParameters: ["include": "posts"])
+           return .requestParameters(bodyParameters: nil, urlParameters: ["include": "posts,artists"])
        case .createArtistGroup(let values):
            return .requestParameters(bodyParameters: ["artist_group": values], urlParameters: nil)
         case .createPost(let values), .editPost(_, let values):
@@ -200,43 +202,10 @@ public enum PrivateRouter: EndpointConfiguration {
                                       urlParameters: nil)
         case .uploadImages(_, let userId, let imagesData):
             return .upload(fileKeyPath: "images[]", imagesData: imagesData, bodyParameters: ["UserId": userId])
+        case .getPost:
+            return .requestParameters(bodyParameters: nil, urlParameters: ["include": Post.includeParams.joined(separator: ",")])
         case .getPosts(let query):
-            var params = Parameters()
-            params["page"] = String(query.page)
-            params["limit"] = String(query.limit)
-            if let id = query.userId {
-                params["userId"] = String(id)
-            }
-            if let id = query.applaudedBy {
-                params["clappedBy"] = String(id)
-            }
-            if let id = query.visitedBy {
-                params["visitedBy"] = String(id)
-            }
-            if let id = query.artistId {
-                params["artistId"] = String(id)
-            }
-            if let searchQuery = query.search, searchQuery.count > 0 {
-                params["search"] = searchQuery
-            }
-            if let id = query.collectionId {
-                params["collectionId"] = String(id)
-            }
-            if let filter = query.proximity {
-                params["lat"] = String(filter.target.latitude)
-                params["lng"] = String(filter.target.longitude)
-                params["max_distance"] = "\(filter.maxDistanceKm)"
-            }
-            if let bounds = query.bounds {
-                params["lat1"] = String(bounds.neCoord.latitude)
-                params["lng1"] = String(bounds.neCoord.longitude)
-                params["lat2"] = String(bounds.swCoord.latitude)
-                params["lng2"] = String(bounds.swCoord.longitude)
-            }
-            if query.include.count > 0 {
-                params["include"] = query.include.joined(separator: ",")
-            }
-            return .requestParameters(bodyParameters: nil, urlParameters: params)
+            return .requestParameters(bodyParameters: nil, urlParameters: query.makeURLParams())
         case .getPostClusters(let postedAfter, let proximity, let geoBounds):
             var params = Parameters()
             if let bounds = geoBounds {

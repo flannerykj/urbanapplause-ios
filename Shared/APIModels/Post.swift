@@ -22,6 +22,7 @@ public class Post: NSObject, Codable {
     
     public var PostImages: [PostImage]?
     public var Artists: [Artist]?
+    public var ArtistGroups: [ArtistGroup]?
     public var Location: Location?
     public var User: User?
     public var Claps: [Clap]?
@@ -30,42 +31,9 @@ public class Post: NSObject, Codable {
     public var Comments: [Comment]?
 }
 
-public struct PostQuery {
-    public var page: Int
-    public var limit: Int
-    public var userId: Int?
-    public var applaudedBy: Int?
-    public var visitedBy: Int?
-    public var artistId: Int?
-    public var search: String?
-    public var collectionId: Int?
-    public var proximity: ProximityFilter?
-    public var bounds: GeoBoundsFilter?
-    public var include: [String]
-    
-    public init(page: Int = 0,
-         limit: Int = 100,
-         userId: Int? = nil,
-         applaudedBy: Int? = nil,
-         visitedBy: Int? = nil,
-         artistId: Int? = nil,
-         search: String? = nil,
-         collectionId: Int? = nil,
-         proximity: ProximityFilter? = nil,
-         bounds: GeoBoundsFilter? = nil,
-         include: [String] = []) {
-        
-        self.page = page
-        self.limit = limit
-        self.userId = userId
-        self.applaudedBy = applaudedBy
-        self.visitedBy = visitedBy
-        self.artistId = artistId
-        self.search = search
-        self.collectionId = collectionId
-        self.proximity = proximity
-        self.bounds = bounds
-        self.include = include
+public extension Post {
+    class var includeParams: [String] {
+        return ["location", "artists", "artist_groups", "post_images", "user", "claps", "collections", "comments", "visits"]
     }
 }
 

@@ -10,6 +10,18 @@ import Foundation
 import UIKit
 
 class CircularLoader: UIView {
+    var hidesWhenStopped: Bool = true
+    
+    public var isLoading: Bool = false {
+        didSet {
+            if isLoading {
+                self.start()
+            } else {
+                self.stop()
+            }
+        }
+    }
+    
     init() {
         super.init(frame: .zero)
         self.heightAnchor.constraint(equalToConstant: 24).isActive = true
@@ -18,13 +30,14 @@ class CircularLoader: UIView {
         self.tintColor = UIColor.systemPink
     }
     
-    public func showAndAnimate() {
+    public func start() {
         self.animate()
         self.isHidden = false
     }
     
-    public func hide() {
-        self.isHidden = true
+    public func stop() {
+        self.layer.removeAllAnimations()
+        self.isHidden = self.hidesWhenStopped
     }
     
     required init?(coder: NSCoder) {
