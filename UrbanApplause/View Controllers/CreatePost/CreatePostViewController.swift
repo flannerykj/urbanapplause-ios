@@ -57,7 +57,7 @@ class CreatePostViewController: FormViewController, UINavigationControllerDelega
 UIImagePickerControllerDelegate, UnsavedChangesController {
     private var hideNavbarOnDisappear: Bool // Set true if previous vc (i.e. UIImagePicker) requires navigationController's navbar to be hidden.
     private var imageService: ImageEXIFService
-    private let spacesFileRepository = SpacesFileRepository()
+    private let spacesFileRepository = CloudinaryService()
     var post: Post?
     var hasUnsavedChanges: Bool = false
     var appContext: AppContext

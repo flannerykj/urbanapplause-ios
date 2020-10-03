@@ -4,11 +4,13 @@
 target 'UrbanApplause' do
   # Comment the next line if you're not using Swift and don't want to use dynamic frameworks
   use_frameworks!
-  pod 'Eureka'
+  # https://github.com/xmartlabs/Eureka/issues/2057
+  pod 'Eureka', :git => 'https://github.com/xmartlabs/Eureka.git', :branch => 'xcode12' 
   pod 'ViewRow'
   pod 'SwiftLint'
   pod 'AWSS3'
   pod 'SnapKit'
+  pod 'Cloudinary'
   # Pods for UrbanApplause
 
   target 'UrbanApplauseUpload' do

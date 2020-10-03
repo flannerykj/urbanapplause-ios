@@ -20,7 +20,7 @@ public class FileService: NSObject {
         })
         
     }
-    let spacesFileRepository = SpacesFileRepository()
+    let spacesFileRepository = CloudinaryService()
     typealias Handler = (UAResult<FileDownloadJob>) -> Void
     
     private let cache = Cache<String, FileDownloadJob>()

@@ -21,11 +21,11 @@ public struct FileDownloadSubscriber {
 public class FileDownloadJob: NSObject {
     private var file: File
     private var subscribers: [FileDownloadSubscriber] = []
-    private var spacesFileRepository: SpacesFileRepository
+    private var spacesFileRepository: CloudinaryService
     public var initializedAt = Date()
     public var lastSubscriptionAt = Date()
     
-    public init(file: File, spacesFileRepository: SpacesFileRepository) {
+    public init(file: File, spacesFileRepository: CloudinaryService) {
         // setup
         self.file = file
         self.spacesFileRepository = spacesFileRepository
@@ -116,7 +116,7 @@ public class FileDownloadJob: NSObject {
             if data != nil {
                  self.imageData = data
             } else {
-                self.error = S3Error.downloadError(error?.localizedDescription)
+                self.error = RemoteImageError.downloadError(error?.localizedDescription)
             }
         })
     }
