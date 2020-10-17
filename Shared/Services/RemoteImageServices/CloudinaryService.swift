@@ -9,37 +9,47 @@
 import Foundation
 import Cloudinary
 
-public enum CloudinaryError: Error {
-    case invalidFilename
-}
 public class CloudinaryService {
-    private let config = CLDConfiguration(cloudName: Config.cloudinaryCloudName, apiKey: Config.cloudinaryApiKey    )
-
-    private let cloudName = Config.cloudinaryCloudName
-    private let urlSession = URLSession(configuration: .default)
+    private let config = CLDConfiguration(cloudName: Config.cloudinaryCloudName, apiKey: Config.cloudinaryApiKey, secure: true)
+    private let cloudinary: CLDCloudinary
+    
     public init() {
-        
+        cloudinary = CLDCloudinary(configuration: config)
     }
     
     public func downloadFile(filename: String,
-                      updateProgress: @escaping (Double) -> Void,
-                      completion: @escaping (Data?, Error?) -> Void) {
-        guard let url = URL(string: "") else {
-            completion(nil, CloudinaryError.invalidFilename)
-            return
-        }
-        let request = URLRequest(url: url)
-        urlSession.dataTask(with: request) { data, response, error in
-            if let error = error {
-                completion(nil, .custom(error))
-                return
-            }
-            guard let data = data else {
-                completion(nil, RemoteImageError.downloadError(nil))
-                return
-            }
+                             updateProgress: @escaping (Double) -> Void,
+                             completion: @escaping (Data?, RemoteImageError?) -> Void) {
+        
+//        guard let url = URL(string: "https://\(Config.cloudinaryApiKey):\(Config.cloudinaryApiSecret)@api.cloudinary.com/v1_1/\(Config.cloudinaryCloudName)/resources/image") else {
+//            completion(nil, RemoteImageError.invalidFilename)
+//            return
+//        }
+//        print(url)
+//        let request = URLRequest(url: url)
+//        let session = URLSession(configuration: .default)
+//        let task = session.dataTask(with: request, completionHandler: { data, response, error in
+//            guard let d = data else {
+//                completion(nil, .noData)
+//                return
+//            }
+//            guard error == nil else {
+//                completion(nil, .custom(error))
+//                return
+//            }
+//            completion(d, nil)
+//        })
+//
+//        task.resume()
+        
+        let url = cloudinary.createUrl().setFormat("png").setResourceType("image").generate(filename)!
+        cloudinary.createDownloader().fetchImage(url, { progress in
             
-            completion(data, nil)
-        }
+        }, completionHandler: { image, error in
+            
+        }).resume()
+
+
     }
 }
+

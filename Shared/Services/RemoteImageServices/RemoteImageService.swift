@@ -9,8 +9,10 @@
 import Foundation
 
 public enum RemoteImageError: UAError {
+    case invalidFilename
     case uploadError(String?)
     case downloadError(String?)
+    case noData
     case custom(Error?)
     
     public var errorCode: UAErrorCode? { return nil }
@@ -23,6 +25,10 @@ public enum RemoteImageError: UAError {
             return string ?? "Unable to download file"
         case .custom(let error):
             return error?.localizedDescription ?? ""
+        case .invalidFilename:
+            return "Invalid image"
+        case .noData:
+            return "No data"
         }
     }
     
@@ -34,6 +40,10 @@ public enum RemoteImageError: UAError {
             return string ?? "Unable to download file"
         case .custom:
             return "Something went wrong"
+        case .invalidFilename:
+            return "Invalid image"
+        case .noData:
+            return "No data"
         }
     }
 }

@@ -15,7 +15,9 @@ public struct Config {
     public static let awsSecretAccessKey = "" // Environment.current.variables["AWS_SECRET_ACCESS_KEY"]! as String
     public static let awsBucketName = "" // Environment.current.variables["AWS_BUCKET_NAME"]! as String
     public static let cloudinaryCloudName = Environment.current.variables["CLOUDINARY_CLOUD_NAME"]! as String
-    
+    public static let cloudinaryApiKey = Environment.current.variables["CLOUDINARY_API_KEY"]! as String
+    public static let cloudinaryApiSecret = Environment.current.variables["CLOUDINARY_API_SECRET"]! as String
+
     public static let appGroupIdentifier = "group.com.urbanapplause.ios"
     public static let iso = "yyyy-MM-dd'T'HH:mm:ss.SSSXXXXX"
     public static let tosURL = URL(string: "\(Config.webEndpoint)/terms-of-service")!

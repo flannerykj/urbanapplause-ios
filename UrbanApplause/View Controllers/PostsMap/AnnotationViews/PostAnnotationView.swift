@@ -21,19 +21,6 @@ class PostAnnotationView: MKMarkerAnnotationView, PostAnnotationViewProtocol {
     var fileCache: FileService?
     var contentView = AnnotationContentView()
 
-    var downloadJob: FileDownloadJob? {
-        didSet {
-            guard let job = downloadJob else {
-                return
-            }
-            _ = job.subscribe(onSuccess: { data in
-                DispatchQueue.main.async {
-                    self.contentView.setImage(UIImage(data: data))
-                }
-            })
-        }
-    }
-
     // Animation duration in seconds.
 
     let animationDuration: TimeInterval = 0.25
@@ -45,7 +32,7 @@ class PostAnnotationView: MKMarkerAnnotationView, PostAnnotationViewProtocol {
         markerTintColor = .clear
         clusteringIdentifier = "post"
         addSubview(contentView)
-        // contentView.backgroundColor = .blue // For debugging
+        contentView.backgroundColor = .blue // For debugging
     }
     override func prepareForDisplay() {
         super.prepareForDisplay()
@@ -54,11 +41,7 @@ class PostAnnotationView: MKMarkerAnnotationView, PostAnnotationViewProtocol {
         glyphText = ""
         
         if let post = annotation as? Post {
-            if let coverPhotoThumb = post.PostImages?.first?.thumbnail {
-                downloadJob = fileCache?.getJobForFile(coverPhotoThumb)
-            } else if let coverPhotoFull = post.PostImages?.first {
-               downloadJob = fileCache?.getJobForFile(coverPhotoFull)
-            }
+            contentView.setImage(post.PostImages?.first?.storage_location)
         }
     }
 
@@ -92,7 +75,6 @@ class PostAnnotationView: MKMarkerAnnotationView, PostAnnotationViewProtocol {
     override func prepareForReuse() {
         super.prepareForReuse()
         self.contentView.setImage(nil)
-        downloadJob = nil
     }
     override func layoutSubviews() {
         super.layoutSubviews()
