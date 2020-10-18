@@ -10,7 +10,7 @@ import Foundation
 import Cloudinary
 
 public class CloudinaryService {
-    private let config = CLDConfiguration(cloudName: Config.cloudinaryCloudName, apiKey: Config.cloudinaryApiKey)
+    private let config = CLDConfiguration(cloudName: Config.cloudinaryCloudName, apiKey: Config.cloudinaryApiKey, apiSecret: Config.cloudinaryApiSecret, secure: true)
     private let cloudinary: CLDCloudinary
     
     public init() {
@@ -28,11 +28,12 @@ public class CloudinaryService {
             urlGen.setTransformation(transformation)
         }
         
-        guard let url = urlGen.setResourceType(CLDUrlResourceType.image).generate(publicId, signUrl: false) else {
+        guard let url = urlGen.setResourceType(CLDUrlResourceType.image).generate(publicId, signUrl: true) else {
             completion(nil, .invalidFilename)
             return
         }
 
+        print(url)
         cloudinary.createDownloader().fetchImage(url) { [weak self] (responseImage, error) in
             if let img = responseImage {
                 DispatchQueue.main.async {

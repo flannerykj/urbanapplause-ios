@@ -60,7 +60,9 @@ class PostMKClusterAnnotationView: MKAnnotationView, PostAnnotationViewProtocol 
         view.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(clusterMembersCountLabel)
         clusterMembersCountLabel.fillWithinMargins(view: view)
-        view.backgroundColor = UIColor.systemBlue
+        #if DEBUG
+        contentView.backgroundColor = .systemBlue
+        #endif
         view.layer.cornerRadius = 8
         clusterMembersCountLabel.translatesAutoresizingMaskIntoConstraints = false
         clusterMembersCountLabel.textColor = .white
