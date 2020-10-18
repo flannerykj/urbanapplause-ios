@@ -34,7 +34,7 @@ public extension Strings {
     static let NewGalleryScreenTitle = NSLocalizedString("New gallery", comment: "")
     
     // Galleries
-    static let MyGalleriesSectionTitle = NSLocalizedString("My collections", comment: "")
+    static let MyGalleriesSectionTitle = NSLocalizedString("My galleries", comment: "")
     static let OtherGalleriesSectionTitle = NSLocalizedString("Other", comment: "")
 
     static let ReportIssueReasonPrompt = NSLocalizedString("What is your objection to this content?", comment: "")
@@ -230,7 +230,7 @@ public extension Strings {
                                                       comment: authActionsComment)
     static let AddAPostAction = NSLocalizedString("add a post",
                                                   comment: authActionsComment)
-    static let ViewAndCreateCollections = NSLocalizedString("view and create collections", comment: authActionsComment)
+    static let ViewAndCreateCollections = NSLocalizedString("view and create galleries", comment: authActionsComment)
     
     
     // Time
