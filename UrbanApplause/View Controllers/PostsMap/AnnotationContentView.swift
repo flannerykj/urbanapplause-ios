@@ -8,10 +8,8 @@
 
 import Foundation
 import UIKit
-import Cloudinary
-import Shared
+
 class AnnotationContentView: UIView {
-    private let cloudinary = CLDCloudinary(configuration: CLDConfiguration(cloudName: Config.cloudinaryCloudName))
     static let width: CGFloat = 75
     static let height: CGFloat = 75
     
@@ -36,13 +34,8 @@ class AnnotationContentView: UIView {
                                         bottom: imagePadding + arrowHeight,
                                         right: imagePadding)
     
-    public func setImage(_ publicId: String?) {
-        guard let publicId = publicId else {
-            imageView.image = nil
-            return
-        }
-        let transformation = CLDTransformation().setCrop(CLDTransformation.CLDCrop.scale).setWidth(100)
-        imageView.cldSetImage(publicId: publicId, cloudinary: cloudinary, transformation: transformation)
+    public func setImage(_ image: UIImage?) {
+        imageView.image = image
     }
     public func getImage() -> UIImage? {
         return imageView.image
@@ -62,7 +55,7 @@ class AnnotationContentView: UIView {
         return indicator
     }()
     
-    private lazy var imageView = CLDUIImageView(frame: self.frame.inset(by: imageInsets))
+    private lazy var imageView = UIImageView(frame: self.frame.inset(by: imageInsets))
     var shadowLayer: CAShapeLayer?
     
     init() {

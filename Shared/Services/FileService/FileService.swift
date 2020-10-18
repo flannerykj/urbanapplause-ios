@@ -15,35 +15,37 @@ public class FileService: NSObject {
     
     public override init() {
         super.init()
+        
         NotificationCenter.default.addObserver(forName: UIApplication.didReceiveMemoryWarningNotification, object: nil, queue: .main, using: { notification in
-            self.clearUnusedImages()
+            self.clearFullResImageData()
         })
         
     }
     let spacesFileRepository = CloudinaryService()
     typealias Handler = (UAResult<FileDownloadJob>) -> Void
     
-    private let cache = Cache<String, FileDownloadJob>()
+    private let fullResImageCache = Cache<String, FileDownloadJob>()
+    private let thumbImageCache = Cache<String, FileDownloadJob>()
 
-    public func getJobForFile(_ file: File) -> FileDownloadJob {
-        log.debug("get job for file: \(file.filename)")
-        if let job = self.cache[file.storage_location] {
+    public func getJobForFile(_ file: File, isThumb: Bool) -> FileDownloadJob {
+        let cache: Cache = isThumb ? thumbImageCache : fullResImageCache
+        if let job = cache[file.storage_location] {
             // see if job already complete/in progress
             return job
         }
         // create and save reference to a new job
-        let job = FileDownloadJob(file: file, spacesFileRepository: spacesFileRepository)
-        self.cache[file.storage_location] = job
+        let job = FileDownloadJob(file: file, spacesFileRepository: spacesFileRepository, isThumb: isThumb)
+        cache[file.storage_location] = job
         return job
     }
     
-    public func addLocalData(_ data: Data, for file: File) {
+    public func addLocalData(_ data: Data, for file: File, isThumb: Bool) {
         log.debug("set job for file: \(file.filename)")
-        let job = self.getJobForFile(file)
+        let job = self.getJobForFile(file, isThumb: isThumb)
         job.setLocalData(data)
     }
     
-    public func clearUnusedImages() {
-        cache.clear()
+    public func clearFullResImageData() {
+        fullResImageCache.clear()
     }
 }

@@ -487,10 +487,11 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
                     post.PostImages = container.images
                     // Backend won't have finished compressing images yet, so save on frontend to dispaly immediately
                     if let file = container.images.first {
-                        self.appContext.fileCache.addLocalData(pngData, for: file)
-                        if let thumbnail = file.thumbnail {
-                            self.appContext.fileCache.addLocalData(pngData, for: thumbnail)
-                        }
+                        self.appContext.fileCache.addLocalData(pngData, for: file, isThumb: false)
+                        self.appContext.fileCache.addLocalData(pngData, for: file, isThumb: true)
+//                        if let thumbnail = file.thumbnail {
+//                            self.appContext.fileCache.addLocalData(pngData, for: thumbnail, isThumb: true)
+//                        }
                     }
                     self.delegate?.createPostController(self, didUploadImageData: pngData, forPost: post)
                     self.dismiss(animated: true, completion: nil)

@@ -10,7 +10,6 @@ import UIKit
 import MapKit
 import Shared
 import SnapKit
-import Cloudinary
 
 protocol PostDetailDelegate: class {
     func postDetail(_ controller: PostDetailViewController, didUpdatePost post: Post)
@@ -19,7 +18,6 @@ protocol PostDetailDelegate: class {
 }
 
 class PostDetailViewController: UIViewController {
-    private let cloudinary = CLDCloudinary(configuration: CLDConfiguration(cloudName: Config.cloudinaryCloudName, apiKey: Config.cloudinaryApiKey))
     private var postId: Int
     weak var delegate: PostDetailDelegate?
     var appContext: AppContext
@@ -31,7 +29,7 @@ class PostDetailViewController: UIViewController {
             guard let post = post else { return }
             title = post.title
             if let file = post.PostImages?.first {
-                photoView.cldSetImage(publicId: file.storage_location, cloudinary: cloudinary)
+                downloadJob = appContext.fileCache.getJobForFile(file, isThumb: false)
             }
             artistLabel.text = post.title
             setLocation(post.Location)
@@ -57,7 +55,13 @@ class PostDetailViewController: UIViewController {
         }
     }
     var markerReuseIdentifier = "PostDetailMarker"
-
+    var subscriber: FileDownloadSubscriber? {
+        willSet {
+            if let subscriber = self.subscriber { // remove previous subscriber before setting new
+                self.downloadJob?.removeSubscriber(subscriber)
+            }
+        }
+    }
     init(postId: Int, post: Post?, thumbImage: UIImage? = nil, appContext: AppContext) {
         self.postId = postId
         self.appContext = appContext
@@ -65,7 +69,7 @@ class PostDetailViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
         
         self.post = post
-        self.photoView.image = thumbImage
+        photoView.state = .complete(thumbImage)
     }
         
     func fetchPost() {
@@ -87,16 +91,29 @@ class PostDetailViewController: UIViewController {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    var downloadJob: FileDownloadJob? {
+        didSet {
+            guard let job = downloadJob else { log.debug("job is nil"); return }
+            self.subscriber = job.subscribe(onSuccess: { data in
+                DispatchQueue.main.async {
+                    self.photoView.state = .complete(UIImage(data: data))
+                }
+            }, onError: { error in
+                DispatchQueue.main.async {
+                    self.photoView.state = .error(error)
+                }
+            }, onUpdateProgress: { progress in
+                DispatchQueue.main.async {
+                    self.photoView.state = .downloading(progress)
+                }
+            })
+        }
+    }
     
     var downloadedImages: [Int: UIImage] = [:]
     lazy var refreshControl = UIRefreshControl()
     
-    lazy var photoView: CLDUIImageView = {
-        let view = CLDUIImageView()
-        view.contentMode = .scaleAspectFill
-        view.layer.masksToBounds = true
-        return view
-    }()
+    lazy var photoView = LoadableImageView(initialState: .empty)
     
     var artistLabel: UILabel = {
         let label = UILabel()

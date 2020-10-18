@@ -10,7 +10,7 @@ import Foundation
 import Cloudinary
 
 public class CloudinaryService {
-    private let config = CLDConfiguration(cloudName: Config.cloudinaryCloudName, apiKey: Config.cloudinaryApiKey, secure: true)
+    private let config = CLDConfiguration(cloudName: Config.cloudinaryCloudName, apiKey: Config.cloudinaryApiKey)
     private let cloudinary: CLDCloudinary
     
     public init() {
@@ -18,37 +18,30 @@ public class CloudinaryService {
     }
     
     public func downloadFile(filename: String,
+                             transformation: CLDTransformation?,
                              updateProgress: @escaping (Double) -> Void,
                              completion: @escaping (Data?, RemoteImageError?) -> Void) {
+        let publicId = filename
+        let urlGen = cloudinary.createUrl()
         
-//        guard let url = URL(string: "https://\(Config.cloudinaryApiKey):\(Config.cloudinaryApiSecret)@api.cloudinary.com/v1_1/\(Config.cloudinaryCloudName)/resources/image") else {
-//            completion(nil, RemoteImageError.invalidFilename)
-//            return
-//        }
-//        print(url)
-//        let request = URLRequest(url: url)
-//        let session = URLSession(configuration: .default)
-//        let task = session.dataTask(with: request, completionHandler: { data, response, error in
-//            guard let d = data else {
-//                completion(nil, .noData)
-//                return
-//            }
-//            guard error == nil else {
-//                completion(nil, .custom(error))
-//                return
-//            }
-//            completion(d, nil)
-//        })
-//
-//        task.resume()
+        if let transformation = transformation {
+            urlGen.setTransformation(transformation)
+        }
         
-        let url = cloudinary.createUrl().setFormat("png").setResourceType("image").generate(filename)!
-        cloudinary.createDownloader().fetchImage(url, { progress in
-            
-        }, completionHandler: { image, error in
-            
-        }).resume()
+        guard let url = urlGen.setResourceType(CLDUrlResourceType.image).generate(publicId, signUrl: false) else {
+            completion(nil, .invalidFilename)
+            return
+        }
 
+        cloudinary.createDownloader().fetchImage(url) { [weak self] (responseImage, error) in
+            if let img = responseImage {
+                DispatchQueue.main.async {
+                    completion(responseImage?.jpegData(compressionQuality: 1), nil)
+                }
+            } else {
+                completion(nil, .noData)
+            }
+        }
 
     }
 }

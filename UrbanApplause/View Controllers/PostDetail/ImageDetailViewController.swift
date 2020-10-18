@@ -8,10 +8,8 @@
 import Foundation
 import UIKit
 import Shared
-import Cloudinary
 
 class ImageDetailViewController: UIViewController, UIScrollViewDelegate {
-    private let cloudinary = CLDCloudinary(configuration: CLDConfiguration(cloudName: Config.cloudinaryCloudName, apiKey: Config.cloudinaryApiKey))
     var file: File
     var appContext: AppContext
     var imageDownloadJob: FileDownloadJob?
@@ -26,22 +24,19 @@ class ImageDetailViewController: UIViewController, UIScrollViewDelegate {
         
         self.file = file
         self.appContext = appContext
+        self.imageDownloadJob = appContext.fileCache.getJobForFile(file, isThumb: false)
+        
         super.init(nibName: nil, bundle: nil)
-
-        self.imageView.cldSetImage(publicId: file.storage_location, cloudinary: cloudinary, placeholder: placeholderImage)
-        self.updateZoomScale(for: image)
+        self.imageView.state = .complete(placeholderImage)
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
             
-    lazy var imageView: CLDUIImageView = {
-        let view = CLDUIImageView()
-        view.contentMode = .scaleAspectFit
-        view.layer.masksToBounds = true
-        return view
-    }()
+    var imageView = LoadableImageView(initialState: .empty,
+                                      maskToBounds: false,
+                                      contentMode: .scaleAspectFit)
         
     lazy var scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -61,6 +56,23 @@ class ImageDetailViewController: UIViewController, UIScrollViewDelegate {
             $0.edges.equalTo(view)
         }
         view.backgroundColor = UIColor.backgroundLight
+       
+        if let job = self.imageDownloadJob {
+            self.subscriber = job.subscribe(onSuccess: { data in
+                DispatchQueue.main.async {
+                    if let image = UIImage(data: data) {
+                        self.imageView.state = .complete(image)
+                        self.updateZoomScale(for: image)
+                    } else {
+                        log.error("invalid image data")
+                    }
+                }
+            }, onUpdateProgress: { progress in
+                DispatchQueue.main.async {
+                    self.imageView.state = .downloading(progress)
+                }
+            })
+        }
     }
     
     func updateZoomScale(for image: UIImage) {

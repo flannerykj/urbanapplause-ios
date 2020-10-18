@@ -17,6 +17,19 @@ class PostGISClusterAnnotationView: MKMarkerAnnotationView, PostAnnotationViewPr
     var fileCache: FileService?
     var contentView = AnnotationContentView()
 
+    var downloadJob: FileDownloadJob? {
+        didSet {
+            guard let job = downloadJob else {
+                return
+            }
+            _ = job.subscribe(onSuccess: { data in
+                DispatchQueue.main.async {
+                    self.contentView.setImage(UIImage(data: data))
+                }
+            })
+        }
+    }
+
     /// Animation duration in seconds.
 
     let animationDuration: TimeInterval = 0.25
@@ -41,7 +54,13 @@ class PostGISClusterAnnotationView: MKMarkerAnnotationView, PostAnnotationViewPr
         glyphText = ""
         
         if let postCluster = annotation as? PostCluster {
-            contentView.setImage(postCluster.cover_image.storage_location)
+            if let coverPhotoThumb = postCluster.cover_image_thumb {
+                log.debug("getting thumb")
+                downloadJob = fileCache?.getJobForFile(coverPhotoThumb, isThumb: true)
+            } else {
+                log.debug("get full image")
+                downloadJob = fileCache?.getJobForFile(postCluster.cover_image, isThumb: true)
+            }
             
             if postCluster.count == 1 {
                 clusterMembersCountView.isHidden = true
@@ -96,6 +115,7 @@ class PostGISClusterAnnotationView: MKMarkerAnnotationView, PostAnnotationViewPr
     override func prepareForReuse() {
         super.prepareForReuse()
         self.contentView.setImage(nil)
+        downloadJob = nil
     }
     override func layoutSubviews() {
         super.layoutSubviews()

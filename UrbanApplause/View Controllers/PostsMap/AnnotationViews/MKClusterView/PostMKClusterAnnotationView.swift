@@ -26,12 +26,21 @@ class PostMKClusterAnnotationView: MKAnnotationView, PostAnnotationViewProtocol 
                     guard let secondDate = $1.createdAt else { return true }
                     return firstDate > secondDate
                 })
-                contentView.setImage(sorted.first?.PostImages?.first?.storage_location)
+                if let coverPhotoThumb = sorted.first?.PostImages?.first?.thumbnail {
+                    downloadJob = fileCache?.getJobForFile(coverPhotoThumb, isThumb: true)
+                } else if let coverPhotoFull = sorted.first?.PostImages?.first {
+                    downloadJob = fileCache?.getJobForFile(coverPhotoFull, isThumb: true)
+                }
             } else if let posts = cluster.memberAnnotations as? [PostCluster] {
                 let sorted = posts.sorted(by: {
                     return $0.cover_post_id > $1.cover_post_id
                 })
-                contentView.setImage(sorted.first?.cover_image.storage_location)
+                if let coverPhotoThumb = sorted.first?.cover_image_thumb {
+                    downloadJob = fileCache?.getJobForFile(coverPhotoThumb, isThumb: true)
+                } else if let coverPhotoFull = sorted.first?.cover_image {
+                    log.debug("getting for cover photo full")
+                    downloadJob = fileCache?.getJobForFile(coverPhotoFull, isThumb: true)
+                }
             }
             let count = cluster.memberAnnotations.count
             if count == 1 {
@@ -57,6 +66,19 @@ class PostMKClusterAnnotationView: MKAnnotationView, PostAnnotationViewProtocol 
         clusterMembersCountLabel.textColor = .white
         return view
     }()
+
+    var downloadJob: FileDownloadJob? {
+        didSet {
+            guard let job = downloadJob else {
+                return
+            }
+            _ = job.subscribe(onSuccess: { data in
+                DispatchQueue.main.async {
+                    self.contentView.setImage(UIImage(data: data))
+                }
+            })
+        }
+    }
 
     /// Animation duration in seconds.
 
