@@ -1,13 +1,13 @@
 PODS:
-  - AWSCore (2.12.3)
-  - AWSS3 (2.12.3):
-    - AWSCore (= 2.12.3)
+  - AWSCore (2.18.0)
+  - AWSS3 (2.18.0):
+    - AWSCore (= 2.18.0)
   - Cloudinary (2.9.0):
     - Cloudinary/ios (= 2.9.0)
   - Cloudinary/ios (2.9.0)
   - Eureka (5.2.1)
   - SnapKit (5.0.1)
-  - SwiftLint (0.38.2)
+  - SwiftLint (0.40.3)
   - ViewRow (0.8):
     - Eureka (>= 5.0.0)
 
@@ -39,14 +39,14 @@ CHECKOUT OPTIONS:
     :git: https://github.com/xmartlabs/Eureka.git
 
 SPEC CHECKSUMS:
-  AWSCore: a4b4aeb414bdfd55a5e8879adb4985c46da157d6
-  AWSS3: 511a7b646572686c7e193aa19bd6a5cc43ec2977
+  AWSCore: e8cc7fd06efa211328942cc7c9f6dddbe889a115
+  AWSS3: 31b24341477f8eaae01542900e2253e908eed1ee
   Cloudinary: 8e9511826bd58df6b14f0c6c042f2c5a034081f4
   Eureka: c883105488e05bc65539f583246ecf9657cabbfe
   SnapKit: 97b92857e3df3a0c71833cce143274bf6ef8e5eb
-  SwiftLint: 8f5d2f903e1c9bcbc832fd16771e80a263ac6cbb
+  SwiftLint: dfd554ff0dff17288ee574814ccdd5cea85d76f7
   ViewRow: 8da541e9c019f3be63f4e28f311a62cac2045ecf
 
-PODFILE CHECKSUM: 721612d5f6c38878d45bd0c336a1d61421e8a66c
+PODFILE CHECKSUM: 82b653bacd015afeb33c69b852083680cdc79a22
 
 COCOAPODS: 1.9.3
