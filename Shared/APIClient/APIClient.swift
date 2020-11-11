@@ -71,7 +71,7 @@ public class APIClient: NSObject, NetworkServiceProtocol {
             addJob(job: job)
             return job
         } catch let error as UAError {
-            log.error("error while buildding URL request: \(error)")
+            log.error("error while building URL request: \(error)")
             DispatchQueue.main.async {
                 completion(UAResult.failure(error))
             }

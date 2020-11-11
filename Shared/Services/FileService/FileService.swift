@@ -28,6 +28,7 @@ public class FileService: NSObject {
     private let thumbImageCache = Cache<String, FileDownloadJob>()
 
     public func getJobForFile(_ file: File, isThumb: Bool) -> FileDownloadJob {
+        log.debug("get job for file: \(file.filename)")
         let cache: Cache = isThumb ? thumbImageCache : fullResImageCache
         if let job = cache[file.storage_location] {
             // see if job already complete/in progress

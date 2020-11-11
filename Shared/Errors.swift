@@ -154,7 +154,12 @@ public enum NetworkError: UAError {
         case .requestTimeout:
             return "Network Error: Request Timeout"
         case .invalidCode(let code):
-            return "Network Error: Invalid Response Code \(code)"
+            switch code {
+            case 502:
+                return "Network Error: 502 Nginx Bad Gateway"
+            default:
+                return "Network Error: Invalid Response Code \(code)"
+            }
         }
     }
     public var debugMessage: String {
@@ -175,7 +180,12 @@ public enum NetworkError: UAError {
         case .requestTimeout:
             return "Network Error: Request Timeout"
         case .invalidCode(let code):
-            return "Network Error: Invalid Response Code \(code)"
+            switch code {
+            case 502:
+                return "Network Error: 502 Nginx Bad Gateway"
+            default:
+                return "Network Error: Invalid Response Code \(code)"
+            }
         }
     }
     
