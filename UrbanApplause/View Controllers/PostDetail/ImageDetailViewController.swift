@@ -24,7 +24,7 @@ class ImageDetailViewController: UIViewController, UIScrollViewDelegate {
         
         self.file = file
         self.appContext = appContext
-        self.imageDownloadJob = appContext.fileCache.getJobForFile(file)
+        self.imageDownloadJob = appContext.fileCache.getJobForFile(file, isThumb: false)
         
         super.init(nibName: nil, bundle: nil)
         self.imageView.state = .complete(placeholderImage)

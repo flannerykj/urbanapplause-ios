@@ -29,7 +29,7 @@ class PostDetailViewController: UIViewController {
             guard let post = post else { return }
             title = post.title
             if let file = post.PostImages?.first {
-                downloadJob = appContext.fileCache.getJobForFile(file)
+                downloadJob = appContext.fileCache.getJobForFile(file, isThumb: false)
             }
             artistLabel.text = post.title
             setLocation(post.Location)

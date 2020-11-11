@@ -45,7 +45,9 @@ class PostGISClusterAnnotationView: MKMarkerAnnotationView, PostAnnotationViewPr
         addSubview(clusterMembersCountView)
         clusterMembersCountView.centerYAnchor.constraint(equalTo: contentView.topAnchor).isActive = true
         clusterMembersCountView.centerXAnchor.constraint(equalTo: contentView.rightAnchor).isActive = true
+        #if DEBUG
         contentView.backgroundColor = .green
+        #endif
     }
     override func prepareForDisplay() {
         super.prepareForDisplay()
@@ -56,10 +58,10 @@ class PostGISClusterAnnotationView: MKMarkerAnnotationView, PostAnnotationViewPr
         if let postCluster = annotation as? PostCluster {
             if let coverPhotoThumb = postCluster.cover_image_thumb {
                 log.debug("getting thumb")
-                downloadJob = fileCache?.getJobForFile(coverPhotoThumb)
+                downloadJob = fileCache?.getJobForFile(coverPhotoThumb, isThumb: true)
             } else {
                 log.debug("get full image")
-                downloadJob = fileCache?.getJobForFile(postCluster.cover_image)
+                downloadJob = fileCache?.getJobForFile(postCluster.cover_image, isThumb: true)
             }
             
             if postCluster.count == 1 {

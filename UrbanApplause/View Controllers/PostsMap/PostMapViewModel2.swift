@@ -138,7 +138,7 @@ class PostMapViewModel2 {
                             collectionId: nil,
                             proximity: nil,
                             bounds: filterForGeoBounds,
-                            include: [])
+                            include: ["post_images"])
         _ = appContext.networkService.request(PrivateRouter.getPosts(query: query)
         ) { [weak self] (result: UAResult<PostsContainer>) in
             guard self != nil else { return }

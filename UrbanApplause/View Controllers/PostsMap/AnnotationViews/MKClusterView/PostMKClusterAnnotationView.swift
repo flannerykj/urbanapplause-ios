@@ -27,19 +27,19 @@ class PostMKClusterAnnotationView: MKAnnotationView, PostAnnotationViewProtocol 
                     return firstDate > secondDate
                 })
                 if let coverPhotoThumb = sorted.first?.PostImages?.first?.thumbnail {
-                    downloadJob = fileCache?.getJobForFile(coverPhotoThumb)
+                    downloadJob = fileCache?.getJobForFile(coverPhotoThumb, isThumb: true)
                 } else if let coverPhotoFull = sorted.first?.PostImages?.first {
-                    downloadJob = fileCache?.getJobForFile(coverPhotoFull)
+                    downloadJob = fileCache?.getJobForFile(coverPhotoFull, isThumb: true)
                 }
             } else if let posts = cluster.memberAnnotations as? [PostCluster] {
                 let sorted = posts.sorted(by: {
                     return $0.cover_post_id > $1.cover_post_id
                 })
                 if let coverPhotoThumb = sorted.first?.cover_image_thumb {
-                    downloadJob = fileCache?.getJobForFile(coverPhotoThumb)
+                    downloadJob = fileCache?.getJobForFile(coverPhotoThumb, isThumb: true)
                 } else if let coverPhotoFull = sorted.first?.cover_image {
                     log.debug("getting for cover photo full")
-                    downloadJob = fileCache?.getJobForFile(coverPhotoFull)
+                    downloadJob = fileCache?.getJobForFile(coverPhotoFull, isThumb: true)
                 }
             }
             let count = cluster.memberAnnotations.count
@@ -60,8 +60,8 @@ class PostMKClusterAnnotationView: MKAnnotationView, PostAnnotationViewProtocol 
         view.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(clusterMembersCountLabel)
         clusterMembersCountLabel.fillWithinMargins(view: view)
-        view.backgroundColor = UIColor.systemBlue
         view.layer.cornerRadius = 8
+        view.backgroundColor = .systemBlue
         clusterMembersCountLabel.translatesAutoresizingMaskIntoConstraints = false
         clusterMembersCountLabel.textColor = .white
         return view
@@ -93,7 +93,9 @@ class PostMKClusterAnnotationView: MKAnnotationView, PostAnnotationViewProtocol 
         addSubview(clusterMembersCountView)
         clusterMembersCountView.centerYAnchor.constraint(equalTo: contentView.topAnchor).isActive = true
         clusterMembersCountView.centerXAnchor.constraint(equalTo: contentView.rightAnchor).isActive = true
-        // contentView.backgroundColor = .orange
+        #if DEBUG
+        contentView.backgroundColor = .orange
+        #endif
     }
 
     required init?(coder aDecoder: NSCoder) {

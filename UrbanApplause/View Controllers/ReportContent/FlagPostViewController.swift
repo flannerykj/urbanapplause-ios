@@ -54,9 +54,9 @@ class ReportAnIssueViewController: UIViewController {
         view.layoutMargins = StyleConstants.defaultPaddingInsets
         view.addSubview(label)
         label.fillWithinMargins(view: view)
-        log.debug("size: \(size)")
         return view
     }()
+    
     lazy var tableView: UITableView = {
        let tableView = UITableView()
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "ReportReason")

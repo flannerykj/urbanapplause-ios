@@ -45,7 +45,10 @@ class PostAnnotationView: MKMarkerAnnotationView, PostAnnotationViewProtocol {
         markerTintColor = .clear
         clusteringIdentifier = "post"
         addSubview(contentView)
-        // contentView.backgroundColor = .blue // For debugging
+        
+        #if DEBUG
+        contentView.backgroundColor = UIColor.systemPink
+        #endif
     }
     override func prepareForDisplay() {
         super.prepareForDisplay()
@@ -55,9 +58,9 @@ class PostAnnotationView: MKMarkerAnnotationView, PostAnnotationViewProtocol {
         
         if let post = annotation as? Post {
             if let coverPhotoThumb = post.PostImages?.first?.thumbnail {
-                downloadJob = fileCache?.getJobForFile(coverPhotoThumb)
+                downloadJob = fileCache?.getJobForFile(coverPhotoThumb, isThumb: true)
             } else if let coverPhotoFull = post.PostImages?.first {
-               downloadJob = fileCache?.getJobForFile(coverPhotoFull)
+               downloadJob = fileCache?.getJobForFile(coverPhotoFull, isThumb: true)
             }
         }
     }

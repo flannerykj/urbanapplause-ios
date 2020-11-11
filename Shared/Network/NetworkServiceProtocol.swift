@@ -34,7 +34,7 @@ public extension NetworkServiceProtocol {
                            error: Error?) -> UAResult<T> where T: Decodable {
         
         if let error = self.handleError(data: data, response: response, error: error) {
-            log.debug("error: \(error.debugMessage)")
+            log.error("error: \(error.debugMessage)")
             if let serverError = error as? UAServerError {
                 switch serverError.name {
                 case .AccessDeniedError:

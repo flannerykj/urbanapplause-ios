@@ -13,31 +13,7 @@ import AWSS3
 
 fileprivate let log = DHLogger.self
 
-public enum S3Error: UAError {
-    case uploadError(String?), downloadError(String?)
-    
-    public var errorCode: UAErrorCode? { return nil }
-    
-    public var debugMessage: String {
-        switch self {
-        case .uploadError(let string):
-            return string ?? "Unable to upload file"
-        case .downloadError(let string):
-            return string ?? "Unable to download file"
-        }
-    }
-    
-    public var userMessage: String {
-        switch self {
-        case .uploadError(let string):
-            return string ?? "Unable to upload file"
-        case .downloadError(let string):
-            return string ?? "Unable to download file"
-        }
-    }
-}
-
-public struct SpacesFileRepository {
+public struct SpacesFileRepository: RemoteImageService {
     private static let accessKey = Config.awsAccessKeyId
     private static let secretKey = Config.awsSecretAccessKey
     private static let bucket = Config.awsBucketName // name of space
@@ -77,7 +53,7 @@ public struct SpacesFileRepository {
                                     completionHandler: { task, error in
             guard error == nil else {
                 log.debug("S3 Upload Error: \(error!.localizedDescription)")
-                completion(.failure(S3Error.uploadError(error?.localizedDescription)))
+                completion(.failure(RemoteImageError.uploadError(error?.localizedDescription)))
                 return
             }
             }).continueWith(block: { (task) -> Any? in
@@ -91,7 +67,7 @@ public struct SpacesFileRepository {
     
     public func downloadFile(filename: String,
                       updateProgress: @escaping (Double) -> Void,
-                      completion: @escaping (Data?, Error?) -> Void) {
+                      completion: @escaping (Data?, RemoteImageError?) -> Void) {
         
         let expression = AWSS3TransferUtilityDownloadExpression()
         expression.progressBlock = { result, progress in
@@ -101,7 +77,7 @@ public struct SpacesFileRepository {
         transferUtility?.downloadData(forKey: "uploads/\(filename)", expression: expression, completionHandler: { (task, url, data, error) in
             guard error == nil else {
                 log.error("S3 Download Error: \(error!.localizedDescription)")
-                completion(nil, error)
+                completion(nil, .custom(error))
                 return
             }
             completion(data, nil)
