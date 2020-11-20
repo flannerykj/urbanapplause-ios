@@ -33,7 +33,6 @@ public class CloudinaryService {
             return
         }
 
-        print(url)
         cloudinary.createDownloader().fetchImage(url) { [weak self] (responseImage, error) in
             if let img = responseImage {
                 DispatchQueue.main.async {

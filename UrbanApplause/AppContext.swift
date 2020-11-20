@@ -58,6 +58,7 @@ class AppContext: NSObject {
     // MARK: - Public Methods
     func start() {
         navigateToApp()
+        
     }
 
     public func startSession(authResponse: AuthResponse) {

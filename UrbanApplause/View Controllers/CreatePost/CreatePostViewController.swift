@@ -472,12 +472,9 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
             log.error("no user")
             return
         }
-        guard let pngData = UIImage(data: selectedImageData)?.png else {
-            log.error("Unable to convert to png")
-            return
-        }
         // Add new Post Images to Post
-        let endpoint = PrivateRouter.uploadImages(postId: post.id, userId: userID, imagesData: [pngData])
+        
+        let endpoint = PrivateRouter.uploadImages(postId: post.id, userId: userID, imagesData: [selectedImageData])
         let job = networkService.request(endpoint, completion: { (result: UAResult<PostImagesContainer>) in
             DispatchQueue.main.async {
                 self.isLoading = false
@@ -487,10 +484,10 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
                     post.PostImages = container.images
                     // Backend won't have finished compressing images yet, so save on frontend to dispaly immediately
                     if let file = container.images.first {
-                        self.appContext.fileCache.addLocalData(pngData, for: file, isThumb: false)
-                        self.appContext.fileCache.addLocalData(pngData, for: file, isThumb: true)
+                        self.appContext.fileCache.addLocalData(self.selectedImageData, for: file, isThumb: false)
+                        self.appContext.fileCache.addLocalData(self.selectedImageData, for: file, isThumb: true)
                     }
-                    self.delegate?.createPostController(self, didUploadImageData: pngData, forPost: post)
+                    self.delegate?.createPostController(self, didUploadImageData: self.selectedImageData, forPost: post)
                     self.dismiss(animated: true, completion: nil)
                 case .failure(let error):
                     self.showAlert(message: error.userMessage)
