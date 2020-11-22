@@ -18,6 +18,14 @@ public struct Collection: Codable {
     public var description: String?
     public var UserId: Int
     public var Posts: [Post]?
+    
+    
+    public init(title: String = "New collection", id: Int = 0, UserId: Int = 0, Posts: [Post] = []) {
+        self.id = id
+        self.title = title
+        self.UserId = UserId
+        self.Posts = Posts
+    }
 }
 
 // Question: way to avoid creating container type for each data type's api response?

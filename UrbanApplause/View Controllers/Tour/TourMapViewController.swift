@@ -1,91 +1,49 @@
 //
-//  PostMapController2.swift
+//  TourMapViewController.swift
 //  UrbanApplause
 //
-//  Created by Flannery Jefferson on 2019-11-27.
-//  Copyright © 2019 Flannery Jefferson. All rights reserved.
+//  Created by Flann on 2020-11-20.
+//  Copyright © 2020 Flannery Jefferson. All rights reserved.
 //
 
 import Foundation
 import UIKit
 import MapKit
 import Shared
-import SnapKit
-import RxSwift
+import CoreLocation
+import FloatingPanel
 
-class PostMapViewController2: UIViewController {
-    private let disposeBag = DisposeBag()
+class TourMapViewController: UIViewController, FloatingPanelControllerDelegate {
+    private let collection: Collection
+    private let appContext: AppContext
+    var fpc: FloatingPanelController!
     
-    var viewModel: MapDataStream
-    var appContext: AppContext
-    var needsUpdate: Bool = false
     var awaitingZoomToCurrentLocation: Bool = false
-
-    lazy var scaleView: MKScaleView = MKScaleView(mapView: mapView)
-    
     // Create a location manager to trigger user tracking
     var locationManager = CLLocationManager()
     var requestedZoomToCurrentLocation: Bool = false
     
-    init(viewModel: MapDataStream, appContext: AppContext) {
+    init(collection: Collection, appContext: AppContext) {
+        self.collection = collection
         self.appContext = appContext
-        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
+        hidesBottomBarWhenPushed = true
     }
     
-    private func subscribeToMapData() {
-        viewModel.error
-            .observeOn(MainScheduler.instance)
-            .subscribe(onNext: { (err: Error?) in
-                if let err = err {
-                    self.handleError(err)
-                }
-            })
-            .disposed(by: disposeBag)
-        
-        
-        viewModel.mapMarkers
-            .observeOn(MainScheduler.instance)
-            .subscribe(onNext: { clustersAdded in
-                self.mapView.removeAnnotations(self.mapView.annotations)
-                if let clusters = clustersAdded {
-                    self.mapView.addAnnotations(clusters)
-                }
-            })
-            .disposed(by: disposeBag)
-        
-        viewModel.isLoading
-            .observeOn(MainScheduler.instance)
-            .subscribe(onNext: { isLoading in
-                self.loadingView.isHidden = !isLoading
-            })
-            .disposed(by: disposeBag)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
-    let activityIndicator = CircularLoader()
     
-    lazy var loadingView: UIView = {
-        let view = UIView()
-        activityIndicator.heightAnchor.constraint(equalToConstant: 24).isActive = true
-        activityIndicator.widthAnchor.constraint(equalToConstant: 24).isActive = true
-        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
-        activityIndicator.tintColor = UIColor.systemPink
-        activityIndicator.animate()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.layoutMargins = StyleConstants.defaultPaddingInsets
-        view.addSubview(activityIndicator)
-        activityIndicator.snp.makeConstraints {
-            $0.edges.equalTo(view)
-        }
-        return view
-    }()
-    
-    // MARK: - UIViewController
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        if let username = self.appContext.store.user.data?.username {
-            navigationItem.title = Strings.WelcomeMessage(username: username)
-        }
+        navigationItem.title = collection.title
     }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        fpc.removeFromParent()
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         locationManager.delegate = self
@@ -98,9 +56,6 @@ class PostMapViewController2: UIViewController {
             $0.edges.equalTo(view)
         }
 
-        mapView.addSubview(loadingView)
-        loadingView.centerXAnchor.constraint(equalTo: mapView.centerXAnchor).isActive = true
-        loadingView.topAnchor.constraint(equalTo: mapView.safeAreaLayoutGuide.topAnchor, constant: 24).isActive = true
         let backItem = UIBarButtonItem()
         backItem.title = Strings.MapTabItemTitle
         navigationItem.backBarButtonItem = backItem
@@ -115,38 +70,31 @@ class PostMapViewController2: UIViewController {
         let gr = UILongPressGestureRecognizer(target: self, action: #selector(longPressedMap(sender:)))
         mapView.addGestureRecognizer(gr)
         
-        subscribeToMapData()
+        updateMapMarkers()
+        
+        presentBottomSheet()
+       
     }
     
-    @objc func longPressedMap(sender: UILongPressGestureRecognizer) {
-        if sender.state == UIGestureRecognizer.State.began {
-            let touchPoint = sender.location(in: self.mapView)
-            let touchCoordinate = self.mapView.convert(touchPoint, toCoordinateFrom: self.mapView)
-            let placemark = MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: touchCoordinate.latitude,
-                                                                           longitude: touchCoordinate.longitude),
-                                        addressDictionary: [:])
-            
-            let ac = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-            let addPost = UIAlertAction(title: Strings.AddPostHereButtonTitle, style: .default, handler: { _ in
-                self.addNewPost(sender: self.mapView, at: placemark)
-            })
-            
-            let cancelAction = UIAlertAction(title: Strings.CancelButtonTitle, style: .cancel, handler: nil)
-            ac.addAction(addPost)
-            ac.addAction(cancelAction)
-            ac.popoverPresentationController?.sourceView = self.mapView
-            ac.popoverPresentationController?.sourceRect = CGRect(x: touchPoint.x, y: touchPoint.y, width: 0, height: 0)
-            present(ac, animated: true, completion: nil)
+    // MARK: - FloatingPanelControllerDelegate
+ 
+    
+    func presentBottomSheet() {
+        fpc = FloatingPanelController()
+        fpc.delegate = self
+        let contentVC = TourInfoViewController(collection: collection, appContext: appContext)
+        fpc.set(contentViewController: contentVC)
+        fpc.track(scrollView: contentVC.tableView)
+        fpc.addPanel(toParent: self)
+    }
+    
+    private func updateMapMarkers() {
+        self.mapView.removeAnnotations(self.mapView.annotations)
+        if let posts = collection.Posts {
+            self.mapView.addAnnotations(posts)
         }
     }
     
-    func addNewPost(sender: UIView, at placemark: CLPlacemark?) {
-        (self.tabBarController as? TabBarController)?.getImageForNewPost(sender: sender, placemark: placemark)
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
     
     lazy var mapView: MKMapView = {
         let mapView = MKMapView(frame: self.view.frame)
@@ -171,7 +119,7 @@ class PostMapViewController2: UIViewController {
 
         if let annotation = annotationView.annotation as? MKClusterAnnotation {
             if let members = annotation.memberAnnotations as? [Post] {
-                if viewModel.isAtMaxZoom(visibleMapRect: mapView.visibleMapRect,
+                if isAtMaxZoom(visibleMapRect: mapView.visibleMapRect,
                                          mapPixelWidth: Double(mapView.bounds.width)) {
                     
                     let wallViewModel = PostListViewModel(posts: members, appContext: appContext)
@@ -183,7 +131,7 @@ class PostMapViewController2: UIViewController {
                     self.mapView.showAnnotations(members, animated: true)
                 }
             } else if let members = annotation.memberAnnotations as? [PostCluster],
-                let region = self.viewModel.getRegionForClusters(members, mapBounds: self.mapView.bounds) {
+                let region = self.getRegionForClusters(members, mapBounds: self.mapView.bounds) {
                 self.mapView.setRegion(region,
                                        animated: true)
             }
@@ -192,9 +140,31 @@ class PostMapViewController2: UIViewController {
         } else if let postCluster = annotationView.annotation as? PostCluster {
             if postCluster.count == 1 {
                 showDetailForPostWithID(postCluster.cover_post_id, post: nil, thumbImage: thumbImage)
-            } else if let region = viewModel.getRegionForCluster(postCluster, mapBounds: self.mapView.bounds) {
+            } else if let region = getRegionForCluster(postCluster, mapBounds: self.mapView.bounds) {
                 self.mapView.setRegion(region, animated: true)
             }
+        }
+    }
+    
+    @objc func longPressedMap(sender: UILongPressGestureRecognizer) {
+        if sender.state == UIGestureRecognizer.State.began {
+            let touchPoint = sender.location(in: self.mapView)
+            let touchCoordinate = self.mapView.convert(touchPoint, toCoordinateFrom: self.mapView)
+            let placemark = MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: touchCoordinate.latitude,
+                                                                           longitude: touchCoordinate.longitude),
+                                        addressDictionary: [:])
+            
+//            let ac = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+//            let addPost = UIAlertAction(title: Strings.AddPostHereButtonTitle, style: .default, handler: { _ in
+//                self.addNewPost(sender: self.mapView, at: placemark)
+//            })
+//
+//            let cancelAction = UIAlertAction(title: Strings.CancelButtonTitle, style: .cancel, handler: nil)
+//            ac.addAction(addPost)
+//            ac.addAction(cancelAction)
+//            ac.popoverPresentationController?.sourceView = self.mapView
+//            ac.popoverPresentationController?.sourceRect = CGRect(x: touchPoint.x, y: touchPoint.y, width: 0, height: 0)
+//            present(ac, animated: true, completion: nil)
         }
     }
     
@@ -212,20 +182,6 @@ class PostMapViewController2: UIViewController {
         showAlert(title: Strings.ErrorAlertTitle, message: message)
     }
 
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        updateMap()
-    }
-    
-    func updateMap(refreshCache: Bool = false) {
-        log.debug("refreshCache: \(refreshCache)")
-        if refreshCache {
-            viewModel.resetCache()
-        }
-        viewModel.requestMapData(visibleMapRect: mapView.visibleMapRect,
-                                 mapPixelWidth: Double(mapView.bounds.width),
-                                 forceReload: refreshCache)
-    }
     @objc func requestZoomToCurrentLocation(_: Any) {
         guard CLLocationManager.locationServicesEnabled() else {
             showAlert(message: Strings.LocationServicesNotEnabledError)
@@ -254,9 +210,59 @@ class PostMapViewController2: UIViewController {
                                         span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01))
         mapView.setRegion(region, animated: true)
     }
+    
+    func isAtMaxZoom(visibleMapRect: MKMapRect, mapPixelWidth: Double) -> Bool {
+        let zoomScale = mapPixelWidth / visibleMapRect.size.width // This number increases as you zoom in.
+        let maxZoomScale: Double = 0.194138880976604 // This is the greatest zoom scale Map Kit lets you get to,
+        // i.e. the most you can zoom in.
+        return zoomScale >= maxZoomScale
+    }
+    
+    func getRegionForCluster(_ postCluster: PostCluster,
+                             mapBounds: CGRect) -> MKCoordinateRegion? {
+        let coords: [CLLocationCoordinate2D] = postCluster.bounding_diagonal.coordinates.map { point in
+            return CLLocationCoordinate2D(latitude: point[0], longitude: point[1])
+        }
+        let latitudeDelta = CLLocationDegrees(abs(coords[0].latitude - coords[1].latitude))
+        let longitudeDelta = abs(coords[0].longitude - coords[1].longitude)
+        let markerDegreesWidth = longitudeDelta * Double(AnnotationContentView.width) / Double(mapBounds.width)
+        let markerDegreesHeight = latitudeDelta * Double(AnnotationContentView.height) / Double(mapBounds.height)
+        let span = MKCoordinateSpan(latitudeDelta: latitudeDelta + markerDegreesHeight*2,
+                                    longitudeDelta: longitudeDelta + markerDegreesWidth*2)
+        return MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: postCluster.centroid.latitude,
+                                                                 longitude: postCluster.centroid.longitude),
+                                  span: span)
+    }
+    
+    func getRegionForClusters(_ postClusters: [PostCluster],
+                              mapBounds: CGRect) -> MKCoordinateRegion? {
+        guard postClusters.count > 0 else { return nil }
+        let coords: [CLLocationCoordinate2D] = postClusters.reduce([], {acc, cluster in
+            return  acc + cluster.bounding_diagonal.coordinates.map { point in
+                CLLocationCoordinate2D(latitude: point[0], longitude: point[1])
+            }
+        })
+        let minLng = coords.map { $0.longitude }.min()!
+        let maxLng = coords.map { $0.longitude }.max()!
+        let minLat = coords.map { $0.latitude }.min()!
+        let maxLat = coords.map { $0.latitude }.max()!
+        
+        let centerLat = (maxLat - minLat)/2
+        let centerLng = (maxLng - minLng)/2
+        let center = CLLocationCoordinate2D(latitude: centerLat, longitude: centerLng)
+        let latitudeDelta = abs(maxLat - minLat)
+        let longitudeDelta = abs(maxLng - minLng)
+        let markerDegreesWidth = latitudeDelta * Double(AnnotationContentView.width) / Double(mapBounds.width)
+        let markerDegreesHeight = longitudeDelta * Double(AnnotationContentView.height) / Double(mapBounds.height)
+        let padding = markerDegreesWidth * 0.2
+        let span = MKCoordinateSpan(latitudeDelta: latitudeDelta + markerDegreesHeight + padding*2,
+                                    longitudeDelta: longitudeDelta + markerDegreesWidth + padding*2)
+        return MKCoordinateRegion(center: center, span: span)
+    }
+    
 }
 
-extension PostMapViewController2: MKMapViewDelegate {
+extension TourMapViewController: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         if let postGISClusterAnnotation = annotation as? PostCluster {
             // receiving clusters from backend - green
@@ -286,7 +292,7 @@ extension PostMapViewController2: MKMapViewDelegate {
     }
     func mapViewDidChangeVisibleRegion(_ mapView: MKMapView) {
         // called while user is moving the screen
-        self.updateMap()
+        
     }
     
     func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
@@ -295,7 +301,7 @@ extension PostMapViewController2: MKMapViewDelegate {
     }
 }
 
-extension PostMapViewController2: CLLocationManagerDelegate {
+extension TourMapViewController: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         let locationAuthorized = (status == .authorizedWhenInUse || status == .authorizedAlways)
         if self.awaitingZoomToCurrentLocation {
@@ -322,47 +328,31 @@ extension PostMapViewController2: CLLocationManagerDelegate {
         log.error(error)
     }
 }
-extension PostMapViewController2: CreatePostControllerDelegate {
-    func createPostController(_ controller: CreatePostViewController, didDeletePost post: Post) {
-        self.updateMap(refreshCache: true)
-    }
-    
-    func createPostController(_ controller: CreatePostViewController, didCreatePost post: Post) {
+
+extension TourMapViewController: PostDetailDelegate {
+    func postDetail(_ controller: PostDetailViewController, didUpdatePost post: Post) {
         
     }
     
-    func createPostController(_ controller: CreatePostViewController, didUploadImageData: Data, forPost post: Post) {
-        viewModel.addPost(post)
-        self.updateMap(refreshCache: true)
-        if let location = post.Location?.clLocation {
-            self.zoomToLocation(location)
-        }
-    }
-    
-    func createPostController(_ controller: CreatePostViewController,
-                              didBeginUploadForData: Data,
-                              forPost post: Post, job: NetworkServiceJob?) {
-    }
-}
-extension PostMapViewController2: PostListControllerDelegate {
-    var canEditPosts: Bool {
-        return true
-    }
-    
-    func didDeletePost(_ post: Post, atIndexPath indexPath: IndexPath) {
-        viewModel.removePost(post)
-    }
-}
-extension PostMapViewController2: PostDetailDelegate {
-    func postDetail(_ controller: PostDetailViewController, didUpdatePost post: Post) {
-        self.updateMap(refreshCache: true)
-    }
-    
     func postDetail(_ controller: PostDetailViewController, didBlockUser user: User) {
-        self.updateMap(refreshCache: true)
+        
     }
     
     func postDetail(_ controller: PostDetailViewController, didDeletePost post: Post) {
-        self.updateMap(refreshCache: true)
+        
     }
+    
+    
+}
+
+extension TourMapViewController: PostListControllerDelegate {
+    var canEditPosts: Bool {
+        return false
+    }
+    
+    func didDeletePost(_ post: Post, atIndexPath indexPath: IndexPath) {
+        
+    }
+    
+    
 }

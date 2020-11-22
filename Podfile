@@ -13,6 +13,7 @@ target 'UrbanApplause' do
   pod 'Cloudinary'
   pod 'RxSwift'
   pod 'RxCocoa'
+  pod 'FloatingPanel'
   # Pods for UrbanApplause
 
   target 'UrbanApplauseUpload' do

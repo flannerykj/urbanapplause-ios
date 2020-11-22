@@ -9,6 +9,9 @@
 /* Begin PBXBuildFile section */
 		239D3CCCB535048D1569D0FE /* Pods_UrbanApplauseTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8F04B06017455278535E351E /* Pods_UrbanApplauseTests.framework */; };
 		2CA81C3726C1FBA2033C905B /* Pods_Shared.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AE67C1727BC5F34DBC42F1D4 /* Pods_Shared.framework */; };
+		326BC2A32567C31F008DEBBB /* TourMapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 326BC2A22567C31F008DEBBB /* TourMapViewController.swift */; };
+		326BC319256810CA008DEBBB /* ExperimentManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 326BC318256810CA008DEBBB /* ExperimentManager.swift */; };
+		326BC3E6256AE370008DEBBB /* TourInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 326BC3E5256AE370008DEBBB /* TourInfoViewController.swift */; };
 		3A069F0F23C79E55009405F6 /* Shared.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A72A54A23C7758200B64A06 /* Shared.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3A069F3423C7A996009405F6 /* .env in Resources */ = {isa = PBXBuildFile; fileRef = 3A5F0D1123761B230099623E /* .env */; };
 		3A069F3523C7A996009405F6 /* .env.production in Resources */ = {isa = PBXBuildFile; fileRef = 3ABC157D23761BC400EF4CF6 /* .env.production */; };
@@ -262,6 +265,9 @@
 		1C61606185890359DAE798CA /* Pods-UrbanApplauseUpload.release (production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UrbanApplauseUpload.release (production).xcconfig"; path = "Target Support Files/Pods-UrbanApplauseUpload/Pods-UrbanApplauseUpload.release (production).xcconfig"; sourceTree = "<group>"; };
 		236A25B05EF50959CBA49F63 /* Pods-UrbanApplauseUpload.debug (production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UrbanApplauseUpload.debug (production).xcconfig"; path = "Target Support Files/Pods-UrbanApplauseUpload/Pods-UrbanApplauseUpload.debug (production).xcconfig"; sourceTree = "<group>"; };
 		30BDF2B9AAF15F5512CE90ED /* Pods-Shared.debug (development).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Shared.debug (development).xcconfig"; path = "Target Support Files/Pods-Shared/Pods-Shared.debug (development).xcconfig"; sourceTree = "<group>"; };
+		326BC2A22567C31F008DEBBB /* TourMapViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TourMapViewController.swift; sourceTree = "<group>"; };
+		326BC318256810CA008DEBBB /* ExperimentManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExperimentManager.swift; sourceTree = "<group>"; };
+		326BC3E5256AE370008DEBBB /* TourInfoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TourInfoViewController.swift; sourceTree = "<group>"; };
 		355E0BAA362E820F9716997C /* Pods_UrbanApplauseUpload.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_UrbanApplauseUpload.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3A0C8FB723B8F72D0068AECA /* UITextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITextView.swift; sourceTree = "<group>"; };
 		3A0C8FB923B8FC8C0068AECA /* UIEdgeInsets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIEdgeInsets.swift; sourceTree = "<group>"; };
@@ -536,6 +542,15 @@
 			path = Pods;
 			sourceTree = "<group>";
 		};
+		326BC3E4256AE362008DEBBB /* Tour */ = {
+			isa = PBXGroup;
+			children = (
+				326BC2A22567C31F008DEBBB /* TourMapViewController.swift */,
+				326BC3E5256AE370008DEBBB /* TourInfoViewController.swift */,
+			);
+			path = Tour;
+			sourceTree = "<group>";
+		};
 		3A111520236F757800341B89 /* UrbanApplauseTests */ = {
 			isa = PBXGroup;
 			children = (
@@ -657,6 +672,7 @@
 				3A1B030E23CA5FA200CFE9D6 /* Reachability.swift */,
 				3A72A57D23C7772A00B64A06 /* Result.swift */,
 				3A72A57A23C776ED00B64A06 /* Strings.swift */,
+				326BC318256810CA008DEBBB /* ExperimentManager.swift */,
 				3A1B030C23CA5E1D00CFE9D6 /* Notifcations.swift */,
 				3A850AE123ABE96700E74F05 /* ListViewModel.swift */,
 				3AE4627A23D0C8C10062C869 /* LinkConvertible.swift */,
@@ -819,6 +835,7 @@
 				3A179A712360F56900E0C3FF /* CreateArtistViewController.swift */,
 				3A12795223D089F30086AB6C /* CreateArtistGroupViewController.swift */,
 				3A9467F923631F8200C446F7 /* SearchPostsViewController.swift */,
+				326BC3E4256AE362008DEBBB /* Tour */,
 				3AE4628023D0F3F40062C869 /* ArtistList */,
 				3AE4627523D0C10C0062C869 /* ArtistGroupDetail */,
 				3AE86AEA23BE42B50097DB1A /* Toolbar */,
@@ -1496,6 +1513,7 @@
 				3A72A5F823C7961900B64A06 /* SpacesFileRepository.swift in Sources */,
 				3A72A59323C7780A00B64A06 /* File.swift in Sources */,
 				3AEB731B2528B1A200BF0EB5 /* CloudinaryService.swift in Sources */,
+				326BC319256810CA008DEBBB /* ExperimentManager.swift in Sources */,
 				3A72A58123C7775F00B64A06 /* AuthResponse.swift in Sources */,
 				3A72A5F523C7961900B64A06 /* KeychainService.swift in Sources */,
 				3A72A5E023C7906500B64A06 /* CLPlacemark.swift in Sources */,
@@ -1532,6 +1550,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3AFAB6BD2364C9BB000EC360 /* NoFrameView.swift in Sources */,
+				326BC3E6256AE370008DEBBB /* TourInfoViewController.swift in Sources */,
 				3A3187322353288700D59F79 /* Store.swift in Sources */,
 				3AD94799238F365600B5BF3B /* AnnotationContentView.swift in Sources */,
 				3AE86AE223BE3B310097DB1A /* ArtistProfileViewModel.swift in Sources */,
@@ -1600,6 +1619,7 @@
 				3ACAE1002390AB9F0025FB25 /* CircularLoader.swift in Sources */,
 				3A31872E2353251A00D59F79 /* TabBarController.swift in Sources */,
 				3AB575B12274A9E500C8F597 /* NewCollectionViewController.swift in Sources */,
+				326BC2A32567C31F008DEBBB /* TourMapViewController.swift in Sources */,
 				3AE86AE523BE41810097DB1A /* UserProfileViewController.swift in Sources */,
 				3ADD72C92383269A0007CAEF /* SettingsItem.swift in Sources */,
 				3A2C8D1A238F40BA000C3122 /* PostMapViewModel2.swift in Sources */,

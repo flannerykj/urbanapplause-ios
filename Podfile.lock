@@ -6,6 +6,7 @@ PODS:
     - Cloudinary/ios (= 2.9.0)
   - Cloudinary/ios (2.9.0)
   - Eureka (5.2.1)
+  - FloatingPanel (2.0.1)
   - RxCocoa (5.1.1):
     - RxRelay (~> 5)
     - RxSwift (~> 5)
@@ -21,6 +22,7 @@ DEPENDENCIES:
   - AWSS3
   - Cloudinary
   - Eureka (from `https://github.com/xmartlabs/Eureka.git`, branch `xcode12`)
+  - FloatingPanel
   - RxCocoa
   - RxSwift
   - SnapKit
@@ -32,6 +34,7 @@ SPEC REPOS:
     - AWSCore
     - AWSS3
     - Cloudinary
+    - FloatingPanel
     - RxCocoa
     - RxRelay
     - RxSwift
@@ -54,6 +57,7 @@ SPEC CHECKSUMS:
   AWSS3: 31b24341477f8eaae01542900e2253e908eed1ee
   Cloudinary: 8e9511826bd58df6b14f0c6c042f2c5a034081f4
   Eureka: c883105488e05bc65539f583246ecf9657cabbfe
+  FloatingPanel: 579a5ac0154f923a9d7302c4f13dbc0268511c92
   RxCocoa: 32065309a38d29b5b0db858819b5bf9ef038b601
   RxRelay: d77f7d771495f43c556cbc43eebd1bb54d01e8e9
   RxSwift: 81470a2074fa8780320ea5fe4102807cb7118178
@@ -61,6 +65,6 @@ SPEC CHECKSUMS:
   SwiftLint: dfd554ff0dff17288ee574814ccdd5cea85d76f7
   ViewRow: 8da541e9c019f3be63f4e28f311a62cac2045ecf
 
-PODFILE CHECKSUM: 1621c635e02d405e00b9320cbb6861d1cec5c52d
+PODFILE CHECKSUM: c943fff828a6fd756dfa6ad57768887477e30fb4
 
 COCOAPODS: 1.9.3

@@ -49,6 +49,7 @@ class GalleryListViewController: UIViewController {
        tableHeaderLabel.textAlignment = .center
         let view = UIView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: tableHeaderHeight))
         view.addSubview(tableHeaderLabel)
+        
         tableHeaderLabel.fill(view: view)
         return view
     }()
