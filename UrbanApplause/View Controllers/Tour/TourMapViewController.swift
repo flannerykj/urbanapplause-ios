@@ -12,10 +12,14 @@ import MapKit
 import Shared
 import CoreLocation
 import FloatingPanel
+import Combine
 
 class TourMapViewController: UIViewController, FloatingPanelControllerDelegate {
+    
     private let collection: Collection
     private let appContext: AppContext
+    private let viewModel: TourMapDataStreaming
+    private var cancellables = Set<AnyCancellable>()
     var fpc: FloatingPanelController!
     
     var awaitingZoomToCurrentLocation: Bool = false
@@ -26,9 +30,12 @@ class TourMapViewController: UIViewController, FloatingPanelControllerDelegate {
     init(collection: Collection, appContext: AppContext) {
         self.collection = collection
         self.appContext = appContext
+        self.viewModel = TourMapDataStream(appContext: appContext, collection: collection)
         super.init(nibName: nil, bundle: nil)
         hidesBottomBarWhenPushed = true
+
     }
+
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -66,33 +73,98 @@ class TourMapViewController: UIViewController, FloatingPanelControllerDelegate {
                                              action: #selector(requestZoomToCurrentLocation(_:)))
         
         navigationItem.rightBarButtonItem = locationButton
-
-        let gr = UILongPressGestureRecognizer(target: self, action: #selector(longPressedMap(sender:)))
+        
+        let gr = UITapGestureRecognizer(target: self, action: #selector(didTapMap(_:)))
         mapView.addGestureRecognizer(gr)
-        
-        updateMapMarkers()
-        
+
+        subscribeToDataStream()
+        viewModel.fetchPosts()
         presentBottomSheet()
        
     }
     
     // MARK: - FloatingPanelControllerDelegate
- 
+    func floatingPanelDidMove(_ fpc: FloatingPanelController) {
+        switch fpc.state {
+        case .tip:
+            viewModel.annotationsStream
+                .first()
+                .sink(receiveValue: { annotations in
+                    // reset map zoom
+                    self.setMapRegion(for: annotations, mapBounds: self.mapView.bounds)
+                })
+                .store(in: &cancellables)
+        default:
+            break
+        }
+        
+    }
     
     func presentBottomSheet() {
         fpc = FloatingPanelController()
+
+        let layout = TourFloatingPanelLayout()
+        fpc.layout = layout
         fpc.delegate = self
-        let contentVC = TourInfoViewController(collection: collection, appContext: appContext)
+        let contentVC = TourInfoViewController(tourDataStream: viewModel)
         fpc.set(contentViewController: contentVC)
         fpc.track(scrollView: contentVC.tableView)
         fpc.addPanel(toParent: self)
     }
     
-    private func updateMapMarkers() {
-        self.mapView.removeAnnotations(self.mapView.annotations)
-        if let posts = collection.Posts {
-            self.mapView.addAnnotations(posts)
+    private func setMapRegion(for annotations: [MKAnnotation], mapBounds: CGRect, insets: UIEdgeInsets = .zero) {
+        if let region = self.getRegionForPosts(annotations, mapBounds: mapBounds, insets: insets) {
+            self.mapView.setRegion(region, animated: true)
         }
+    }
+    
+    private func subscribeToDataStream() {
+        viewModel.annotationsStream
+            .sink(receiveValue: { annotations in
+                DispatchQueue.main.async {
+                    self.mapView.removeAnnotations(self.mapView.annotations)
+                    self.mapView.addAnnotations(annotations)
+                    self.setMapRegion(for: annotations, mapBounds: self.mapView.bounds)
+                }
+            })
+            .store(in: &cancellables)
+        
+        viewModel.selectedAnnotationIndex
+            .scan( [ [],[] ] ) { seed, newValue in
+                return [seed[1], newValue]
+                }
+            .combineLatest(viewModel.annotationsStream)
+            .sink { indices, annotations in
+                let previousSelectedIndex = indices[0] as? Int
+                let currentSelectedIndex = indices[1] as? Int
+
+            if let i = currentSelectedIndex {
+                self.fpc.move(to: .half, animated: true)
+                self.mapView.selectAnnotation(annotations[i], animated: true)
+                
+                if let fpcContentBounds = self.fpc.contentViewController?.view.bounds {
+                    self.setMapRegion(for: [annotations[i]], mapBounds: self.mapView.bounds, insets: UIEdgeInsets(top: 0, left: 0, bottom: fpcContentBounds.height, right: 0))
+                }
+            } else {
+                self.setMapRegion(for: annotations, mapBounds: self.mapView.bounds)
+            }
+            if let i = previousSelectedIndex {
+                self.mapView.deselectAnnotation(annotations[i], animated: true)
+            }
+        }
+        .store(in: &cancellables)
+    }
+    
+    @objc func didTapMap(_ sender: UITapGestureRecognizer) {
+        viewModel.annotationsStream
+            .first()
+            .sink { annotations in
+                self.fpc.move(to: .tip, animated: true, completion: {
+                    self.viewModel.setSelectedPostIndex(nil)
+                    self.setMapRegion(for: annotations, mapBounds: self.mapView.bounds)
+                })
+            }
+            .store(in: &cancellables)
     }
     
     
@@ -115,56 +187,20 @@ class TourMapViewController: UIViewController, FloatingPanelControllerDelegate {
     
     @objc func tappedAnnotation(sender: UITapGestureRecognizer) {
         guard let annotationView = sender.view as? MKAnnotationView else { return }
-        let thumbImage = (sender.view as? PostAnnotationViewProtocol)?.contentView.getImage()
 
-        if let annotation = annotationView.annotation as? MKClusterAnnotation {
-            if let members = annotation.memberAnnotations as? [Post] {
-                if isAtMaxZoom(visibleMapRect: mapView.visibleMapRect,
-                                         mapPixelWidth: Double(mapView.bounds.width)) {
-                    
-                    let wallViewModel = PostListViewModel(posts: members, appContext: appContext)
-                    let wallController = PostListViewController(viewModel: wallViewModel,
-                                                                appContext: appContext)
-                    wallController.postListDelegate = self
-                    navigationController?.pushViewController(wallController, animated: true)
-                } else {
-                    self.mapView.showAnnotations(members, animated: true)
+        if let post = annotationView.annotation as? Post {
+            viewModel.annotationsStream
+                .first()
+                .sink { annotations in
+                
+                    if let selectedIndex = annotations.firstIndex(of: post) {
+                        self.viewModel.setSelectedPostIndex(selectedIndex)
+                    } else {
+                        print("couldn't find annotation to match post")
+                    }
                 }
-            } else if let members = annotation.memberAnnotations as? [PostCluster],
-                let region = self.getRegionForClusters(members, mapBounds: self.mapView.bounds) {
-                self.mapView.setRegion(region,
-                                       animated: true)
-            }
-        } else if let post = annotationView.annotation as? Post {
-            showDetailForPostWithID(post.id, post: post, thumbImage: thumbImage)
-        } else if let postCluster = annotationView.annotation as? PostCluster {
-            if postCluster.count == 1 {
-                showDetailForPostWithID(postCluster.cover_post_id, post: nil, thumbImage: thumbImage)
-            } else if let region = getRegionForCluster(postCluster, mapBounds: self.mapView.bounds) {
-                self.mapView.setRegion(region, animated: true)
-            }
-        }
-    }
-    
-    @objc func longPressedMap(sender: UILongPressGestureRecognizer) {
-        if sender.state == UIGestureRecognizer.State.began {
-            let touchPoint = sender.location(in: self.mapView)
-            let touchCoordinate = self.mapView.convert(touchPoint, toCoordinateFrom: self.mapView)
-            let placemark = MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: touchCoordinate.latitude,
-                                                                           longitude: touchCoordinate.longitude),
-                                        addressDictionary: [:])
+                .store(in: &cancellables)
             
-//            let ac = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-//            let addPost = UIAlertAction(title: Strings.AddPostHereButtonTitle, style: .default, handler: { _ in
-//                self.addNewPost(sender: self.mapView, at: placemark)
-//            })
-//
-//            let cancelAction = UIAlertAction(title: Strings.CancelButtonTitle, style: .cancel, handler: nil)
-//            ac.addAction(addPost)
-//            ac.addAction(cancelAction)
-//            ac.popoverPresentationController?.sourceView = self.mapView
-//            ac.popoverPresentationController?.sourceRect = CGRect(x: touchPoint.x, y: touchPoint.y, width: 0, height: 0)
-//            present(ac, animated: true, completion: nil)
         }
     }
     
@@ -218,56 +254,42 @@ class TourMapViewController: UIViewController, FloatingPanelControllerDelegate {
         return zoomScale >= maxZoomScale
     }
     
-    func getRegionForCluster(_ postCluster: PostCluster,
-                             mapBounds: CGRect) -> MKCoordinateRegion? {
-        let coords: [CLLocationCoordinate2D] = postCluster.bounding_diagonal.coordinates.map { point in
-            return CLLocationCoordinate2D(latitude: point[0], longitude: point[1])
-        }
-        let latitudeDelta = CLLocationDegrees(abs(coords[0].latitude - coords[1].latitude))
-        let longitudeDelta = abs(coords[0].longitude - coords[1].longitude)
-        let markerDegreesWidth = longitudeDelta * Double(AnnotationContentView.width) / Double(mapBounds.width)
-        let markerDegreesHeight = latitudeDelta * Double(AnnotationContentView.height) / Double(mapBounds.height)
-        let span = MKCoordinateSpan(latitudeDelta: latitudeDelta + markerDegreesHeight*2,
-                                    longitudeDelta: longitudeDelta + markerDegreesWidth*2)
-        return MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: postCluster.centroid.latitude,
-                                                                 longitude: postCluster.centroid.longitude),
-                                  span: span)
-    }
-    
-    func getRegionForClusters(_ postClusters: [PostCluster],
-                              mapBounds: CGRect) -> MKCoordinateRegion? {
-        guard postClusters.count > 0 else { return nil }
-        let coords: [CLLocationCoordinate2D] = postClusters.reduce([], {acc, cluster in
-            return  acc + cluster.bounding_diagonal.coordinates.map { point in
-                CLLocationCoordinate2D(latitude: point[0], longitude: point[1])
-            }
-        })
-        let minLng = coords.map { $0.longitude }.min()!
-        let maxLng = coords.map { $0.longitude }.max()!
-        let minLat = coords.map { $0.latitude }.min()!
-        let maxLat = coords.map { $0.latitude }.max()!
+    func getRegionForPosts(_ posts: [MKAnnotation],
+                             mapBounds: CGRect,
+                             insets: UIEdgeInsets = .zero) -> MKCoordinateRegion? {
+        guard mapBounds.height > 0, mapBounds.width > 0 else { return nil }
+        let coords: [CLLocationCoordinate2D] = posts.map { $0.coordinate }
         
-        let centerLat = (maxLat - minLat)/2
-        let centerLng = (maxLng - minLng)/2
-        let center = CLLocationCoordinate2D(latitude: centerLat, longitude: centerLng)
-        let latitudeDelta = abs(maxLat - minLat)
-        let longitudeDelta = abs(maxLng - minLng)
+        guard let minLng = coords.map({ $0.longitude }).min(),
+              let maxLng = coords.map({ $0.longitude }).max(),
+              let minLat = coords.map({ $0.latitude }).min(),
+              let maxLat = coords.map({ $0.latitude }).max() else {
+            return nil
+        }
+        let maxZoom: CLLocationDegrees = 0.003
+        let latitudeDelta: CLLocationDegrees = posts.count > 1 ? abs(maxLat - minLat) : maxZoom
+        let longitudeDelta: CLLocationDegrees = posts.count > 1 ?  abs(maxLng - minLng) : maxZoom
+        
         let markerDegreesWidth = latitudeDelta * Double(AnnotationContentView.width) / Double(mapBounds.width)
         let markerDegreesHeight = longitudeDelta * Double(AnnotationContentView.height) / Double(mapBounds.height)
+        
+        let bottomInsetsInDegrees = latitudeDelta * Double(insets.bottom) / Double(mapBounds.height)
+        let centerLat = minLat + (maxLat - minLat)/2 - bottomInsetsInDegrees/2
+        let centerLng = minLng + (maxLng - minLng)/2
+        
+        let center = CLLocationCoordinate2D(latitude: centerLat, longitude: centerLng)
+        
         let padding = markerDegreesWidth * 0.2
+    
         let span = MKCoordinateSpan(latitudeDelta: latitudeDelta + markerDegreesHeight + padding*2,
                                     longitudeDelta: longitudeDelta + markerDegreesWidth + padding*2)
         return MKCoordinateRegion(center: center, span: span)
-    }
-    
+    }  
 }
 
 extension TourMapViewController: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
-        if let postGISClusterAnnotation = annotation as? PostCluster {
-            // receiving clusters from backend - green
-            return PostGISClusterAnnotationView(annotation: postGISClusterAnnotation, reuseIdentifier: PostGISClusterAnnotationView.reuseIdentifier)
-        } else if let postAnnotation = annotation as? Post {
+        if let postAnnotation = annotation as? Post {
             // receiving posts from backend - blue
             return PostAnnotationView(annotation: postAnnotation, reuseIdentifier: PostAnnotationView.reuseIdentifier)
         }
@@ -279,9 +301,6 @@ extension TourMapViewController: MKMapViewDelegate {
         for view in views {
             let gr = UITapGestureRecognizer(target: self, action: #selector(tappedAnnotation(sender:)))
             view.addGestureRecognizer(gr)
-            if let annotationView = view as? PostGISClusterAnnotationView {
-                annotationView.fileCache = appContext.fileCache
-            }
             if let annotationView = view as? PostMKClusterAnnotationView {
                 annotationView.fileCache = appContext.fileCache
             }
@@ -355,4 +374,16 @@ extension TourMapViewController: PostListControllerDelegate {
     }
     
     
+}
+class TourFloatingPanelLayout: FloatingPanelLayout {
+    let position: FloatingPanelPosition = .bottom
+    let initialState: FloatingPanelState = .tip
+    var anchors: [FloatingPanelState: FloatingPanelLayoutAnchoring] {
+        return [
+            .full: FloatingPanelLayoutAnchor(absoluteInset: 16.0, edge: .top, referenceGuide: .safeArea),
+            .half: FloatingPanelLayoutAnchor(fractionalInset: 0.5, edge: .bottom, referenceGuide: .safeArea),
+            .tip: FloatingPanelLayoutAnchor(absoluteInset: 44.0, edge: .bottom, referenceGuide: .safeArea),
+        ]
+    }
+
 }

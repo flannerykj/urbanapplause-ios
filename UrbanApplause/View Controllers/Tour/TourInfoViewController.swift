@@ -10,18 +10,21 @@ import Foundation
 import UIKit
 import SnapKit
 import Shared
+import MapKit
+import Combine
 
 enum TourInfoSection: Int, CaseIterable {
+    case overview
     case waypoints
 }
 
 class TourInfoViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
-    private let collection: Collection
-    private let appContext: AppContext
-
-    init(collection: Collection, appContext: AppContext) {
-        self.collection = collection
-        self.appContext = appContext
+    private var annotations: [Post] = []
+    private let tourDataStream: TourMapDataStreaming
+    private var cancellables = Set<AnyCancellable>()
+    
+    init(tourDataStream: TourMapDataStreaming) {
+        self.tourDataStream = tourDataStream
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -31,7 +34,10 @@ class TourInfoViewController: UIViewController, UITableViewDelegate, UITableView
     
     lazy var tableView: UITableView = {
         let tableView = UITableView()
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "tableCell")
+        tableView.register(TourWaypointCell.self, forCellReuseIdentifier: "TourWaypointCell")
+        tableView.register(TourOverviewCell.self, forCellReuseIdentifier: "TourOverviewCell")
+        tableView.estimatedRowHeight = 100
+        tableView.rowHeight = UITableView.automaticDimension
         tableView.delegate = self
         tableView.dataSource = self
         return tableView
@@ -45,6 +51,35 @@ class TourInfoViewController: UIViewController, UITableViewDelegate, UITableView
         tableView.snp.makeConstraints { maker in
             maker.edges.equalToSuperview()
         }
+        
+        subscribeToDataStream()
+    }
+    
+    private func subscribeToDataStream() {
+        tourDataStream.annotationsStream
+            .sink(receiveValue: { annotations in
+                DispatchQueue.main.async {
+                    self.annotations = annotations
+                    self.tableView.reloadData()
+                }
+            })
+            .store(in: &cancellables)
+        
+        tourDataStream.selectedAnnotationIndex
+            .sink { index in
+            if let i = index {
+                let indexPath = IndexPath(row: i, section: TourInfoSection.waypoints.rawValue)
+                if self.tableView.indexPathForSelectedRow != indexPath {
+                    self.tableView.selectRow(at: indexPath, animated: true, scrollPosition: .middle)
+                }
+            } else {
+                self.tableView.selectRow(at: nil, animated: false, scrollPosition: .none)
+            }
+                self.tableView.beginUpdates()
+                self.tableView.endUpdates()
+        }
+        .store(in: &cancellables)
+
     }
     
     // MARK: - UITableViewDelegate, UITableViewDataSource
@@ -56,29 +91,68 @@ class TourInfoViewController: UIViewController, UITableViewDelegate, UITableView
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         let section = TourInfoSection.allCases[section]
         switch section {
+        case .overview:
+            return 1
         case .waypoints:
-            return collection.Posts?.count ?? 0
+            return annotations.count
         }
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let section = TourInfoSection.allCases[indexPath.section]
         switch section {
+        case .overview:
+            let cell = tableView.dequeueReusableCell(withIdentifier: "TourOverviewCell") as! TourOverviewCell
+            cell.configureForCollection(tourDataStream.collection)
+            return cell
         case .waypoints:
-            let post = (collection.Posts ?? [])[indexPath.row]
-            let cell = tableView.dequeueReusableCell(withIdentifier: "tableCell", for: indexPath)
-            cell.textLabel?.text = "post.title"
-//            cell.detailTextLabel?.text = post.sub
+            let post = annotations[indexPath.row]
+            let cell = tableView.dequeueReusableCell(withIdentifier: "TourWaypointCell", for: indexPath) as! TourWaypointCell
+            cell.configureForPost(post, currentLocation: nil)
             return cell
         }
     }
     
-//    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-//        let section = TourInfoSection.allCases[section]
-//        switch section {
-//        case .waypoints:
-//            return "Stops"
-//        }
-//    }
     
+    
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let sectionType = TourInfoSection.allCases[section]
+        switch sectionType {
+        case .overview:
+            return nil
+        case .waypoints:
+            return TableSectionHeaderView(height: 100, title: "Waypoints")
+        }
+    }
+
+    func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
+        let currentSelectedIndexPath = tableView.indexPathForSelectedRow
+        if indexPath == currentSelectedIndexPath {
+            tourDataStream.setSelectedPostIndex(nil)
+            return nil
+        } else {
+            return indexPath
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
+        let sectionType = TourInfoSection.allCases[indexPath.section]
+        switch sectionType {
+        case .overview:
+            break
+        case .waypoints:
+            tourDataStream.setSelectedPostIndex(indexPath.row)
+        }
+    }
+    
+}
+
+
+class ExpandedPostCell: UITableViewCell {
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        backgroundColor = .red
+    }
 }

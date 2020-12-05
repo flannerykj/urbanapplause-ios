@@ -65,12 +65,6 @@ class GalleryDetailViewController: UIViewController {
         return button
     }()
     
-    private lazy var footerView: GalleryDetailFooterView = {
-        let view = GalleryDetailFooterView()
-        view.listener = self
-        return view
-    }()
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         postListVC.postListDelegate = self
@@ -84,12 +78,6 @@ class GalleryDetailViewController: UIViewController {
         postListVC.didMove(toParent: self)
         
         // navigationItem.rightBarButtonItem = editButton
-        
-        view.addSubview(footerView)
-        footerView.snp.makeConstraints { maker in
-            maker.top.equalTo(postListVC.view.snp.bottom)
-            maker.bottom.leading.trailing.equalToSuperview()
-        }
     }
     
     @objc func editCollection(_: Any) {
@@ -165,54 +153,54 @@ extension GalleryDetailViewController: PostListControllerDelegate {
         })
     }
 }
-
-
-extension GalleryDetailViewController: GalleryDetailFooterViewDelegate {
-    func didTapStartTour() {
-        switch gallery {
-        case .custom(let collection):
-            let vc = TourMapViewController(collection: collection, appContext: appContext)
-            navigationController?.pushViewController(vc, animated: true)
-        default: break
-        }
-    }
-}
-
-
-protocol GalleryDetailFooterViewDelegate: AnyObject {
-    func didTapStartTour()
-}
-
-
-private class GalleryDetailFooterView: UIView {
-    weak var listener: GalleryDetailFooterViewDelegate?
-    
-    
-    
-    private lazy var startTourButton: UIButton = {
-        let button = UAButton(type: .primary, title: "Start tour", target: self, action: #selector(startTour(_:)), rightImage: UIImage(systemName: "map"))
-        return button
-    }()
-    
-    init() {
-        super.init(frame: .zero)
-        translatesAutoresizingMaskIntoConstraints = false
-        backgroundColor = .systemBackground
-        addSubview(startTourButton)
-        startTourButton.snp.makeConstraints { maker in
-            maker.edges.equalTo(self.safeAreaLayoutGuide).inset(8)
-        }
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    @objc func startTour(_: UIButton) {
-        listener?.didTapStartTour()
-        
-    }
-    
-    
-    
-}
+//
+//
+//extension GalleryDetailViewController: GalleryDetailFooterViewDelegate {
+//    func didTapStartTour() {
+//        switch gallery {
+//        case .custom(let collection):
+//            let vc = TourMapViewController(collection: collection, appContext: appContext)
+//            navigationController?.pushViewController(vc, animated: true)
+//        default: break
+//        }
+//    }
+//}
+//
+//
+//protocol GalleryDetailFooterViewDelegate: AnyObject {
+//    func didTapStartTour()
+//}
+//
+//
+//private class GalleryDetailFooterView: UIView {
+//    weak var listener: GalleryDetailFooterViewDelegate?
+//
+//
+//
+//    private lazy var startTourButton: UIButton = {
+//        let button = UAButton(type: .primary, title: "Start tour", target: self, action: #selector(startTour(_:)), rightImage: UIImage(systemName: "map"))
+//        return button
+//    }()
+//
+//    init() {
+//        super.init(frame: .zero)
+//        translatesAutoresizingMaskIntoConstraints = false
+//        backgroundColor = .systemBackground
+//        addSubview(startTourButton)
+//        startTourButton.snp.makeConstraints { maker in
+//            maker.edges.equalTo(self.safeAreaLayoutGuide).inset(8)
+//        }
+//    }
+//
+//    required init?(coder: NSCoder) {
+//        fatalError("init(coder:) has not been implemented")
+//    }
+//
+//    @objc func startTour(_: UIButton) {
+//        listener?.didTapStartTour()
+//
+//    }
+//
+//
+//
+//}

@@ -11,16 +11,16 @@ import Combine
 import Shared
 
 protocol GalleryListDelegate: class {
-    func galleryList(_ controller: GalleryListViewController,
+    func galleryList(_ controller: GalleryListViewController_DEP,
                      didSelectCellModel cellModel: GalleryCellViewModel,
                      at indexPath: IndexPath)
     
-    func galleryList(_ controller: GalleryListViewController,
+    func galleryList(_ controller: GalleryListViewController_DEP,
                      accessoryViewForCellModel cellModel: GalleryCellViewModel,
                      at indexPath: IndexPath) -> UIView?
 }
 
-class GalleryListViewController: UIViewController {
+class GalleryListViewController_DEP: UIViewController {
     let uuid = UUID()
     var subscriptions = Set<AnyCancellable>()
     @Published var animate: Bool = false
@@ -157,7 +157,7 @@ class GalleryListViewController: UIViewController {
     }
 }
 
-extension GalleryListViewController: UITableViewDelegate {
+extension GalleryListViewController_DEP: UITableViewDelegate {
     // MARK: - Table view data source
     /* func numberOfSections(in tableView: UITableView) -> Int {
         return 1
@@ -187,7 +187,7 @@ extension GalleryListViewController: UITableViewDelegate {
     }
 }
 
-extension GalleryListViewController: NewCollectionViewControllerDelegate {
+extension GalleryListViewController_DEP: NewCollectionViewControllerDelegate {
     func didCreateCollection(collection: Collection) {
         viewModel.addCollection(collection)
     }

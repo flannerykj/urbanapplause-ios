@@ -517,7 +517,7 @@ class PostDetailViewController: UIViewController {
                                                       includeGeneratedGalleries: false,
                                                       appContext: appContext)
         
-        let vc = GalleryListViewController(viewModel: galleriesViewModel,
+        let vc = GalleryListViewController_DEP(viewModel: galleriesViewModel,
                                            appContext: appContext)
         vc.navigationItem.title = Strings.SaveToGalleryButtonTitle
         vc.delegate = self
@@ -687,7 +687,7 @@ extension PostDetailViewController: UITextViewDelegate {
 }
 
 extension PostDetailViewController: GalleryListDelegate {
-    func galleryList(_ controller: GalleryListViewController,
+    func galleryList(_ controller: GalleryListViewController_DEP,
                      didSelectCellModel cellModel: GalleryCellViewModel,
                      at indexPath: IndexPath) {
         
@@ -727,7 +727,7 @@ extension PostDetailViewController: GalleryListDelegate {
         controller.reloadGalleryCells([cellModel], animate: true)
     }
     
-    func galleryList(_ controller: GalleryListViewController,
+    func galleryList(_ controller: GalleryListViewController_DEP,
                      accessoryViewForCellModel cellModel: GalleryCellViewModel,
                      at indexPath: IndexPath) -> UIView? {
         

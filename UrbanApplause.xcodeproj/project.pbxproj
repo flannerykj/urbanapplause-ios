@@ -12,6 +12,12 @@
 		326BC2A32567C31F008DEBBB /* TourMapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 326BC2A22567C31F008DEBBB /* TourMapViewController.swift */; };
 		326BC319256810CA008DEBBB /* ExperimentManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 326BC318256810CA008DEBBB /* ExperimentManager.swift */; };
 		326BC3E6256AE370008DEBBB /* TourInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 326BC3E5256AE370008DEBBB /* TourInfoViewController.swift */; };
+		32D93F2D257297B8000207E4 /* TableSectionHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32D93F2C257297B8000207E4 /* TableSectionHeaderView.swift */; };
+		32D93F3325778016000207E4 /* TourMapViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32D93F3225778016000207E4 /* TourMapViewModel.swift */; };
+		32D93F3A257A3C22000207E4 /* TourWaypointCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32D93F39257A3C22000207E4 /* TourWaypointCell.swift */; };
+		32D93F40257A7909000207E4 /* TourOverviewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32D93F3F257A7909000207E4 /* TourOverviewCell.swift */; };
+		32FABBB7256AEBF300D9B7AC /* GalleriesManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32FABBB6256AEBF300D9B7AC /* GalleriesManager.swift */; };
+		32FABBC4256AF5F200D9B7AC /* VIPER.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32FABBC3256AF5F200D9B7AC /* VIPER.swift */; };
 		3A069F0F23C79E55009405F6 /* Shared.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A72A54A23C7758200B64A06 /* Shared.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3A069F3423C7A996009405F6 /* .env in Resources */ = {isa = PBXBuildFile; fileRef = 3A5F0D1123761B230099623E /* .env */; };
 		3A069F3523C7A996009405F6 /* .env.production in Resources */ = {isa = PBXBuildFile; fileRef = 3ABC157D23761BC400EF4CF6 /* .env.production */; };
@@ -145,7 +151,7 @@
 		3AA7672423507F3200A70DE4 /* UATextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AA7672323507F3200A70DE4 /* UATextField.swift */; };
 		3AB12E06236B6ED600A4E163 /* FlagPostViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AB12E05236B6ED600A4E163 /* FlagPostViewController.swift */; };
 		3AB12E0A236B7E4E00A4E163 /* FlagPostResultViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AB12E09236B7E4E00A4E163 /* FlagPostResultViewController.swift */; };
-		3AB575AF2274A28400C8F597 /* GalleryListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AB575AE2274A28400C8F597 /* GalleryListViewController.swift */; };
+		3AB575AF2274A28400C8F597 /* GalleryListViewController_DEP.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AB575AE2274A28400C8F597 /* GalleryListViewController_DEP.swift */; };
 		3AB575B12274A9E500C8F597 /* NewCollectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AB575B02274A9E500C8F597 /* NewCollectionViewController.swift */; };
 		3ABC6A03236E7542009C180D /* PostAnnotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ABC6A02236E7542009C180D /* PostAnnotation.swift */; };
 		3ACAE1002390AB9F0025FB25 /* CircularLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ACAE0FF2390AB9F0025FB25 /* CircularLoader.swift */; };
@@ -268,6 +274,12 @@
 		326BC2A22567C31F008DEBBB /* TourMapViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TourMapViewController.swift; sourceTree = "<group>"; };
 		326BC318256810CA008DEBBB /* ExperimentManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExperimentManager.swift; sourceTree = "<group>"; };
 		326BC3E5256AE370008DEBBB /* TourInfoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TourInfoViewController.swift; sourceTree = "<group>"; };
+		32D93F2C257297B8000207E4 /* TableSectionHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableSectionHeaderView.swift; sourceTree = "<group>"; };
+		32D93F3225778016000207E4 /* TourMapViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TourMapViewModel.swift; sourceTree = "<group>"; };
+		32D93F39257A3C22000207E4 /* TourWaypointCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TourWaypointCell.swift; sourceTree = "<group>"; };
+		32D93F3F257A7909000207E4 /* TourOverviewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TourOverviewCell.swift; sourceTree = "<group>"; };
+		32FABBB6256AEBF300D9B7AC /* GalleriesManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleriesManager.swift; sourceTree = "<group>"; };
+		32FABBC3256AF5F200D9B7AC /* VIPER.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VIPER.swift; sourceTree = "<group>"; };
 		355E0BAA362E820F9716997C /* Pods_UrbanApplauseUpload.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_UrbanApplauseUpload.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3A0C8FB723B8F72D0068AECA /* UITextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITextView.swift; sourceTree = "<group>"; };
 		3A0C8FB923B8FC8C0068AECA /* UIEdgeInsets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIEdgeInsets.swift; sourceTree = "<group>"; };
@@ -400,7 +412,7 @@
 		3AB12E05236B6ED600A4E163 /* FlagPostViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlagPostViewController.swift; sourceTree = "<group>"; };
 		3AB12E09236B7E4E00A4E163 /* FlagPostResultViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlagPostResultViewController.swift; sourceTree = "<group>"; };
 		3AB575A82274927500C8F597 /* UIImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIImage.swift; sourceTree = "<group>"; };
-		3AB575AE2274A28400C8F597 /* GalleryListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryListViewController.swift; sourceTree = "<group>"; };
+		3AB575AE2274A28400C8F597 /* GalleryListViewController_DEP.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryListViewController_DEP.swift; sourceTree = "<group>"; };
 		3AB575B02274A9E500C8F597 /* NewCollectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewCollectionViewController.swift; sourceTree = "<group>"; };
 		3ABC157D23761BC400EF4CF6 /* .env.production */ = {isa = PBXFileReference; lastKnownFileType = text; path = .env.production; sourceTree = "<group>"; };
 		3ABC6A02236E7542009C180D /* PostAnnotation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostAnnotation.swift; sourceTree = "<group>"; };
@@ -546,7 +558,10 @@
 			isa = PBXGroup;
 			children = (
 				326BC2A22567C31F008DEBBB /* TourMapViewController.swift */,
+				32D93F3225778016000207E4 /* TourMapViewModel.swift */,
 				326BC3E5256AE370008DEBBB /* TourInfoViewController.swift */,
+				32D93F39257A3C22000207E4 /* TourWaypointCell.swift */,
+				32D93F3F257A7909000207E4 /* TourOverviewCell.swift */,
 			);
 			path = Tour;
 			sourceTree = "<group>";
@@ -602,6 +617,7 @@
 				3A746E1C2372DC6100F36EFB /* NonClippingLabel.swift */,
 				3ACAE0FF2390AB9F0025FB25 /* CircularLoader.swift */,
 				3A6FE0A323B681EE0018018F /* LoadableImageView.swift */,
+				32D93F2C257297B8000207E4 /* TableSectionHeaderView.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -610,6 +626,7 @@
 			isa = PBXGroup;
 			children = (
 				3A22219223B0AE4100FE9262 /* GalleriesSection.swift */,
+				32FABBB6256AEBF300D9B7AC /* GalleriesManager.swift */,
 				3A56B42623636008000F2A42 /* GalleryListViewModel.swift */,
 				3A22219023AD4C8200FE9262 /* GalleryCellViewModel.swift */,
 				3A22219523B0AE5500FE9262 /* GalleriesTableDataSource.swift */,
@@ -679,6 +696,7 @@
 				3A1B030B23CA5B1400CFE9D6 /* APIClient */,
 				3A1B030A23CA58C000CFE9D6 /* Network */,
 				3A72A57F23C7774900B64A06 /* APIModels */,
+				32FABBC3256AF5F200D9B7AC /* VIPER.swift */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -1069,7 +1087,7 @@
 			isa = PBXGroup;
 			children = (
 				3A56B42423635DC0000F2A42 /* GalleriesViewController.swift */,
-				3AB575AE2274A28400C8F597 /* GalleryListViewController.swift */,
+				3AB575AE2274A28400C8F597 /* GalleryListViewController_DEP.swift */,
 				3A56B42223635C82000F2A42 /* GalleryDetailViewController.swift */,
 				3A22219723B0AF4300FE9262 /* GalleryCell.swift */,
 				3AB575B02274A9E500C8F597 /* NewCollectionViewController.swift */,
@@ -1515,6 +1533,7 @@
 				3AEB731B2528B1A200BF0EB5 /* CloudinaryService.swift in Sources */,
 				326BC319256810CA008DEBBB /* ExperimentManager.swift in Sources */,
 				3A72A58123C7775F00B64A06 /* AuthResponse.swift in Sources */,
+				32FABBC4256AF5F200D9B7AC /* VIPER.swift in Sources */,
 				3A72A5F523C7961900B64A06 /* KeychainService.swift in Sources */,
 				3A72A5E023C7906500B64A06 /* CLPlacemark.swift in Sources */,
 				3A72A57723C7764500B64A06 /* Typography.swift in Sources */,
@@ -1565,7 +1584,10 @@
 				3A3BF9EA235635A4005F8354 /* SearchArtistsViewController.swift in Sources */,
 				3AE86AE923BE42A30097DB1A /* EditProfileViewController.swift in Sources */,
 				3AA7672423507F3200A70DE4 /* UATextField.swift in Sources */,
+				32D93F2D257297B8000207E4 /* TableSectionHeaderView.swift in Sources */,
 				3A7553B02365EFD900634C32 /* UATextArea.swift in Sources */,
+				32D93F40257A7909000207E4 /* TourOverviewCell.swift in Sources */,
+				32D93F3A257A3C22000207E4 /* TourWaypointCell.swift in Sources */,
 				3AF4850121E2785100FBC33E /* CreatePostViewController.swift in Sources */,
 				3A9467FA23631F8200C446F7 /* SearchPostsViewController.swift in Sources */,
 				3A1ECBF52267F6F50055FC9B /* UAButton.swift in Sources */,
@@ -1587,9 +1609,11 @@
 				3AE4627923D0C1C90062C869 /* ArtistGroupDetailViewModel.swift in Sources */,
 				3AE86AEC23BE42C00097DB1A /* TabbedToolbar.swift in Sources */,
 				3A12795323D089F30086AB6C /* CreateArtistGroupViewController.swift in Sources */,
-				3AB575AF2274A28400C8F597 /* GalleryListViewController.swift in Sources */,
+				3AB575AF2274A28400C8F597 /* GalleryListViewController_DEP.swift in Sources */,
 				3AE4628D23D1002E0062C869 /* ArtistListViewModel.swift in Sources */,
+				32FABBB7256AEBF300D9B7AC /* GalleriesManager.swift in Sources */,
 				3A7553AC2365D98A00634C32 /* CommentListViewController.swift in Sources */,
+				32D93F3325778016000207E4 /* TourMapViewModel.swift in Sources */,
 				3A72A5EC23C7954100B64A06 /* UIViewControllerExtensions.swift in Sources */,
 				3A28764E226B83A300BCAE61 /* ImageDetailViewController.swift in Sources */,
 				3A318730235327B900D59F79 /* IconButton.swift in Sources */,

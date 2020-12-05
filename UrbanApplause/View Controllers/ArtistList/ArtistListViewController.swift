@@ -228,14 +228,7 @@ extension ArtistListViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         if let title = self.listTitle {
-            let view = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: sectionHeaderHeight))
-            view.layoutMargins = StyleConstants.defaultMarginInsets
-            view.backgroundColor = UIColor.backgroundMain
-            let label = UILabel(type: .h8, text: title)
-            view.addSubview(label)
-            view.layoutMargins = StyleConstants.defaultPaddingInsets
-            label.fillWithinMargins(view: view)
-            return view
+            return TableSectionHeaderView(height: sectionHeaderHeight, title: title)
         }
         return nil
     }

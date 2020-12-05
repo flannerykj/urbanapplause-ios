@@ -15,7 +15,7 @@ class GalleriesViewController: UIViewController {
     var query: String?
     var collections = [Collection]()
     var galleryListViewModel: GalleryListViewModel
-    lazy var galleryListVC = GalleryListViewController(viewModel: galleryListViewModel,
+    lazy var galleryListVC = GalleryListViewController_DEP(viewModel: galleryListViewModel,
                                                              appContext: appContext)
     
     init(userId: Int?, appContext: AppContext) {
@@ -53,15 +53,21 @@ class GalleriesViewController: UIViewController {
     }
 }
 extension GalleriesViewController: GalleryListDelegate {
-    func galleryList(_ controller: GalleryListViewController,
+    func galleryList(_ controller: GalleryListViewController_DEP,
                      didSelectCellModel cellModel: GalleryCellViewModel,
                      at indexPath: IndexPath) {
-        
-        let vc = GalleryDetailViewController(gallery: cellModel.gallery, appContext: appContext)
-        navigationController?.pushViewController(vc, animated: true)
+        switch cellModel.gallery {
+        case .custom(let collection):
+            let vc = TourMapViewController(collection: collection, appContext: appContext)
+            navigationController?.pushViewController(vc, animated: true)
+        default:
+            let vc = GalleryDetailViewController(gallery: cellModel.gallery, appContext: appContext)
+            navigationController?.pushViewController(vc, animated: true)
+        }
+       
     }
     
-    func galleryList(_ controller: GalleryListViewController,
+    func galleryList(_ controller: GalleryListViewController_DEP,
                      accessoryViewForCellModel cellModel: GalleryCellViewModel,
                      at indexPath: IndexPath) -> UIView? {
         
