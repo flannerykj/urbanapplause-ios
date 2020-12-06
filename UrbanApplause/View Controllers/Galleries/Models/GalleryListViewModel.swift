@@ -11,32 +11,35 @@ import Combine
 import UIKit
 import Shared
 
+
+struct GalleryQuery {
+    var postId: Int?
+    var userId: Int?
+    var isPublic: Bool?
+    var searchQuery: String?
+}
+
 class GalleryListViewModel {
+    let isEditable: Bool
     typealias Snapshot = NSDiffableDataSourceSnapshot<GalleriesSection, GalleryCellViewModel>
+    private(set) var noResultsMessage = CurrentValueSubject<String, Never>("")
+    private(set) var errorMessage = CurrentValueSubject<String, Never>("")
+
     @Published private(set) var itemViewModels: [GalleryCellViewModel] = []
     let itemChanges = PassthroughSubject<CollectionDifference<GalleryCellViewModel>, Never>()
-
+    
     var snapshot: AnyPublisher<Snapshot, Never> {
         collections
         .combineLatest(visits, applauded, posted)
         .map { collections, visits, applauded , posted in
             var snapshot = Snapshot()
-            snapshot.appendSections([GalleriesSection.myCollections])
-            snapshot.appendItems(collections.map { GalleryCellViewModel(galleryType: Gallery.custom($0), posts: $0.Posts ?? []) }, toSection: .myCollections)
+            snapshot.appendSections([GalleriesSection.collections])
+            snapshot.appendItems(collections.map { GalleryCellViewModel(galleryType: Gallery.custom($0), posts: $0.Posts ?? []) }, toSection: .collections)
             
-            if self.includeGeneratedGalleries {
-                snapshot.appendSections([GalleriesSection.other])
-                
-                snapshot.appendItems([GalleryCellViewModel(galleryType: .visits, posts: visits),
-                                      GalleryCellViewModel(galleryType: .applause, posts: applauded),
-                                      GalleryCellViewModel(galleryType: .posted, posts: posted)
-                ], toSection: .other)
-            }
             return snapshot
         }.eraseToAnyPublisher()
     }
 
-    var includeGeneratedGalleries: Bool
     var userId: Int?
     var appContext: AppContext
     
@@ -51,19 +54,17 @@ class GalleryListViewModel {
     private var applaudedLoading = CurrentValueSubject<Bool, Never>(false)
     private var postedLoading = CurrentValueSubject<Bool, Never>(false)
     
-    private var _errorMessage = CurrentValueSubject<String?, Never>(nil)
-
-    public var errorMessage: AnyPublisher<String?, Never>!
     public var isLoading: AnyPublisher<Bool, Never>
     public var tableData: AnyPublisher<[GalleriesSection: [Gallery]], Never>!
     
-    init(userId: Int?, includeGeneratedGalleries: Bool = true, appContext: AppContext) {
-        self.userId = userId
-        self.includeGeneratedGalleries = includeGeneratedGalleries
-        self.appContext = appContext
-        
-        self.errorMessage = _errorMessage.eraseToAnyPublisher()
+    private var filterByQuery: GalleryQuery
 
+    init(userId: Int?, appContext: AppContext, initialQuery: GalleryQuery, isEditable: Bool = false) {
+        self.userId = userId
+        self.appContext = appContext
+        self.filterByQuery = initialQuery
+        self.isEditable = isEditable
+        
         self.isLoading = collectionsLoading
             .combineLatest(applaudedLoading, visitsLoading, postedLoading)
             .map { collectionsLoading, applaudedLoading, visitsLoading, postedLoading in
@@ -86,13 +87,13 @@ class GalleryListViewModel {
         }.assign(to: \.itemViewModels, on: self).store(in: &cancellables)
     }
     
-    public func getData() {
+    public func getData(query: GalleryQuery) {
+        self.filterByQuery = query
         self.getCollections()
-        if includeGeneratedGalleries {
-            self.getVisits()
-            self.getApplauded()
-            self.getPosted()
-        }
+    }
+    
+    public func refreshData() {
+        self.getCollections()
     }
     
     public func addCollection(_ collection: Collection) {
@@ -104,80 +105,43 @@ class GalleryListViewModel {
         updatedCollections.removeAll(where: { $0.id == collection.id })
         self.collections.value = updatedCollections
     }
+    
+    public func deleteCollection(atIndexPath indexPath: IndexPath) {
+        let collection = self.collections.value[indexPath.row]
+       
+        _ = appContext.networkService.request(PrivateRouter.deleteCollection(id: collection.id), completion: { (result: UAResult<Collection>) in
+            
+        })
+        removeCollection(collection)
+    }
     private func getCollections() {
-        guard let userId = self.userId else {
-            self._errorMessage.value = Strings.MustBeLoggedInToPerformAction(Strings.ViewAndCreateCollections)
-            return
-        }
         guard !collectionsLoading.value else {
             return
         }
-        _errorMessage.value = nil
+        noResultsMessage.value = ""
+        errorMessage.value = ""
         collectionsLoading.value = true
-        let endpoint = PrivateRouter.getCollections(userId: userId, postId: nil)
+        let endpoint = PrivateRouter.getCollections(userId: filterByQuery.userId,
+                                                    postId: filterByQuery.postId,
+                                                    query: filterByQuery.searchQuery,
+                                                    isPublic: filterByQuery.isPublic)
         _ = appContext.networkService.request(endpoint) { [weak self] (result: UAResult<CollectionsContainer>) in
             DispatchQueue.main.async {
                 self!.collectionsLoading.value = false
                 switch result {
                 case .failure(let error):
                     log.error(error)
-                    self?._errorMessage.value = error.userMessage
+                    self?.errorMessage.value = error.userMessage
+                    self?.collections.value = []
                 case .success(let collectionsContainer):
+                    if collectionsContainer.collections.count == 0 {
+                        self?.noResultsMessage.value = "No results"
+                    }
                     self?.collections.value = collectionsContainer.collections
                 }
             }
         }
     }
-    private func getVisits() {
-        guard !visitsLoading.value else { return }
-        visitsLoading.value = true
-        let endpoint = PrivateRouter.getPosts(query: PostQuery(visitedBy: appContext.store.user.data?.id))
-        _ = appContext.networkService.request(endpoint) { (result: UAResult<PostsContainer>) in
-            DispatchQueue.main.async {
-                self.visitsLoading.value = false
-                switch result {
-                case .failure(let error):
-                    log.error(error)
-                    self._errorMessage.value = error.userMessage
-                case .success(let container):
-                    self.visits.value = container.posts
-                }
-            }
-        }
-    }
     
-    private func getApplauded() {
-        guard !applaudedLoading.value else { return }
-        applaudedLoading.value = true
-        let endpoint = PrivateRouter.getPosts(query: PostQuery(applaudedBy: appContext.store.user.data?.id))
-        _ = appContext.networkService.request(endpoint) { (result: UAResult<PostsContainer>) in
-            DispatchQueue.main.async {
-                self.applaudedLoading.value = false
-                switch result {
-                case .failure(let error):
-                    log.error(error)
-                    self._errorMessage.value = error.userMessage
-                case .success(let container):
-                    self.applauded.value = container.posts
-                }
-            }
-        }
-    }
-    private func getPosted() {
-        guard !postedLoading.value else { return }
-        postedLoading.value = true
-        let endpoint = PrivateRouter.getPosts(query: PostQuery(userId: appContext.store.user.data?.id))
-        _ = appContext.networkService.request(endpoint) { (result: UAResult<PostsContainer>) in
-            DispatchQueue.main.async {
-                self.postedLoading.value = false
-                switch result {
-                case .failure(let error):
-                    log.error(error)
-                    self._errorMessage.value = error.userMessage
-                case .success(let container):
-                    self.posted.value = container.posts
-                }
-            }
-        }
-    }
+    
 }

@@ -20,22 +20,3 @@ class GalleryCellViewModel: NSObject {
         self.posts = posts
     }
 }
-
-/*
-class Gallery: NSObject {
-    var id: Int
-    var title: String
-    var icon: UIImage?
-    var posts: [Post]
-    var listViewModel: PostListViewModel
-    
-    var isSelected: Bool = false
-    
-    init(id: Int, title: String, icon: UIImage?, posts: [Post], listViewModel: PostListViewModel) {
-        self.id = id
-        self.title = title
-        self.icon = icon
-        self.posts = posts
-        self.listViewModel = listViewModel
-    }
-} */

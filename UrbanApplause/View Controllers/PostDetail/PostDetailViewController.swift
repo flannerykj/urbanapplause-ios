@@ -513,11 +513,14 @@ class PostDetailViewController: UIViewController {
         guard let userId = appContext.store.user.data?.id else {
             return
         }
-        let galleriesViewModel = GalleryListViewModel(userId: userId,
-                                                      includeGeneratedGalleries: false,
-                                                      appContext: appContext)
         
-        let vc = GalleryListViewController(viewModel: galleriesViewModel,
+        let initialQuery = GalleryQuery(postId: nil, userId: appContext.store.user.data?.id, isPublic: nil, searchQuery: nil)
+
+        let galleriesViewModel = GalleryListViewModel(userId: userId,
+                                                      appContext: appContext,
+                                                      initialQuery: initialQuery)
+        
+        let vc = GalleriesListViewController(viewModel: galleriesViewModel,
                                            appContext: appContext)
         vc.navigationItem.title = Strings.SaveToGalleryButtonTitle
         vc.delegate = self
@@ -687,7 +690,7 @@ extension PostDetailViewController: UITextViewDelegate {
 }
 
 extension PostDetailViewController: GalleryListDelegate {
-    func galleryList(_ controller: GalleryListViewController,
+    func galleryList(_ controller: GalleriesListViewController,
                      didSelectCellModel cellModel: GalleryCellViewModel,
                      at indexPath: IndexPath) {
         
@@ -727,7 +730,7 @@ extension PostDetailViewController: GalleryListDelegate {
         controller.reloadGalleryCells([cellModel], animate: true)
     }
     
-    func galleryList(_ controller: GalleryListViewController,
+    func galleryList(_ controller: GalleriesListViewController,
                      accessoryViewForCellModel cellModel: GalleryCellViewModel,
                      at indexPath: IndexPath) -> UIView? {
         

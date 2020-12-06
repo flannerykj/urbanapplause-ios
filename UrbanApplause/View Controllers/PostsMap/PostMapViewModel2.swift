@@ -9,19 +9,42 @@
 import Foundation
 import MapKit
 import Shared
+import RxSwift
 
 // 1. When the user moves the map, the controller requests updated data from the view model via `public func getPosts(_:)`.
 // 2. The view model will either:
 // a)
 
 
-class PostMapViewModel2 {
+protocol MapDataStream {
+    var isLoading: Observable<Bool> { get }
+    var mapMarkers: Observable<[MKAnnotation]?> { get }
+    var error: Observable<Error?> { get }
+    
+    func requestMapData(visibleMapRect: MKMapRect, mapPixelWidth: Double, forceReload: Bool)
+    func getAllPostClusters(visibleMapRect: MKMapRect, mapPixelWidth: Double)
+    func getRegionForClusters(_ postClusters: [PostCluster],
+                              mapBounds: CGRect) -> MKCoordinateRegion?
+    func getRegionForCluster(_ postCluster: PostCluster,
+                             mapBounds: CGRect) -> MKCoordinateRegion?
+    func isAtMaxZoom(visibleMapRect: MKMapRect, mapPixelWidth: Double) -> Bool
+    func resetCache()
+    func addPost(_ post: Post)
+    func removePost(_ post: Post)
+}
+
+
+class PostMapViewModel2: MapDataStream {
+    
+    // MARK: - Private
+    var mutableIsLoading: BehaviorSubject<Bool> = BehaviorSubject<Bool>(value: false)
+    var mutableMapMarkers: BehaviorSubject<[MKAnnotation]?> = BehaviorSubject<[MKAnnotation]?>(value: nil)
+    var mutableError: BehaviorSubject<Error?> = BehaviorSubject<Error?>(value: nil)
+
     enum RequestedMapContent {
         case posts, postClusters
     }
-    public var didSetLoading: ((Bool) -> Void)?
-    public var onUpdateMarkers: (([MKAnnotation]?, Bool) -> Void)?
-    public var onError: ((Error) -> Void)?
+
     private var didTransitionZoomBoundary: Bool = false
     private var timer: Timer?
     private var appContext: AppContext
@@ -38,16 +61,26 @@ class PostMapViewModel2 {
     private var visibleMapPixelWidth: Double?
     private var lastRequestedMapContent: RequestedMapContent? = nil
 
-    var isLoading: Bool = false {
-        didSet {
-            didSetLoading?(isLoading)
-        }
-    }
     
     init(appContext: AppContext) {
         self.appContext = appContext
     }
-    public func requestMapData(visibleMapRect: MKMapRect, mapPixelWidth: Double, forceReload: Bool = false) {
+    
+    // MARK: - MapDataStream
+
+    var isLoading: Observable<Bool> {
+        return mutableIsLoading
+    }
+    
+    var mapMarkers: Observable<[MKAnnotation]?> {
+        return mutableMapMarkers
+    }
+    
+    var error: Observable<Error?> {
+        return mutableError
+    }
+    
+    public func requestMapData(visibleMapRect: MKMapRect, mapPixelWidth: Double, forceReload: Bool) {
         self.requestedForceReload = forceReload
         self.visibleMapRect = visibleMapRect
         self.visibleMapPixelWidth = mapPixelWidth
@@ -59,21 +92,8 @@ class PostMapViewModel2 {
                                      repeats: false)
     }
     
-    @objc func fetchData(sender: Timer) {
-        guard let visibleMapRect = visibleMapRect,
-            let mapPixelWidth = visibleMapPixelWidth else {
-            return
-        }
-        let zoomScale = mapPixelWidth / visibleMapRect.size.width
-        // Decide whether to get clusters or individual posts
-        if shouldClusterPosts(zoomScale: zoomScale) {
-            self.getAllPostClusters(visibleMapRect: visibleMapRect, mapPixelWidth: mapPixelWidth)
-        } else {
-            self.getIndividualPosts(visibleMapRect: visibleMapRect)
-        }
-    }
     func getAllPostClusters(visibleMapRect: MKMapRect, mapPixelWidth: Double) {
-        if isLoading && !requestedForceReload {
+        if (try? mutableIsLoading.value()) ?? false && !requestedForceReload {
             return
         }
         if self.visibleClusters != nil
@@ -84,7 +104,7 @@ class PostMapViewModel2 {
             return
         }
         let clusterByProximity = getMarkerWidthInDegrees(visibleMapRect: visibleMapRect, mapPixelWidth: mapPixelWidth) / 2
-        self.isLoading = true
+        self.mutableIsLoading.onNext(true)
         self.lastRequestedMapContent = .postClusters
         let requestedMapRect = visibleMapRect.insetBy(dx: -(visibleMapRect.width/2), dy: -(visibleMapRect.height/3))
         let filterForGeoBounds = getMapGeoBounds(visibleMapRect: requestedMapRect)
@@ -94,14 +114,13 @@ class PostMapViewModel2 {
         ) { [weak self] (result: UAResult<PostClustersContainer>) in
             guard self != nil else { return }
             DispatchQueue.main.async {
-                self!.isLoading = false
+                self!.mutableIsLoading.onNext(false)
                 switch result {
                 case .failure(let error):
-                    self?.onError?(error)
+                    self?.mutableError.onNext(error)
                 case .success(let clusterContainer):
-                    log.debug("cover post ids: \(clusterContainer.post_clusters.map { $0.cover_post_id})")
                     self?.visibleClusters = clusterContainer.post_clusters
-                    self!.onUpdateMarkers?(clusterContainer.post_clusters, true)
+                    self!.mutableMapMarkers.onNext(clusterContainer.post_clusters)
                     self!.lastLoadedClustersMapRect = requestedMapRect
                     self!.lastLoadedZoomScale = mapPixelWidth / visibleMapRect.size.width
                 }
@@ -110,19 +129,17 @@ class PostMapViewModel2 {
     }
 
     func getIndividualPosts(visibleMapRect: MKMapRect?) {
-        log.debug("getting posts")
         self.visibleClusters = nil
         if let loadedRect = self.loadedAllPostsForRect,
             let nextRect = visibleMapRect,
             lastRequestedMapContent == .posts {
             
             if loadedRect.contains(nextRect) {
-                // self.onUpdateMarkers?(nil, false)
                 return
             }
         }
         self.lastRequestedMapContent = .posts
-        self.isLoading = true
+        self.mutableIsLoading.onNext(true)
         var filterForGeoBounds: GeoBoundsFilter?
         
         if let nextRect = visibleMapRect {
@@ -143,14 +160,14 @@ class PostMapViewModel2 {
         ) { [weak self] (result: UAResult<PostsContainer>) in
             guard self != nil else { return }
             DispatchQueue.main.async {
-                self!.isLoading = false
+                self!.mutableIsLoading.onNext(false)
                 switch result {
                 case .failure(let error):
-                    self?.onError?(error)
+                    self?.mutableError.onNext(error)
                 case .success(let container):
                     self!.visiblePosts = container.posts
                     self!.loadedAllPostsForRect = visibleMapRect
-                    self!.onUpdateMarkers?(container.posts, true)
+                    self!.mutableMapMarkers.onNext(container.posts)
                 }
             }
         }
@@ -244,13 +261,13 @@ class PostMapViewModel2 {
         var cached = self.visiblePosts ?? []
         cached.append(post)
         self.visiblePosts = cached
-        onUpdateMarkers?(cached, true)
+        mutableMapMarkers.onNext(cached)
     }
     public func removePost(_ post: Post) {
         var cached = self.visiblePosts ?? []
         cached.removeAll(where: { $0.id == post.id })
         self.visiblePosts = cached
-        onUpdateMarkers?(cached, true)
+        mutableMapMarkers.onNext(cached)
     }
     
     func getZoomLevel(visibleMapRect: MKMapRect, mapPixelWidth: Double) -> Int {
@@ -262,10 +279,8 @@ class PostMapViewModel2 {
     
     func isAtMaxZoom(visibleMapRect: MKMapRect, mapPixelWidth: Double) -> Bool {
         let zoomScale = mapPixelWidth / visibleMapRect.size.width // This number increases as you zoom in.
-        log.debug("zoom scale: \(zoomScale)")
         let maxZoomScale: Double = 0.194138880976604 // This is the greatest zoom scale Map Kit lets you get to,
         // i.e. the most you can zoom in.
-        log.debug("is at max zoom: \(zoomScale >= maxZoomScale)")
         return zoomScale >= maxZoomScale
     }
     private func isRectCovered(_ rect: CGRect, by rects: [CGRect]) -> Bool {
@@ -284,5 +299,19 @@ class PostMapViewModel2 {
         return rects.reduce(CGRect(), { acc, rect in
             return acc.union(rect)
         })
+    }
+    
+    @objc func fetchData(sender: Timer) {
+        guard let visibleMapRect = visibleMapRect,
+            let mapPixelWidth = visibleMapPixelWidth else {
+            return
+        }
+        let zoomScale = mapPixelWidth / visibleMapRect.size.width
+        // Decide whether to get clusters or individual posts
+        if shouldClusterPosts(zoomScale: zoomScale) {
+            self.getAllPostClusters(visibleMapRect: visibleMapRect, mapPixelWidth: mapPixelWidth)
+        } else {
+            self.getIndividualPosts(visibleMapRect: visibleMapRect)
+        }
     }
 }

@@ -58,7 +58,7 @@ public enum PrivateRouter: EndpointConfiguration {
     case removeVisit(visitId: Int)
     
     // collections
-    case getCollections(userId: Int?, postId: Int?)
+    case getCollections(userId: Int?, postId: Int?, query: String?, isPublic: Bool?)
     case createCollection(values: Parameters)
     case deleteCollection(id: Int)
     case updateCollection(id: Int, values: Parameters)
@@ -161,13 +161,19 @@ public enum PrivateRouter: EndpointConfiguration {
     
     public var task: HTTPTask {
         switch self {
-        case .getCollections(let userId, let postId):
+        case .getCollections(let userId, let postId, let query, let isPublic):
             var params = Parameters()
             if let id = userId {
                 params["userId"] = String(id)
             }
             if let id = postId {
                 params["postId"] = String(id)
+            }
+            if let query = query {
+                params["search"] = query
+            }
+            if let isPublic = isPublic {
+                params["is_public"] = String(isPublic)
             }
             return .requestParameters(bodyParameters: nil, urlParameters: params)
         case .authenticate(let email, let password, let username, _):

@@ -11,9 +11,12 @@ import UIKit
 import MapKit
 import Shared
 import SnapKit
+import RxSwift
 
 class PostMapViewController2: UIViewController {
-    var viewModel: PostMapViewModel2
+    private let disposeBag = DisposeBag()
+    
+    var viewModel: MapDataStream
     var appContext: AppContext
     var needsUpdate: Bool = false
     var awaitingZoomToCurrentLocation: Bool = false
@@ -24,11 +27,39 @@ class PostMapViewController2: UIViewController {
     var locationManager = CLLocationManager()
     var requestedZoomToCurrentLocation: Bool = false
     
-    init(viewModel: PostMapViewModel2, appContext: AppContext) {
+    init(viewModel: MapDataStream, appContext: AppContext) {
         self.appContext = appContext
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
-        self.viewModel.onError = self.handleError
+    }
+    
+    private func subscribeToMapData() {
+        viewModel.error
+            .observeOn(MainScheduler.instance)
+            .subscribe(onNext: { (err: Error?) in
+                if let err = err {
+                    self.handleError(err)
+                }
+            })
+            .disposed(by: disposeBag)
+        
+        
+        viewModel.mapMarkers
+            .observeOn(MainScheduler.instance)
+            .subscribe(onNext: { clustersAdded in
+                self.mapView.removeAnnotations(self.mapView.annotations)
+                if let clusters = clustersAdded {
+                    self.mapView.addAnnotations(clusters)
+                }
+            })
+            .disposed(by: disposeBag)
+        
+        viewModel.isLoading
+            .observeOn(MainScheduler.instance)
+            .subscribe(onNext: { isLoading in
+                self.loadingView.isHidden = !isLoading
+            })
+            .disposed(by: disposeBag)
     }
     let activityIndicator = CircularLoader()
     
@@ -48,6 +79,7 @@ class PostMapViewController2: UIViewController {
         return view
     }()
     
+    // MARK: - UIViewController
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         if let username = self.appContext.store.user.data?.username {
@@ -80,25 +112,10 @@ class PostMapViewController2: UIViewController {
         
         navigationItem.rightBarButtonItem = locationButton
 
-        viewModel.didSetLoading = { isLoading in
-            DispatchQueue.main.async {
-                self.loadingView.isHidden = !isLoading
-            }
-        }
-        
-        viewModel.onUpdateMarkers = { clustersAdded, clearExistingClusters in
-            DispatchQueue.main.async {
-                if clearExistingClusters {
-                    self.mapView.removeAnnotations(self.mapView.annotations)
-                }
-                if let clusters = clustersAdded {
-                    self.mapView.addAnnotations(clusters)
-                }
-            }
-        }
-                
         let gr = UILongPressGestureRecognizer(target: self, action: #selector(longPressedMap(sender:)))
         mapView.addGestureRecognizer(gr)
+        
+        subscribeToMapData()
     }
     
     @objc func longPressedMap(sender: UILongPressGestureRecognizer) {
@@ -315,6 +332,7 @@ extension PostMapViewController2: CreatePostControllerDelegate {
     }
     
     func createPostController(_ controller: CreatePostViewController, didUploadImageData: Data, forPost post: Post) {
+        viewModel.addPost(post)
         self.updateMap(refreshCache: true)
         if let location = post.Location?.clLocation {
             self.zoomToLocation(location)

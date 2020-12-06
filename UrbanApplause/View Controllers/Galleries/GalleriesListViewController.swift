@@ -9,19 +9,25 @@
 import UIKit
 import Combine
 import Shared
+import SnapKit
 
 protocol GalleryListDelegate: class {
-    func galleryList(_ controller: GalleryListViewController,
+    func galleryList(_ controller: GalleriesListViewController,
                      didSelectCellModel cellModel: GalleryCellViewModel,
                      at indexPath: IndexPath)
     
-    func galleryList(_ controller: GalleryListViewController,
+    func galleryList(_ controller: GalleriesListViewController,
                      accessoryViewForCellModel cellModel: GalleryCellViewModel,
                      at indexPath: IndexPath) -> UIView?
 }
 
-class GalleryListViewController: UIViewController {
-    let uuid = UUID()
+
+protocol GalleriesListViewControllable: UIViewController {
+    
+}
+
+class GalleriesListViewController: UIViewController, GalleriesListViewControllable {
+
     var subscriptions = Set<AnyCancellable>()
     @Published var animate: Bool = false
     var appContext: AppContext
@@ -43,23 +49,18 @@ class GalleryListViewController: UIViewController {
     
     lazy var refreshControl = UIRefreshControl()
     
-    let tableHeaderLabel = UILabel(type: .body)
+    let errorMessageLabel = UILabel(type: .body, color: .systemRed)
+    let noResultsMessageLabel = UILabel(type: .body)
     
-    lazy var tableHeaderView: UIView = {
-       tableHeaderLabel.textAlignment = .center
-        let view = UIView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: tableHeaderHeight))
-        view.addSubview(tableHeaderLabel)
-        tableHeaderLabel.fill(view: view)
-        return view
-    }()
-    
-    private lazy var tableView: UITableView = {
-       let tableView = UITableView()
+    public func setEnableSelfSizing(_ isSelfSizingEnabled: Bool) {
+        tableView.setEnableSelfSizing(isSelfSizingEnabled)
+    }
+    private lazy var tableView: SelfSizingTableView = {
+       let tableView = SelfSizingTableView()
         tableView.refreshControl = refreshControl
         tableView.register(GalleryCell.self, forCellReuseIdentifier: GalleryCell.ReuseID)
         tableView.delegate = self
         tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.tableHeaderView = tableHeaderView
         tableView.tableFooterView = UIView()
         tableView.backgroundColor = UIColor.backgroundMain
         tableView.separatorColor = UIColor.systemGray
@@ -80,7 +81,8 @@ class GalleryListViewController: UIViewController {
                 cell.accessoryView = self.delegate?.galleryList(self, accessoryViewForCellModel: cellModel, at: indexPath)
                     // cell.imageView?.image = cellModel.gallery.icon
                 return cell
-            }
+            },
+            isEditable: viewModel.isEditable
         )
     }
     
@@ -98,10 +100,7 @@ class GalleryListViewController: UIViewController {
     }
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.addSubview(tableView)
-        tableView.fill(view: self.view)
-        
-        tableView.addSubview(refreshControl)
+        setupSubviews()
         refreshControl.addTarget(self, action: #selector(refreshData(_:)), for: .valueChanged)
 
         // nav setup
@@ -109,41 +108,70 @@ class GalleryListViewController: UIViewController {
         navigationItem.rightBarButtonItem = doneButton
 
         // fetch data
+        refreshControl.beginRefreshing()
         tableView.dataSource = self.dataSource
 
-        viewModel.isLoading.sink(receiveValue: { isLoading in
-            DispatchQueue.main.async {
+        setupSubscriptions()
+       
+    }
+    
+    // MARK: - Private
+
+    private func setupSubviews() {
+        errorMessageLabel.textAlignment = .center
+        noResultsMessageLabel.textAlignment = .center
+        tableView.backgroundColor = .clear
+        
+        view.addSubview(errorMessageLabel)
+        errorMessageLabel.snp.makeConstraints { make in
+            make.leading.trailing.top.equalTo(self.view.safeAreaLayoutGuide).inset(8)
+        }
+        
+        view.addSubview(noResultsMessageLabel)
+        noResultsMessageLabel.snp.makeConstraints { make in
+            make.leading.trailing.top.equalTo(self.view.safeAreaLayoutGuide).inset(8)
+        }
+        
+        view.addSubview(tableView)
+        tableView.fill(view: self.view)
+        
+        tableView.addSubview(refreshControl)
+    }
+    
+    private func setupSubscriptions() {
+        viewModel.isLoading
+            .receive(on: DispatchQueue.main)
+            .sink(receiveValue: { isLoading in
                 if isLoading {
                     self.refreshControl.beginRefreshing()
                 } else {
                     self.refreshControl.endRefreshing()
                 }
-            }
-        }).store(in: &subscriptions)
+            })
+            .store(in: &subscriptions)
 
-        viewModel.errorMessage
-            .sink(receiveValue: { errorMessage in
-                let visibleHeaderFrame = CGRect(x: 0,
-                                                y: 0,
-                                                width: self.tableView.bounds.width,
-                                                height: self.tableHeaderHeight)
-                if let msg = errorMessage {
-                    self.tableHeaderView.frame = visibleHeaderFrame
-                    self.tableHeaderLabel.text = msg
-                    self.tableHeaderLabel.textColor = UIColor.error
-                } else {
-                    self.tableHeaderView.frame.size.height = 0
-                }
-            }).store(in: &subscriptions)
-        viewModel.getData()
-        
         viewModel.snapshot
             .apply(to: dataSource, animate: $animate.eraseToAnyPublisher())
             .store(in: &subscriptions)
+        
+        viewModel.errorMessage
+            .receive(on: DispatchQueue.main)
+            .flatMap { Just($0) }
+            .assign(to: \.text, on: errorMessageLabel)
+            .store(in: &subscriptions)
+        
+        viewModel.noResultsMessage
+            .receive(on: DispatchQueue.main)
+            .flatMap { Just($0) }
+            .assign(to: \.text, on: noResultsMessageLabel)
+            .store(in: &subscriptions)
     }
+    
+    
+    // MARK: - Selector Actions
 
     @objc func refreshData(_: Any) {
-        viewModel.getData()
+        viewModel.refreshData()
     }
     
     @objc func cancel(_: UIBarButtonItem) {
@@ -156,25 +184,7 @@ class GalleryListViewController: UIViewController {
     }
 }
 
-extension GalleryListViewController: UITableViewDelegate {
-    // MARK: - Table view data source
-    /* func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
-    }
-
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel.tableData.value
-    }
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "CollectionCell", for: indexPath)
-        let collection = viewModel.collections[indexPath.row]
-        cell.textLabel?.text = collection.title
-        /* if let postCount = collection.Posts?.count {
-            cell.detailTextLabel?.text = String.pluralize(postCount, unit: "post")
-        } */
-        cell.backgroundColor = UIColor.backgroundMain
-        return cell
-    } */
+extension GalleriesListViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard let cellModel = dataSource.itemIdentifier(for: indexPath) else { log.error("no gallery"); return }
@@ -182,12 +192,45 @@ extension GalleryListViewController: UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return 50
+        return 0
+    }
+ 
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            
+        }
     }
 }
 
-extension GalleryListViewController: NewCollectionViewControllerDelegate {
+extension GalleriesListViewController: NewCollectionViewControllerDelegate {
     func didCreateCollection(collection: Collection) {
         viewModel.addCollection(collection)
+    }
+}
+
+
+class SelfSizingTableView: UITableView {
+    private var isSelfSizingEnabled: Bool = false
+    private var heightConstraint: Constraint?
+    
+    func setEnableSelfSizing(_ enableSelfSizing: Bool) {
+        self.isSelfSizingEnabled = enableSelfSizing
+        isScrollEnabled = !enableSelfSizing
+        invalidateIntrinsicContentSize()
+    }
+
+    private var storedContentSize: CGSize = .zero
+    
+    override func setNeedsLayout() {
+        heightConstraint?.deactivate()
+        
+        snp.makeConstraints { make in
+            self.heightConstraint = make.height.equalTo(contentSize.height).constraint
+        }
+        
+        if isSelfSizingEnabled {
+            heightConstraint?.activate()
+        }
+        super.setNeedsLayout()
     }
 }

@@ -11,6 +11,9 @@ target 'UrbanApplause' do
   pod 'AWSS3'
   pod 'SnapKit'
   pod 'Cloudinary'
+  pod 'RxSwift'
+  pod 'RxCocoa'
+  pod 'FloatingPanel'
   # Pods for UrbanApplause
 
   target 'UrbanApplauseUpload' do

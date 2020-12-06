@@ -12,6 +12,8 @@ import Shared
 class Store {
     var user = DataState<User>()
     var collections = DataState<[Collection]>()
+    var experiments = DataState<[String]>()
+    
     init() {}
 }
 

@@ -106,6 +106,7 @@ class PostListViewController: UIViewController {
         view.addSubview(tableView)
         tableView.fill(view: self.view)
         tableView.refreshControl = refreshControl
+        refreshControl.beginRefreshing()
         
         view.backgroundColor = backgroundColor
         
@@ -130,7 +131,6 @@ class PostListViewController: UIViewController {
         
         viewModel.didSetLoading = { isLoading in
             DispatchQueue.main.async {
-                log.debug("isLoading: \(isLoading)")
                 if isLoading {
                     if self.viewModel.currentPage == 0 {
                         self.refreshControl.beginRefreshing()

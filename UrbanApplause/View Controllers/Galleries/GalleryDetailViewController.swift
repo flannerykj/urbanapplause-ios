@@ -17,28 +17,28 @@ protocol CollectionDetailControllerDelegate: class {
 class GalleryDetailViewController: UIViewController {
     var appContext: AppContext
     var postListViewModel: DynamicPostListViewModel
-    var gallery: Gallery
+    var gallery: Collection
     weak var delegate: CollectionDetailControllerDelegate?
+    
+    private lazy var galleryFooterView: GalleryDetailFooterView = {
+        let view = GalleryDetailFooterView()
+        view.listener = self
+        return view
+    }()
+    
+    lazy var detailsTableView: UITableViewController = {
+        let vc = UITableViewController()
+        return vc
+    }()
+    
     
     lazy var postListVC = PostListViewController(viewModel: postListViewModel, appContext: appContext)
     
-    init(gallery: Gallery, appContext: AppContext) {
+    init(gallery: Collection, appContext: AppContext) {
         self.appContext = appContext
         self.gallery = gallery
-        switch gallery {
-        case .custom(let collection):
-            self.postListViewModel = DynamicPostListViewModel(filterForCollection: collection,
+        self.postListViewModel = DynamicPostListViewModel(filterForCollection: gallery,
                                                               appContext: appContext)
-        case .visits:
-            self.postListViewModel = DynamicPostListViewModel(filterForVisitedBy: appContext.store.user.data,
-                                                              appContext: appContext)
-        case .applause:
-            self.postListViewModel = DynamicPostListViewModel(filterForUserApplause: appContext.store.user.data,
-                                                              appContext: appContext)
-        case .posted:
-            self.postListViewModel = DynamicPostListViewModel(filterForPostedBy: appContext.store.user.data,
-                                                              appContext: appContext)
-        }
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -46,51 +46,69 @@ class GalleryDetailViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    lazy var editButton = UIBarButtonItem(barButtonSystemItem: .edit,
+    lazy var optionsButton = UIBarButtonItem(image: UIImage(systemName: "ellipsis"),
+                                             style: .plain,
                                           target: self,
-                                          action: #selector(editCollection(_:)))
+                                          action: #selector(showOptionsMenu(_:)))
     
     lazy var finishEditingButton = UIBarButtonItem(barButtonSystemItem: .done,
                                                    target: self,
                                                    action: #selector(finishEditing(_:)))
     
-    lazy var deleteCollectionButton: UIButton = {
-        let button = UIButton(frame: CGRect(x: 0, y: 0, width: 100, height: 50))
-        button.setTitle("Delete gallery", for: .normal)
-        button.titleLabel?.textAlignment = .center
-        button.backgroundColor = UIColor.backgroundLight
-        button.setTitleColor(UIColor.error, for: .normal)
-        button.addTarget(self, action: #selector(deleteCollection(_:)), for: .touchUpInside)
-        return button
-    }()
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         postListVC.postListDelegate = self
         navigationItem.title = gallery.title
+        
         view.addSubview(postListVC.view)
+        view.addSubview(galleryFooterView)
         postListVC.view.translatesAutoresizingMaskIntoConstraints = false
-        postListVC.view.fill(view: self.view)
+        postListVC.view.snp.makeConstraints { make in
+            make.leading.trailing.top.equalToSuperview()
+        }
+        galleryFooterView.snp.makeConstraints { make in
+            make.top.equalTo(postListVC.view.snp.bottom)
+            make.leading.trailing.bottom.equalToSuperview()
+        }
         addChild(postListVC)
         postListVC.didMove(toParent: self)
         
-        // navigationItem.rightBarButtonItem = editButton
+        navigationItem.rightBarButtonItem = optionsButton
     }
     
-    @objc func editCollection(_: Any) {
-        postListVC.tableView.tableFooterView = deleteCollectionButton
-        self.postListVC.tableView.setEditing(true, animated: true)
-        self.navigationItem.rightBarButtonItem = finishEditingButton
+    @objc func showOptionsMenu(_: Any) {
+        let optionsModal = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        
+        let deleteAction = UIAlertAction(title: "Delete collection", style: .destructive, handler: { _ in
+            optionsModal.dismiss(animated: true, completion: {
+                self.confirmDeleteCollection()
+            })
+        })
+        
+//        let makePrivatePublicAction = UIAlertAction(title: gallery.is_public ? "Make private" : "Make public" , style: .default, handler: { _ in
+//            optionsModal.dismiss(animated: true, completion: {
+//
+//            })
+//        })
+        let cancel = UIAlertAction(title: "Cancel", style: .cancel, handler: { _ in
+            optionsModal.dismiss(animated: true, completion: nil)
+        })
+        
+//        optionsModal.addAction(makePrivatePublicAction)
+        optionsModal.addAction(deleteAction)
+        optionsModal.addAction(cancel)
+        
+        present(optionsModal, animated: true, completion: nil)
     }
     @objc func finishEditing(_: Any) {
         postListVC.tableView.tableFooterView = nil
         self.postListVC.tableView.setEditing(false, animated: true)
-        self.navigationItem.rightBarButtonItem = editButton
+        self.navigationItem.rightBarButtonItem = optionsButton
     }
     
-    @objc func deleteCollection(_: Any) {
+    func confirmDeleteCollection() {
         
-        guard case let Gallery.custom(collection) = gallery else { return }
         let alertController = UIAlertController(title: Strings.ConfirmDeleteGallery,
                                                 message: Strings.IrreversibleActionWarning,
                                                 preferredStyle: .actionSheet)
@@ -102,7 +120,7 @@ class GalleryDetailViewController: UIViewController {
             indicator.startAnimating()
             alertController.view.addSubview(indicator)
             
-            let endpoint = PrivateRouter.deleteCollection(id: collection.id)
+            let endpoint = PrivateRouter.deleteCollection(id: self.gallery.id)
             _ = self.appContext.networkService.request(endpoint,
                                                             completion: {(result: UAResult<CollectionContainer>) in
                 switch result {
@@ -133,13 +151,12 @@ extension GalleryDetailViewController: PostListControllerDelegate {
     }
     
     func didDeletePost(_ post: Post, atIndexPath indexPath: IndexPath) {
-        guard case let Gallery.custom(collection) = gallery else { return }
         self.postListVC.tableView.beginUpdates()
         self.postListVC.viewModel.removeListItem(atIndex: indexPath.row)
         self.postListVC.tableView.deleteRows(at: [indexPath], with: .automatic)
         self.postListVC.tableView.endUpdates()
         
-        let endpoint = PrivateRouter.deleteFromCollection(collectionId: collection.id, postId: post.id)
+        let endpoint = PrivateRouter.deleteFromCollection(collectionId: gallery.id, postId: post.id)
         _ = self.appContext.networkService.request(endpoint, completion: { (result: UAResult<PostContainer>) in
             switch result {
             case .success:
@@ -148,5 +165,49 @@ extension GalleryDetailViewController: PostListControllerDelegate {
                 log.error(error)
             }
         })
+    }
+}
+
+
+
+
+extension GalleryDetailViewController: GalleryDetailFooterViewDelegate {
+    func didTapStartTour() {
+        let vc = TourMapViewController(collection: gallery, appContext: appContext)
+        navigationController?.pushViewController(vc, animated: true)
+    }
+}
+
+
+protocol GalleryDetailFooterViewDelegate: AnyObject {
+    func didTapStartTour()
+}
+
+
+private class GalleryDetailFooterView: UIView {
+    weak var listener: GalleryDetailFooterViewDelegate?
+
+    private lazy var startTourButton: UIButton = {
+        let button = UAButton(type: .primary, title: "Start tour", target: self, action: #selector(startTour(_:)), rightImage: UIImage(systemName: "map"))
+        return button
+    }()
+
+    init() {
+        super.init(frame: .zero)
+        translatesAutoresizingMaskIntoConstraints = false
+        backgroundColor = .systemBackground
+        addSubview(startTourButton)
+        startTourButton.snp.makeConstraints { maker in
+            maker.edges.equalTo(self.safeAreaLayoutGuide).inset(8)
+        }
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    @objc func startTour(_: UIButton) {
+        listener?.didTapStartTour()
+
     }
 }

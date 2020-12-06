@@ -37,6 +37,14 @@ class PostAnnotationView: MKMarkerAnnotationView, PostAnnotationViewProtocol {
     // Animation duration in seconds.
 
     let animationDuration: TimeInterval = 0.25
+    
+    override var isSelected: Bool {
+        didSet {
+            #if DEBUG
+            contentView.backgroundColor = isSelected ? UIColor.systemPink : UIColor.clear
+            #endif
+        }
+    }
 
     // MARK: - Initialization methods
 
@@ -46,10 +54,11 @@ class PostAnnotationView: MKMarkerAnnotationView, PostAnnotationViewProtocol {
         clusteringIdentifier = "post"
         addSubview(contentView)
         
-        #if DEBUG
-        contentView.backgroundColor = UIColor.systemPink
-        #endif
+//        #if DEBUG
+//        contentView.backgroundColor = UIColor.systemPink
+//        #endif
     }
+    
     override func prepareForDisplay() {
         super.prepareForDisplay()
         contentView.setImage(nil)
