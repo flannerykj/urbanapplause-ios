@@ -18,6 +18,7 @@ public struct Collection: Codable {
     public var description: String?
     public var UserId: Int
     public var Posts: [Post]?
+    public var is_public: Bool
     
     
     public init(title: String = "New collection", id: Int = 0, UserId: Int = 0, Posts: [Post] = []) {
@@ -25,6 +26,7 @@ public struct Collection: Codable {
         self.title = title
         self.UserId = UserId
         self.Posts = Posts
+        self.is_public = false
     }
 }
 

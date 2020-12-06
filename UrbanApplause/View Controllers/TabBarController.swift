@@ -15,7 +15,7 @@ import Shared
 class TabBarController: UITabBarController {
     var store: Store
     var appContext: AppContext
-    let dhTabBar = UATabBar()
+    let uaTabBar = UATabBar()
     var selectedPlacemark: CLPlacemark?
     var imagePicker: ImagePicker!
     
@@ -31,20 +31,20 @@ class TabBarController: UITabBarController {
 
     lazy var mapRootVC = PostMapViewController2(viewModel: PostMapViewModel2(appContext: appContext),
                                                appContext: appContext)
-    lazy var mapTab = UINavigationController(rootViewController: mapRootVC)
+    lazy var mapTab = UANavigationController(rootViewController: mapRootVC)
     let mapTabBarItem = UITabBarItem(title: Strings.MapTabItemTitle,
                                      image: UIImage(systemName: "map"),
                                      selectedImage: UIImage(systemName: "map.fill"))
     
     lazy var searchRootVC = SearchPostsViewController(appContext: appContext)
-    lazy var searchTab = UINavigationController(rootViewController: searchRootVC)
+    lazy var searchTab = UANavigationController(rootViewController: searchRootVC)
     lazy var searchTabBarItem = UITabBarItem(title: Strings.SearchTabItemTitle,
                                            image: UIImage(systemName: "magnifyingglass"),
                                            selectedImage: UIImage(systemName: "magnifyingglass"))
     
     lazy var collectionsRootVC = GalleriesViewController(userId: store.user.data?.id,
                                                            appContext: appContext)
-    lazy var collectionsTab = UINavigationController(rootViewController: collectionsRootVC)
+    lazy var collectionsTab = UANavigationController(rootViewController: collectionsRootVC)
     let collectionsTabBarItem = UITabBarItem(title: Strings.GalleriesTabItemTitle,
                                              image: UIImage(systemName: "square.grid.2x2"),
                                              selectedImage: UIImage(systemName: "square.grid.2x2.fill"))
@@ -52,10 +52,10 @@ class TabBarController: UITabBarController {
     // lazy var addTab = NewPostViewController(appContext: self.appContext)
     // let addTabBarItem = UITabBarItem(title: nil, image: nil, selectedImage: nil) // placeholder
     
-    lazy var profileTab: UINavigationController? = {
+    lazy var profileTab: UANavigationController? = {
         guard let user = store.user.data else { return nil }
         let profileRootVC = ProfileViewController(user: user, appContext: appContext)
-        let nav = UINavigationController(rootViewController: profileRootVC)
+        let nav = UANavigationController(rootViewController: profileRootVC)
         return nav
     }()
     let profileTabBarItem = UITabBarItem(title: Strings.ProfileTabItemTitle,
@@ -63,7 +63,7 @@ class TabBarController: UITabBarController {
                                          selectedImage: UIImage(systemName: "person.fill"))
     
     lazy var settingsRootVC = SettingsViewController(store: store, appContext: appContext)
-    lazy var settingsTab = UINavigationController(rootViewController: settingsRootVC)
+    lazy var settingsTab = UANavigationController(rootViewController: settingsRootVC)
     
     let settingsTabBarItem = UITabBarItem(title: Strings.SettingsTabItemTitle,
                                           image: UIImage(systemName: "gear"),
@@ -73,9 +73,9 @@ class TabBarController: UITabBarController {
         super.viewDidLoad()
         self.imagePicker = ImagePicker(presentationController: self, delegate: self)
         delegate = self
-        dhTabBar.frame = self.tabBar.frame
-        dhTabBar.delegate = self
-        self.setValue(dhTabBar, forKey: "tabBar")
+        uaTabBar.frame = self.tabBar.frame
+        uaTabBar.delegate = self
+        self.setValue(uaTabBar, forKey: "tabBar")
         
         mapTab.tabBarItem = mapTabBarItem
         // listTab.tabBarItem = listTabBarItem
@@ -99,7 +99,7 @@ class TabBarController: UITabBarController {
         controllers.append(settingsTab)
         
         self.viewControllers = controllers
-        dhTabBar.middleButton.addTarget(self, action: #selector(createNewPressed(sender:)), for: .touchUpInside)
+        uaTabBar.middleButton.addTarget(self, action: #selector(createNewPressed(sender:)), for: .touchUpInside)
     }
     
     public func getImageForNewPost(sender: UIView, placemark: CLPlacemark? = nil) {
@@ -115,10 +115,22 @@ class TabBarController: UITabBarController {
     @objc func createNewPressed(sender: UIView) {
         getImageForNewPost(sender: sender)
     }
+    
+    public func hideFloatingButton() {
+        uaTabBar.middleButton.isHidden = true
+    }
+    
+    public func showFloatingButton() {
+        uaTabBar.middleButton.isHidden = false
+    }
+
 }
 
 extension TabBarController: UITabBarControllerDelegate {
     override func tabBar(_ tabBar: UITabBar, didSelect item: UITabBarItem) {
+        
+        showFloatingButton()
+        
         let indexOfSearchTab = 1
         if selectedIndex == indexOfSearchTab && item == searchTabBarItem {
             // search bar tab was double-tapped - focus the search bar

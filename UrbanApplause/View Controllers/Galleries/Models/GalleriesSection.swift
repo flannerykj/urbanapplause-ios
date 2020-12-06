@@ -10,12 +10,12 @@ import Foundation
 import Shared
 
 enum GalleriesSection: Int, CaseIterable {
-    case myCollections = 0
+    case collections = 0
     case other
     
     var title: String {
         switch self {
-        case .myCollections:
+        case .collections:
             return Strings.MyGalleriesSectionTitle
         case .other:
             return Strings.OtherGalleriesSectionTitle

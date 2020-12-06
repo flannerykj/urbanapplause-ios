@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		239D3CCCB535048D1569D0FE /* Pods_UrbanApplauseTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8F04B06017455278535E351E /* Pods_UrbanApplauseTests.framework */; };
 		2CA81C3726C1FBA2033C905B /* Pods_Shared.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AE67C1727BC5F34DBC42F1D4 /* Pods_Shared.framework */; };
+		3234B166257D550E0030E170 /* NavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3234B165257D550E0030E170 /* NavigationController.swift */; };
 		326BC2A32567C31F008DEBBB /* TourMapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 326BC2A22567C31F008DEBBB /* TourMapViewController.swift */; };
 		326BC319256810CA008DEBBB /* ExperimentManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 326BC318256810CA008DEBBB /* ExperimentManager.swift */; };
 		326BC3E6256AE370008DEBBB /* TourInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 326BC3E5256AE370008DEBBB /* TourInfoViewController.swift */; };
@@ -16,6 +17,7 @@
 		32D93F3325778016000207E4 /* TourMapViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32D93F3225778016000207E4 /* TourMapViewModel.swift */; };
 		32D93F3A257A3C22000207E4 /* TourWaypointCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32D93F39257A3C22000207E4 /* TourWaypointCell.swift */; };
 		32D93F40257A7909000207E4 /* TourOverviewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32D93F3F257A7909000207E4 /* TourOverviewCell.swift */; };
+		32E21B1E257BD31600BDE9E7 /* GalleriesSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32E21B1D257BD31600BDE9E7 /* GalleriesSection.swift */; };
 		32FABBB7256AEBF300D9B7AC /* GalleriesManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32FABBB6256AEBF300D9B7AC /* GalleriesManager.swift */; };
 		32FABBC4256AF5F200D9B7AC /* VIPER.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32FABBC3256AF5F200D9B7AC /* VIPER.swift */; };
 		3A069F0F23C79E55009405F6 /* Shared.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A72A54A23C7758200B64A06 /* Shared.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -39,7 +41,6 @@
 		3A1DCE172385947F0028D117 /* NewPostState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A1DCE162385947F0028D117 /* NewPostState.swift */; };
 		3A1ECBF52267F6F50055FC9B /* UAButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A1ECBF42267F6F50055FC9B /* UAButton.swift */; };
 		3A22219123AD4C8200FE9262 /* GalleryCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A22219023AD4C8200FE9262 /* GalleryCellViewModel.swift */; };
-		3A22219323B0AE4100FE9262 /* GalleriesSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A22219223B0AE4100FE9262 /* GalleriesSection.swift */; };
 		3A22219623B0AE5500FE9262 /* GalleriesTableDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A22219523B0AE5500FE9262 /* GalleriesTableDataSource.swift */; };
 		3A22219823B0AF4300FE9262 /* GalleryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A22219723B0AF4300FE9262 /* GalleryCell.swift */; };
 		3A28764C226B80B100BCAE61 /* PostDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A28764B226B80B100BCAE61 /* PostDetailViewController.swift */; };
@@ -151,7 +152,7 @@
 		3AA7672423507F3200A70DE4 /* UATextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AA7672323507F3200A70DE4 /* UATextField.swift */; };
 		3AB12E06236B6ED600A4E163 /* FlagPostViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AB12E05236B6ED600A4E163 /* FlagPostViewController.swift */; };
 		3AB12E0A236B7E4E00A4E163 /* FlagPostResultViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AB12E09236B7E4E00A4E163 /* FlagPostResultViewController.swift */; };
-		3AB575AF2274A28400C8F597 /* GalleryListViewController_DEP.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AB575AE2274A28400C8F597 /* GalleryListViewController_DEP.swift */; };
+		3AB575AF2274A28400C8F597 /* GalleriesListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AB575AE2274A28400C8F597 /* GalleriesListViewController.swift */; };
 		3AB575B12274A9E500C8F597 /* NewCollectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AB575B02274A9E500C8F597 /* NewCollectionViewController.swift */; };
 		3ABC6A03236E7542009C180D /* PostAnnotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ABC6A02236E7542009C180D /* PostAnnotation.swift */; };
 		3ACAE1002390AB9F0025FB25 /* CircularLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ACAE0FF2390AB9F0025FB25 /* CircularLoader.swift */; };
@@ -271,6 +272,7 @@
 		1C61606185890359DAE798CA /* Pods-UrbanApplauseUpload.release (production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UrbanApplauseUpload.release (production).xcconfig"; path = "Target Support Files/Pods-UrbanApplauseUpload/Pods-UrbanApplauseUpload.release (production).xcconfig"; sourceTree = "<group>"; };
 		236A25B05EF50959CBA49F63 /* Pods-UrbanApplauseUpload.debug (production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UrbanApplauseUpload.debug (production).xcconfig"; path = "Target Support Files/Pods-UrbanApplauseUpload/Pods-UrbanApplauseUpload.debug (production).xcconfig"; sourceTree = "<group>"; };
 		30BDF2B9AAF15F5512CE90ED /* Pods-Shared.debug (development).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Shared.debug (development).xcconfig"; path = "Target Support Files/Pods-Shared/Pods-Shared.debug (development).xcconfig"; sourceTree = "<group>"; };
+		3234B165257D550E0030E170 /* NavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationController.swift; sourceTree = "<group>"; };
 		326BC2A22567C31F008DEBBB /* TourMapViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TourMapViewController.swift; sourceTree = "<group>"; };
 		326BC318256810CA008DEBBB /* ExperimentManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExperimentManager.swift; sourceTree = "<group>"; };
 		326BC3E5256AE370008DEBBB /* TourInfoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TourInfoViewController.swift; sourceTree = "<group>"; };
@@ -278,6 +280,7 @@
 		32D93F3225778016000207E4 /* TourMapViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TourMapViewModel.swift; sourceTree = "<group>"; };
 		32D93F39257A3C22000207E4 /* TourWaypointCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TourWaypointCell.swift; sourceTree = "<group>"; };
 		32D93F3F257A7909000207E4 /* TourOverviewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TourOverviewCell.swift; sourceTree = "<group>"; };
+		32E21B1D257BD31600BDE9E7 /* GalleriesSection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GalleriesSection.swift; sourceTree = "<group>"; };
 		32FABBB6256AEBF300D9B7AC /* GalleriesManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleriesManager.swift; sourceTree = "<group>"; };
 		32FABBC3256AF5F200D9B7AC /* VIPER.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VIPER.swift; sourceTree = "<group>"; };
 		355E0BAA362E820F9716997C /* Pods_UrbanApplauseUpload.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_UrbanApplauseUpload.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -305,7 +308,6 @@
 		3A1ECBF42267F6F50055FC9B /* UAButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UAButton.swift; sourceTree = "<group>"; };
 		3A22218E23AD4B5900FE9262 /* Publisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Publisher.swift; sourceTree = "<group>"; };
 		3A22219023AD4C8200FE9262 /* GalleryCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryCellViewModel.swift; sourceTree = "<group>"; };
-		3A22219223B0AE4100FE9262 /* GalleriesSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleriesSection.swift; sourceTree = "<group>"; };
 		3A22219523B0AE5500FE9262 /* GalleriesTableDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleriesTableDataSource.swift; sourceTree = "<group>"; };
 		3A22219723B0AF4300FE9262 /* GalleryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryCell.swift; sourceTree = "<group>"; };
 		3A28764B226B80B100BCAE61 /* PostDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostDetailViewController.swift; sourceTree = "<group>"; };
@@ -412,7 +414,7 @@
 		3AB12E05236B6ED600A4E163 /* FlagPostViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlagPostViewController.swift; sourceTree = "<group>"; };
 		3AB12E09236B7E4E00A4E163 /* FlagPostResultViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlagPostResultViewController.swift; sourceTree = "<group>"; };
 		3AB575A82274927500C8F597 /* UIImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIImage.swift; sourceTree = "<group>"; };
-		3AB575AE2274A28400C8F597 /* GalleryListViewController_DEP.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryListViewController_DEP.swift; sourceTree = "<group>"; };
+		3AB575AE2274A28400C8F597 /* GalleriesListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleriesListViewController.swift; sourceTree = "<group>"; };
 		3AB575B02274A9E500C8F597 /* NewCollectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewCollectionViewController.swift; sourceTree = "<group>"; };
 		3ABC157D23761BC400EF4CF6 /* .env.production */ = {isa = PBXFileReference; lastKnownFileType = text; path = .env.production; sourceTree = "<group>"; };
 		3ABC6A02236E7542009C180D /* PostAnnotation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostAnnotation.swift; sourceTree = "<group>"; };
@@ -625,7 +627,7 @@
 		3A22219423B0AE4A00FE9262 /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				3A22219223B0AE4100FE9262 /* GalleriesSection.swift */,
+				32E21B1D257BD31600BDE9E7 /* GalleriesSection.swift */,
 				32FABBB6256AEBF300D9B7AC /* GalleriesManager.swift */,
 				3A56B42623636008000F2A42 /* GalleryListViewModel.swift */,
 				3A22219023AD4C8200FE9262 /* GalleryCellViewModel.swift */,
@@ -853,6 +855,7 @@
 				3A179A712360F56900E0C3FF /* CreateArtistViewController.swift */,
 				3A12795223D089F30086AB6C /* CreateArtistGroupViewController.swift */,
 				3A9467F923631F8200C446F7 /* SearchPostsViewController.swift */,
+				3234B165257D550E0030E170 /* NavigationController.swift */,
 				326BC3E4256AE362008DEBBB /* Tour */,
 				3AE4628023D0F3F40062C869 /* ArtistList */,
 				3AE4627523D0C10C0062C869 /* ArtistGroupDetail */,
@@ -1087,7 +1090,7 @@
 			isa = PBXGroup;
 			children = (
 				3A56B42423635DC0000F2A42 /* GalleriesViewController.swift */,
-				3AB575AE2274A28400C8F597 /* GalleryListViewController_DEP.swift */,
+				3AB575AE2274A28400C8F597 /* GalleriesListViewController.swift */,
 				3A56B42223635C82000F2A42 /* GalleryDetailViewController.swift */,
 				3A22219723B0AF4300FE9262 /* GalleryCell.swift */,
 				3AB575B02274A9E500C8F597 /* NewCollectionViewController.swift */,
@@ -1608,8 +1611,9 @@
 				3A12794D23D089610086AB6C /* SearchArtistGroupsViewController.swift in Sources */,
 				3AE4627923D0C1C90062C869 /* ArtistGroupDetailViewModel.swift in Sources */,
 				3AE86AEC23BE42C00097DB1A /* TabbedToolbar.swift in Sources */,
+				3234B166257D550E0030E170 /* NavigationController.swift in Sources */,
 				3A12795323D089F30086AB6C /* CreateArtistGroupViewController.swift in Sources */,
-				3AB575AF2274A28400C8F597 /* GalleryListViewController_DEP.swift in Sources */,
+				3AB575AF2274A28400C8F597 /* GalleriesListViewController.swift in Sources */,
 				3AE4628D23D1002E0062C869 /* ArtistListViewModel.swift in Sources */,
 				32FABBB7256AEBF300D9B7AC /* GalleriesManager.swift in Sources */,
 				3A7553AC2365D98A00634C32 /* CommentListViewController.swift in Sources */,
@@ -1623,7 +1627,6 @@
 				3AEA33772352003400ECBF8C /* DynamicPostListViewModel.swift in Sources */,
 				3A8D2434235538D200B98A9B /* PostImageCell.swift in Sources */,
 				3AE4627723D0C11E0062C869 /* ArtistGroupDetailViewController.swift in Sources */,
-				3A22219323B0AE4100FE9262 /* GalleriesSection.swift in Sources */,
 				3A746E1D2372DC6100F36EFB /* NonClippingLabel.swift in Sources */,
 				3A7553AE2365D9A400634C32 /* CommentListViewModel.swift in Sources */,
 				3AF484F621DFCC8800FBC33E /* PostListViewController.swift in Sources */,
@@ -1647,6 +1650,7 @@
 				3AE86AE523BE41810097DB1A /* UserProfileViewController.swift in Sources */,
 				3ADD72C92383269A0007CAEF /* SettingsItem.swift in Sources */,
 				3A2C8D1A238F40BA000C3122 /* PostMapViewModel2.swift in Sources */,
+				32E21B1E257BD31600BDE9E7 /* GalleriesSection.swift in Sources */,
 				3A76EA6E21DAD3C200FEDEC8 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
