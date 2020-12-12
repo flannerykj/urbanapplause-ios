@@ -8,6 +8,7 @@
 import UIKit
 import CoreLocation
 import Shared
+import Combine
 
 protocol PostListControllerDelegate: class {
     var canEditPosts: Bool { get }
@@ -87,8 +88,8 @@ class PostListViewController: UIViewController {
        return view
     }()
 
-    lazy var tableView: UITableView = {
-        let tableView = UITableView()
+    lazy var tableView: UATableView = {
+        let tableView = UATableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.register(PostCell.self, forCellReuseIdentifier: "PostCell")
         tableView.dataSource = self
@@ -319,5 +320,19 @@ extension PostListViewController: PostCellDelegate {
 extension PostListViewController: TabContentViewController {
     var contentScrollView: UIScrollView? {
         return self.tableView
+    }
+}
+
+
+class UATableView: UITableView {
+    var contentSizeStream: AnyPublisher<CGSize, Never> {
+        return contentSizeSubject.eraseToAnyPublisher()
+    }
+
+    private let contentSizeSubject = CurrentValueSubject<CGSize, Never>(.zero)
+    override var contentSize: CGSize {
+        didSet {
+            contentSizeSubject.value = contentSize
+        }
     }
 }

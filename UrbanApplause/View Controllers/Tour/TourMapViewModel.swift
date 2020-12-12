@@ -81,6 +81,4 @@ class TourMapDataStream: TourMapDataStreaming {
     private var mutableErrorMessageStream = CurrentValueSubject<String?, Never>(nil)
     private var mutableIsLoadingStream = CurrentValueSubject<Bool, Never>(false)
     private var selectedIndexSubject = CurrentValueSubject<Int?, Never>(nil)
-
-    
 }

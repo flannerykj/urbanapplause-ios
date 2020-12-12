@@ -9,12 +9,14 @@
 import Foundation
 import UIKit
 import Shared
+import Combine
 
 protocol CollectionDetailControllerDelegate: class {
     func collectionDetail(didDeleteCollection collection: Collection)
 }
 
 class GalleryDetailViewController: UIViewController {
+    private var subscriptions = Set<AnyCancellable>()
     var appContext: AppContext
     var postListViewModel: DynamicPostListViewModel
     var gallery: Collection
@@ -54,29 +56,79 @@ class GalleryDetailViewController: UIViewController {
     lazy var finishEditingButton = UIBarButtonItem(barButtonSystemItem: .done,
                                                    target: self,
                                                    action: #selector(finishEditing(_:)))
+    private let refreshControl = UIRefreshControl()
     
-
+    private lazy var collectionInfoView = CollectionInfoView()
+    
+    private lazy var scrollView: UIScrollView = {
+        let view = UIScrollView()
+        // view.refreshControl = refreshControl
+        return view
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        postListVC.postListDelegate = self
+        view.backgroundColor = .systemBackground
         navigationItem.title = gallery.title
         
-        view.addSubview(postListVC.view)
+        setupSubviews()
+        setupConstraints()
+        
+        navigationItem.rightBarButtonItem = optionsButton
+        collectionInfoView.updateForCollection(gallery)
+    }
+    
+    private func setupSubviews() {
+//        refreshControl.addTarget(self, action: #selector(didPullRefresh(_:)), for: .valueChanged)
+        
+        view.addSubview(scrollView)
         view.addSubview(galleryFooterView)
-        postListVC.view.translatesAutoresizingMaskIntoConstraints = false
-        postListVC.view.snp.makeConstraints { make in
+        scrollView.addSubview(postListVC.view)
+        scrollView.addSubview(collectionInfoView)
+        postListVC.postListDelegate = self
+        addChild(postListVC)
+        postListVC.didMove(toParent: self)
+        postListVC.tableView.isScrollEnabled = false
+    }
+    
+    private func setupConstraints() {
+        scrollView.snp.makeConstraints { make in
             make.leading.trailing.top.equalToSuperview()
         }
         galleryFooterView.snp.makeConstraints { make in
-            make.top.equalTo(postListVC.view.snp.bottom)
+            make.top.equalTo(scrollView.snp.bottom)
             make.leading.trailing.bottom.equalToSuperview()
         }
-        addChild(postListVC)
-        postListVC.didMove(toParent: self)
         
-        navigationItem.rightBarButtonItem = optionsButton
+        collectionInfoView.snp.makeConstraints { make in
+            make.leading.trailing.top.equalToSuperview()
+        }
+        postListVC.view.snp.makeConstraints { make in
+            make.top.equalTo(collectionInfoView.snp.bottom)
+            make.leading.trailing.bottom.equalToSuperview()
+            make.width.equalToSuperview()
+            make.height.equalTo(0)
+        }
+        
+        postListVC.tableView.contentSizeStream
+            .sink { size in
+                print("height: ", size.height)
+                self.postListVC.view.snp.updateConstraints { make in
+                    make.height.equalTo(size.height)
+                }
+                self.postListVC.view.layoutIfNeeded()
+            }
+            .store(in: &subscriptions)
+        
+        
+        
+        
     }
     
+//    @objc func didPullRefresh(_ sender: UIRefreshControl) {
+//        postListViewModel.fetchListItems(forceReload: true)
+//    }
+//
     @objc func showOptionsMenu(_: Any) {
         let optionsModal = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         
@@ -209,5 +261,56 @@ private class GalleryDetailFooterView: UIView {
     @objc func startTour(_: UIButton) {
         listener?.didTapStartTour()
 
+    }
+}
+
+
+fileprivate class CollectionInfoView: UIView {
+    private let titleLabel = UILabel(type: .h3)
+    
+    
+    private let isPublicControl = UISwitch()
+    
+    private lazy var isPublicView: UIView = {
+        let label = UILabel(type: .small, text: "Is public")
+        let view = UIView()
+        view.addSubview(label)
+        view.addSubview(isPublicControl)
+        label.snp.makeConstraints { make in
+            make.top.leading.bottom.equalToSuperview()
+        }
+        isPublicControl.snp.makeConstraints { make in
+            make.top.trailing.bottom.equalToSuperview()
+            make.leading.equalTo(label.snp.trailing).offset(8)
+        }
+        return view
+    }()
+    
+    private lazy var stackView: UIStackView = {
+        let view = UIStackView(arrangedSubviews: [titleLabel, isPublicView])
+        view.axis = .vertical
+        view.isLayoutMarginsRelativeArrangement = true
+        view.layoutMargins = UIEdgeInsets(top: StyleConstants.contentMargin, left: StyleConstants.contentMargin, bottom: StyleConstants.contentMargin, right: StyleConstants.contentMargin)
+        view.spacing = 8
+        return view
+    }()
+    
+    
+    func updateForCollection(_ collection: Collection) {
+        titleLabel.text = collection.title
+        isPublicControl.isOn = collection.is_public
+    }
+    
+    init() {
+        super.init(frame: .zero)
+        translatesAutoresizingMaskIntoConstraints = false
+        addSubview(stackView)
+        stackView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 }
