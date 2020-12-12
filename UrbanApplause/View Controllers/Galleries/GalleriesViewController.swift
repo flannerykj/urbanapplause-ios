@@ -34,13 +34,17 @@ class GalleriesViewController: UIViewController, UISearchControllerDelegate, UIS
         let controller = UISearchController(searchResultsController: nil)
         controller.searchResultsUpdater = self
         controller.searchBar.placeholder = "Search collections"
-        controller.automaticallyShowsScopeBar = true
-        controller.searchBar.scopeButtonTitles = GalleryScope.allCases.map { $0.title }
         controller.delegate = self
         controller.searchBar.delegate = self
         return controller
     }()
 
+    private lazy var searchScopeControl: UISegmentedControl = {
+        let control = UISegmentedControl(items: GalleryScope.allCases.map { $0.title })
+        control.selectedSegmentIndex = 0
+        control.addTarget(self, action: #selector(didUpdateSearchScope(_:)), for: .valueChanged)
+        return control
+    }()
     
     lazy var galleryListVC = GalleriesListViewController(viewModel: galleryListViewModel,
                                                              appContext: appContext)
@@ -61,11 +65,16 @@ class GalleriesViewController: UIViewController, UISearchControllerDelegate, UIS
        
         definesPresentationContext = true
         view.backgroundColor = UIColor.backgroundMain
-
+        view.addSubview(searchScopeControl)
         view.addSubview(galleryListVC.view)
-        // Setup gallery table view in ScrollView
+        
+        searchScopeControl.snp.makeConstraints { make in
+            make.leading.trailing.top.equalTo(view.safeAreaLayoutGuide)
+            make.height.equalTo(44)
+        }
         galleryListVC.view.snp.makeConstraints { make in
-            make.leading.trailing.top.bottom.equalToSuperview()
+            make.top.equalTo(searchScopeControl.snp.bottom)
+            make.leading.trailing.bottom.equalToSuperview()
         }
         galleryListVC.didMove(toParent: self)
         galleryListVC.delegate = self
@@ -80,8 +89,12 @@ class GalleriesViewController: UIViewController, UISearchControllerDelegate, UIS
                                         action: #selector(createCollection(_:)))
         navigationItem.rightBarButtonItem = addButton
         
+        updateSearchResults()
+        
     }
-    
+    @objc func didUpdateSearchScope(_ sender: UISegmentedControl) {
+        updateSearchResults()
+    }
     @objc func createCollection(_: Any) {
         let vc = NewCollectionViewController(appContext: appContext)
         vc.delegate = galleryListVC
@@ -95,10 +108,7 @@ class GalleriesViewController: UIViewController, UISearchControllerDelegate, UIS
     }
     
     // MARK: - UISearchControllerDelegate
-    
-    func searchBar(_ searchBar: UISearchBar, selectedScopeButtonIndexDidChange selectedScope: Int) {
-        print("New scope index is now \(selectedScope)")
-    }
+
     
     // MARK: - UISearchResultsUpdating
 
@@ -112,7 +122,7 @@ class GalleriesViewController: UIViewController, UISearchControllerDelegate, UIS
     private func updateSearchResults() {
       
         let searchQuery = searchVC.searchBar.text
-        let scope = GalleryScope.allCases[searchVC.searchBar.selectedScopeButtonIndex]
+        guard let scope = GalleryScope.allCases[safe: searchScopeControl.selectedSegmentIndex] else { return }
         var query: GalleryQuery
         
         switch scope {

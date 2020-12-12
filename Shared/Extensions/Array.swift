@@ -9,8 +9,7 @@
 import Foundation
 
 public extension Array {
-    func itemAtIndex(_ index: Int) -> Element? {
-        guard index < self.count else { return nil }
-        return self[index]
+    subscript (safe index: Int) -> Element? {
+        return indices.contains(index) ? self[index] : nil
     }
 }
