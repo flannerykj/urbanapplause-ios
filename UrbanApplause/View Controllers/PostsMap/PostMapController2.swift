@@ -91,7 +91,7 @@ class PostMapViewController2: UIViewController {
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
         
-        view.backgroundColor = UIColor.backgroundMain
+        view.backgroundColor = UIColor.systemBackground
         view.addSubview(mapView)
         mapView.translatesAutoresizingMaskIntoConstraints = false
         mapView.snp.makeConstraints {

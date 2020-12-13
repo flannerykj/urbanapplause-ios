@@ -51,12 +51,13 @@ class TourMapViewController: UIViewController, FloatingPanelControllerDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        navigationItem.largeTitleDisplayMode = .never
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
         locationManager.requestLocation()
         locationManager.startUpdatingLocation()
         
-        view.backgroundColor = UIColor.backgroundMain
+        view.backgroundColor = UIColor.systemBackground
         view.addSubview(mapView)
         mapView.translatesAutoresizingMaskIntoConstraints = false
         mapView.snp.makeConstraints {

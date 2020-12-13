@@ -55,7 +55,7 @@ class ImageDetailViewController: UIViewController, UIScrollViewDelegate {
         scrollView.snp.makeConstraints {
             $0.edges.equalTo(view)
         }
-        view.backgroundColor = UIColor.backgroundLight
+        view.backgroundColor = UIColor.systemGray6
        
         if let job = self.imageDownloadJob {
             self.subscriber = job.subscribe(onSuccess: { data in

@@ -60,7 +60,7 @@ class SearchPostsViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = UIColor.backgroundMain
+        view.backgroundColor = UIColor.systemBackground
         
         // Add list view
         view.addSubview(postListVC.view)

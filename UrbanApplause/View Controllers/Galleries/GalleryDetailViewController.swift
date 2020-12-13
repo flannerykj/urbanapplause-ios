@@ -13,10 +13,17 @@ import Combine
 
 protocol CollectionDetailControllerDelegate: class {
     func collectionDetail(didDeleteCollection collection: Collection)
+    func collectionDetail(didDeletePostsFromCollection collection: Collection)
 }
 
-class GalleryDetailViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+class GalleryDetailViewController: UIViewController {
     private var subscriptions = Set<AnyCancellable>()
+    private var selectedPosts: [Post] = [] {
+        didSet {
+            selectedItemsToolbarLabel.text = selectedPosts.count == 1 ? "1 post selected" : "\(selectedPosts.count) posts selected"
+        }
+    }
+    
     var appContext: AppContext
     var postListViewModel: DynamicPostListViewModel
     var gallery: Collection
@@ -32,6 +39,9 @@ class GalleryDetailViewController: UIViewController, UICollectionViewDelegate, U
         let vc = UITableViewController()
         return vc
     }()
+    
+    
+    lazy var postListVC = PostListV2ViewController(viewModel: postListViewModel, appContext: appContext)
     
     init(gallery: Collection, appContext: AppContext) {
         self.appContext = appContext
@@ -60,29 +70,9 @@ class GalleryDetailViewController: UIViewController, UICollectionViewDelegate, U
                                           target: self,
                                           action: #selector(startSelectingPosts(_:)))
 
-    private let activityIndicator = UIActivityIndicatorView()
+    private let refreshControl = UIRefreshControl()
     
     private lazy var collectionInfoView = CollectionInfoView()
-    private lazy var collectionViewLayout: UICollectionViewFlowLayout = {
-        let layout = UICollectionViewFlowLayout()
-        return layout
-    }()
-    private let loadingIndicatorHeight: CGFloat = 24
-
-    private lazy var collectionView: UACollectionView = {
-        let view = UACollectionView(frame: .zero, collectionViewLayout: collectionViewLayout)
-        view.register(PostV2Cell.self, forCellWithReuseIdentifier: "PostV2Cell")
-        view.delegate = self
-        view.dataSource = self
-        view.backgroundColor = .systemBackground
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(activityIndicator)
-        activityIndicator.snp.makeConstraints { make in
-            make.centerX.centerY.equalToSuperview()
-            make.width.height.equalTo(24)
-        }
-        return view
-    }()
     
     private lazy var scrollView: UIScrollView = {
         let view = UIScrollView()
@@ -91,55 +81,29 @@ class GalleryDetailViewController: UIViewController, UICollectionViewDelegate, U
         return view
     }()
     
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemBackground
+        navigationController?.navigationBar.prefersLargeTitles = true
+        navigationItem.largeTitleDisplayMode = .always
         
+        view.backgroundColor = .systemBackground
         
         setupSubviews()
         setupConstraints()
         
         configureViewForCollection(gallery)
         configureForSelectionMode(isSelecting: isEditing)
-        
-
-        postListViewModel.didUpdateListItems = { addedIndexPaths, removedIndexPaths, shouldReload in
-            DispatchQueue.main.async {
-                if shouldReload {
-                    self.collectionView.reloadData()
-                } else {
-                    self.collectionView.performBatchUpdates({
-                        self.collectionView.deleteItems(at: removedIndexPaths)
-                        self.collectionView.insertItems(at: addedIndexPaths)
-                    }, completion: { _ in
-//                        self.updateTableHeader()
-//                        self.updateTableFooter()
-                    })
-                }
-
-            }
-        }
-        
-        postListViewModel.didSetErrorMessage = { message in
-//            self.updateTableHeader()
-        }
-        
-        postListViewModel.didSetLoading = { isLoading in
-            DispatchQueue.main.async {
-                if isLoading {
-                    self.activityIndicator.startAnimating()
-                    self.activityIndicator.isHidden = false
-                } else {
-                    self.activityIndicator.isHidden = true
-                    self.activityIndicator.stopAnimating()
-                }
-            }
-        }
-        activityIndicator.startAnimating()
-        postListViewModel.fetchListItems(forceReload: false)
     }
     
+    lazy var deleteToolbarItem2 = UIBarButtonItem(barButtonSystemItem: .trash, target: self, action: #selector(tappedRemoveSelectedPosts(sender:)))
+    let selectedItemsToolbarLabel = UILabel(type: .body, color: .systemBlue)
+
     private func configureForSelectionMode(isSelecting: Bool) {
+        postListVC.setEditing(isSelecting, animated: true)
+        navigationController?.setToolbarHidden(!isSelecting, animated: true)
+
         if isSelecting {
             navigationItem.rightBarButtonItems = [cancelSelectButton]
         } else {
@@ -152,10 +116,16 @@ class GalleryDetailViewController: UIViewController, UICollectionViewDelegate, U
         
         view.addSubview(scrollView)
         view.addSubview(galleryFooterView)
+        scrollView.addSubview(postListVC.view)
+//        scrollView.addSubview(collectionInfoView)
+        postListVC.postListDelegate = self
+        addChild(postListVC)
+        postListVC.didMove(toParent: self)
+        postListVC.isScrollEnabled = false
         
-        scrollView.addSubview(collectionInfoView)
-        scrollView.addSubview(collectionView)
-        
+        let spacer = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+
+        toolbarItems = [UIBarButtonItem(customView: selectedItemsToolbarLabel), spacer, deleteToolbarItem2]
     }
     
     private func setupConstraints() {
@@ -167,28 +137,22 @@ class GalleryDetailViewController: UIViewController, UICollectionViewDelegate, U
             make.leading.trailing.bottom.equalToSuperview()
         }
         
-        collectionInfoView.snp.makeConstraints { make in
-            make.leading.trailing.top.equalToSuperview()
-        }
-        
-        collectionView.snp.makeConstraints { make in
-            make.top.equalTo(collectionInfoView.snp.bottom)
-            make.leading.trailing.bottom.equalToSuperview()
+//        collectionInfoView.snp.makeConstraints { make in
+//            make.leading.trailing.top.equalToSuperview()
+//        }
+        postListVC.view.snp.makeConstraints { make in
+//            make.top.equalTo(collectionInfoView.snp.bottom)
+            make.top.leading.trailing.bottom.equalToSuperview()
             make.width.equalToSuperview()
             make.height.equalTo(0)
         }
         
-        collectionView.contentSizeStream
-            .map { (size: CGSize) -> CGSize in
-                let height = max(size.height, self.loadingIndicatorHeight)
-                return CGSize(width: size.width, height: height)
-            }
+        postListVC.contentSizeStream
             .sink { size in
-                print("height: ", size.height)
-                self.collectionView.snp.updateConstraints { make in
+                self.postListVC.view.snp.updateConstraints { make in
                     make.height.equalTo(size.height)
                 }
-                self.collectionView.layoutIfNeeded()
+                self.postListVC.view.layoutIfNeeded()
             }
             .store(in: &subscriptions)
     }
@@ -229,6 +193,45 @@ class GalleryDetailViewController: UIViewController, UICollectionViewDelegate, U
         optionsModal.addAction(cancel)
         
         present(optionsModal, animated: true, completion: nil)
+    }
+    
+    @objc func tappedRemoveSelectedPosts(sender: UIBarButtonItem) {
+        let postCountText = selectedPosts.count == 1 ? "1 post" : "\(selectedPosts.count) posts"
+        let alertController = UIAlertController(title: "Remove \(postCountText) from collection?",
+                                                message: nil,
+                                                preferredStyle: .actionSheet)
+        let cancelAction = UIAlertAction(title: Strings.CancelButtonTitle, style: .cancel, handler: nil)
+
+        let deleteAction = UIAlertAction(title: "Remove", style: .destructive, handler: { _ in
+            let indicator = UIActivityIndicatorView(frame: alertController.view.bounds)
+            indicator.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+            indicator.startAnimating()
+            alertController.view.addSubview(indicator)
+            
+            let endpoint = PrivateRouter.updateCollectionPosts(collectionId: self.gallery.id, postsIdsToAdd: [], postIdsToRemove: self.selectedPosts.map { $0.id })
+            _ = self.appContext.networkService.request(endpoint,
+                                                       completion: {(result: UAResult<CollectionContainer>) in
+                                                        switch result {
+                                                        case .success(let container):
+                                                            DispatchQueue.main.async {
+                                                                self.configureForSelectionMode(isSelecting: false)
+                                                                self.postListViewModel.fetchListItems(forceReload: true)
+                                                                self.delegate?.collectionDetail(didDeletePostsFromCollection: self.gallery)
+                                                            }
+                                                        case .failure(let error):
+                                                            log.error(error)
+                                                            self.showAlert(title: "Unable to remove posts", message: "Didn't work. Not at all. totally failed.", onDismiss: nil)
+                                                        }
+                                                    })
+        })
+        alertController.addAction(deleteAction)
+        alertController.addAction(cancelAction)
+        var rect = self.view.frame
+        rect.origin.x = self.view.frame.size.width / 20
+        rect.origin.y = self.view.frame.size.height / 20
+        alertController.popoverPresentationController?.sourceView = self.view
+        alertController.popoverPresentationController?.sourceRect = rect
+        present(alertController, animated: true, completion: nil)
     }
     
     func confirmDeleteCollection() {
@@ -274,62 +277,13 @@ class GalleryDetailViewController: UIViewController, UICollectionViewDelegate, U
         self.gallery = collection
         self.navigationItem.title = collection.title
     }
-    
-    // MARK: - UICollectionViewDelegate
-    
-    // MARK: - UICollectionViewDataSource
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return postListViewModel.listItems.count
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let post = postListViewModel.listItems[indexPath.row]
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PostV2Cell", for: indexPath) as! PostV2Cell
-        if let firstFile = post.PostImages?.first {
-            if let thumb = firstFile.thumbnail {
-                let imageJob = appContext.fileCache.getJobForFile(thumb, isThumb: true)
-                cell.downloadJob = imageJob
-            } else {
-                let imageJob = appContext.fileCache.getJobForFile(firstFile, isThumb: true)
-                cell.downloadJob = imageJob
-            }
-        }
-        cell.appContext = appContext
-        cell.post = post
-        cell.indexPath = indexPath
-        return cell
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        let width = collectionView.bounds.width/4
-        return CGSize(width: width, height: width)
-    }
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
-        return .zero
-    }
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
-        return 0
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        
-        if isEditing {
-            
-        } else {
-            let post = postListViewModel.listItems[indexPath.row]
-            let cell = collectionView.cellForItem(at: indexPath) as? PostV2Cell
-            let thumbImage = cell?.photoView.image
-            let vc = PostDetailViewController(postId: post.id,
-                                              post: post,
-                                              thumbImage: thumbImage,
-                                              appContext: appContext)
-            vc.delegate = self
-            navigationController?.pushViewController(vc, animated: true)
-        }
-    }
 }
 
-extension GalleryDetailViewController: PostListControllerDelegate {
+extension GalleryDetailViewController: PostListV2ViewControllerDelegate {
+    func updateSelectedPosts(_ posts: [Post], indexPaths: [IndexPath]) {
+        self.selectedPosts = posts
+    }
+    
     var canEditPosts: Bool {
         return true
     }
@@ -350,6 +304,8 @@ extension GalleryDetailViewController: PostListControllerDelegate {
 //            }
 //        })
     }
+    
+    
 }
 
 
@@ -456,33 +412,5 @@ extension GalleryDetailViewController: NewCollectionViewControllerDelegate {
     
     func didUpdateCollection(collection: Collection) {
         configureViewForCollection(collection)
-    }
-}
-extension GalleryDetailViewController: PostDetailDelegate {
-    func postDetail(_ controller: PostDetailViewController, didUpdatePost post: Post) {
-        
-    }
-    
-    func postDetail(_ controller: PostDetailViewController, didBlockUser user: User) {
-        
-    }
-    
-    func postDetail(_ controller: PostDetailViewController, didDeletePost post: Post) {
-        
-    }
-    
-    
-}
-class UACollectionView: UICollectionView {
-    public var contentSizeStream: AnyPublisher<CGSize, Never> {
-        contentSizeSubject.eraseToAnyPublisher()
-    }
-    
-    private let contentSizeSubject = CurrentValueSubject<CGSize, Never>(.zero)
-    
-    override var contentSize: CGSize {
-        didSet {
-            contentSizeSubject.value = contentSize
-        }
     }
 }

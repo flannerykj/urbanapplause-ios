@@ -42,7 +42,7 @@ class SettingsViewController: UIViewController {
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.tableHeaderView = tableHeaderView
         tableView.tableFooterView = tableFooterView
-        tableView.backgroundColor = UIColor.backgroundMain
+        tableView.backgroundColor = UIColor.systemBackground
         tableView.separatorColor = .systemGray
         return tableView
     }()
@@ -56,6 +56,8 @@ class SettingsViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        navigationController?.navigationBar.prefersLargeTitles = true
+        navigationItem.largeTitleDisplayMode = .always
         navigationItem.title = Strings.SettingsTabItemTitle
         view.addSubview(tableView)
         tableView.fill(view: self.view)

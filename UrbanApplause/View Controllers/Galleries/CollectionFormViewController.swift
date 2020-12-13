@@ -77,7 +77,7 @@ class CollectionFormViewController: FormViewController {
                 }
             }
             <<< SwitchRow() { row in
-                row.tag = "public"
+                row.tag = "is_public"
                 row.title = "Public"
                 row.value = existingCollection?.is_public ?? false
                 row.onChange { row in

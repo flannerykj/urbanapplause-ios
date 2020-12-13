@@ -15,7 +15,7 @@ class TableSectionHeaderView: UIView {
     init(height: CGFloat, title: String) {
         super.init(frame:  CGRect(x: 0, y: 0, width: 100, height: height))
         layoutMargins = StyleConstants.defaultMarginInsets
-        backgroundColor = UIColor.backgroundMain
+        backgroundColor = UIColor.systemBackground
         let label = UILabel(type: .h8, text: title)
         addSubview(label)
         layoutMargins = StyleConstants.defaultPaddingInsets

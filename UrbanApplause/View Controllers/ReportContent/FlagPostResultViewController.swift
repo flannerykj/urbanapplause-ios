@@ -27,7 +27,7 @@ class ReportAnIssueResultViewController: UIViewController {
     }()
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = UIColor.backgroundMain
+        view.backgroundColor = UIColor.systemBackground
         let leftButton = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
         navigationItem.leftBarButtonItem = leftButton // replace back button with emtpy item, so user can't resubmit form
         

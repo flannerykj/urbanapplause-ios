@@ -65,7 +65,7 @@ class ReportAnIssueViewController: UIViewController {
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.tableHeaderView = tableHeaderView
         tableView.tableFooterView = UIView()
-        tableView.backgroundColor = UIColor.backgroundMain
+        tableView.backgroundColor = UIColor.systemBackground
         tableView.separatorColor = .systemGray
         return tableView
     }()
@@ -102,7 +102,7 @@ extension ReportAnIssueViewController: UITableViewDataSource, UITableViewDelegat
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "ReportReason", for: indexPath)
         cell.textLabel?.text = PostFlagReason.allCases[indexPath.row].title
-        cell.contentView.backgroundColor = UIColor.backgroundMain
+        cell.contentView.backgroundColor = UIColor.systemBackground
         cell.accessoryType = .none
         cell.textLabel?.numberOfLines = 0
         return cell

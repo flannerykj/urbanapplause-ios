@@ -53,7 +53,7 @@ class ImageCarouselViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = UIColor.backgroundLight
+        view.backgroundColor = UIColor.systemGray6
         view.addSubview(scrollView)
         scrollView.snp.makeConstraints {
             $0.edges.equalTo(view)

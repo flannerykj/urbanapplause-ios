@@ -50,7 +50,7 @@ class EditProfileViewController: FormViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationItem.title = Strings.EditProfileButtonTitle
-        view.backgroundColor = UIColor.backgroundMain
+        view.backgroundColor = UIColor.systemBackground
         form +++ Section(Strings.BioFieldLabel)
             <<< TextAreaRow {
                 $0.tag = "bio"

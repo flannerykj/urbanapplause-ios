@@ -60,7 +60,6 @@ class GalleriesListViewController: UIViewController, GalleriesListViewControllab
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.tableFooterView = UIView()
         tableView.backgroundColor = UIColor.systemBackground
-        tableView.separatorColor = UIColor.systemGray
         return tableView
     }()
     
@@ -74,7 +73,7 @@ class GalleriesListViewController: UIViewController, GalleriesListViewControllab
                 )
                 cell.textLabel?.text = cellModel.gallery.title
                 cell.detailTextLabel?.text = String.pluralize(cellModel.posts.count, unit: "post")
-                cell.backgroundColor = UIColor.backgroundMain
+                cell.backgroundColor = UIColor.systemBackground
                 cell.accessoryView = self.delegate?.galleryList(self, accessoryViewForCellModel: cellModel, at: indexPath)
                     // cell.imageView?.image = cellModel.gallery.icon
                 return cell
@@ -93,6 +92,11 @@ class GalleriesListViewController: UIViewController, GalleriesListViewControllab
         
         if let selected = tableView.indexPathForSelectedRow {
             tableView.deselectRow(at: selected, animated: true)
+        }
+        
+        if needsRefreshOnViewAppear {
+            viewModel.refreshData()
+            needsRefreshOnViewAppear = false
         }
     }
     override func viewDidLoad() {
@@ -178,6 +182,12 @@ class GalleriesListViewController: UIViewController, GalleriesListViewControllab
         vc.delegate = self
         navigationController?.pushViewController(vc, animated: true)
     }
+    
+    private var needsRefreshOnViewAppear: Bool = false
+    
+    private func setNeedsRefresh() {
+        self.needsRefreshOnViewAppear = true
+    }
 }
 
 extension GalleriesListViewController: UITableViewDelegate {
@@ -205,5 +215,16 @@ extension GalleriesListViewController: NewCollectionViewControllerDelegate {
     
     func didCreateCollection(collection: Collection) {
         viewModel.addCollection(collection)
+    }
+}
+
+
+extension GalleriesListViewController: CollectionDetailControllerDelegate {
+    func collectionDetail(didDeleteCollection collection: Collection) {
+        setNeedsRefresh()
+    }
+    
+    func collectionDetail(didDeletePostsFromCollection collection: Collection) {
+        setNeedsRefresh()
     }
 }

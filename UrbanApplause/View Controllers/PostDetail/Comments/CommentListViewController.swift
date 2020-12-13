@@ -115,7 +115,7 @@ class CommentListViewController: UIViewController {
         tableView.dataSource = self
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.tableFooterView = tableFooterView
-        tableView.backgroundColor = UIColor.backgroundMain
+        tableView.backgroundColor = UIColor.systemBackground
         tableView.separatorColor = .systemGray
         return tableView
     }()
@@ -129,7 +129,7 @@ class CommentListViewController: UIViewController {
         let closeButton = UIBarButtonItem(barButtonSystemItem: .close, target: self, action: #selector(cancel(_:)))
         navigationItem.leftBarButtonItem = closeButton
         tableView.scrollViewAvoidKeyboard()
-        view.backgroundColor = UIColor.backgroundMain
+        view.backgroundColor = UIColor.systemBackground
         viewModel.getComments()
         newCommentTextArea.autocorrectionType = .no
         newCommentTextArea.autocapitalizationType = .sentences
@@ -269,7 +269,7 @@ extension CommentListViewController: UITableViewDataSource, UITableViewDelegate 
         cell.comment = comment
         cell.delegate = self
         cell.indexPath = indexPath
-        cell.contentView.backgroundColor = UIColor.backgroundMain
+        cell.contentView.backgroundColor = UIColor.systemBackground
         return cell
     }
 }

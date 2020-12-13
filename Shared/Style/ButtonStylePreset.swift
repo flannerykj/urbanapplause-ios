@@ -150,7 +150,7 @@ public enum ButtonStylePreset {
     public var defaultBorderColor: UIColor? {
         switch self {
         case .smallTag:
-            return UIColor.backgroundLight
+            return UIColor.systemGray6
         case .outlined, .primary:
             return accentColor
         default:

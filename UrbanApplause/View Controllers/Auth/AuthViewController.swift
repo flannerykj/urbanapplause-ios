@@ -115,7 +115,7 @@ class AuthViewController: UIViewController {
         attributedString.style(as: .body, for: range)
         attributedString.addAttributes([
             .foregroundColor: UIColor.customTextColor,
-            .backgroundColor: UIColor.backgroundMain
+            .backgroundColor: UIColor.systemBackground
         ], range: range)
         
         textView.attributedText = attributedString
@@ -123,7 +123,7 @@ class AuthViewController: UIViewController {
         textView.isScrollEnabled = false
         textView.isEditable = false
         textView.delegate = self
-        textView.backgroundColor = UIColor.backgroundMain
+        textView.backgroundColor = UIColor.systemBackground
         
         textView.translatesAutoresizingMaskIntoConstraints = true
         // Set how links should appear
@@ -153,7 +153,7 @@ class AuthViewController: UIViewController {
             .font: TypographyStyle.body.font,
             .foregroundColor: UIColor.customTextColor,
             .paragraphStyle: style,
-            .backgroundColor: UIColor.backgroundMain
+            .backgroundColor: UIColor.systemBackground
         ], range: NSRange(location: 0, length: attributedString.length))
         
         textView.attributedText = attributedString
@@ -161,7 +161,7 @@ class AuthViewController: UIViewController {
         textView.isScrollEnabled = false
         textView.isEditable = false
         textView.delegate = self
-        textView.backgroundColor = UIColor.backgroundMain
+        textView.backgroundColor = UIColor.systemBackground
         textView.textAlignment = .center
         textView.translatesAutoresizingMaskIntoConstraints = true
         // Set how links should appear
@@ -225,7 +225,7 @@ class AuthViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = UIColor.backgroundMain
+        view.backgroundColor = UIColor.systemBackground
         view.addSubview(scrollView)
         scrollView.snp.makeConstraints {
             $0.edges.equalTo(view)

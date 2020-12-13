@@ -20,7 +20,7 @@ class TourOverviewCell: UITableViewCell {
     weak var delegate: TourOverviewCellDelegate?
     
     let titleLabel = UILabel(type: .h7)
-    let titleLabelRight = UILabel(type: .h7, color: UIColor.systemGray4)
+    let titleLabelRight = UILabel(type: .h7, color: UIColor.systemGray2)
     
     lazy var titleLabelView: UIView = {
         let view = UIView()
@@ -49,9 +49,9 @@ class TourOverviewCell: UITableViewCell {
     private lazy var stackView: UIStackView = {
         let view = UIStackView(arrangedSubviews: [titleLabelView, /*subtitleLabel,*/ startButton])
         view.axis = .vertical
-        view.insetsLayoutMarginsFromSafeArea = true
+        view.isLayoutMarginsRelativeArrangement = true
         view.spacing = 8
-        view.layoutMargins = UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
+        view.layoutMargins = UIEdgeInsets(top: 16, left: 8, bottom: 16, right: 8)
         return view
     }()
     

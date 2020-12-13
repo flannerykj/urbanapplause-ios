@@ -12,9 +12,15 @@ import Shared
 import Combine
 import SnapKit
 
-class PostListV2ViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
-    weak var postListDelegate: PostListControllerDelegate?
 
+protocol PostListV2ViewControllerDelegate: AnyObject {
+    func updateSelectedPosts(_ posts: [Post], indexPaths: [IndexPath])
+    func didDeletePost(_ post: Post, atIndexPath indexPath: IndexPath)
+}
+
+class PostListV2ViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+    weak var postListDelegate: PostListV2ViewControllerDelegate?
+    private var selectedPosts: [Post] = []
     private let viewModel: PostListViewModel
     private let appContext: AppContext
     
@@ -47,7 +53,7 @@ class PostListV2ViewController: UIViewController, UICollectionViewDelegate, UICo
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        navigationItem.largeTitleDisplayMode = .never
         view.addSubview(collectionView)
         collectionView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
@@ -86,8 +92,16 @@ class PostListV2ViewController: UIViewController, UICollectionViewDelegate, UICo
         }
         activityIndicator.startAnimating()
         viewModel.fetchListItems(forceReload: false)
-        
-
+    }
+    
+    override func setEditing(_ editing: Bool, animated: Bool) {
+        super.setEditing(editing, animated: animated)
+        collectionView.allowsMultipleSelection = editing
+        let indexPaths = collectionView.indexPathsForVisibleItems
+        for indexPath in indexPaths {
+            let cell = collectionView.cellForItem(at: indexPath) as! PostV2Cell
+            cell.isInEditingMode = editing
+        }
     }
     private lazy var collectionViewLayout: UICollectionViewFlowLayout = {
         let layout = UICollectionViewFlowLayout()
@@ -109,14 +123,6 @@ class PostListV2ViewController: UIViewController, UICollectionViewDelegate, UICo
         return view
     }()
     
-    
-    let trash = UIBarButtonItem(barButtonSystemItem: .trash, target: self, action: nil)
-    let spacer = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: self, action: nil)
-    let button = UIBarButtonItem(title: "delete", style: .plain, target: nil, action: nil)
-    func setEditing(navigationController: UINavigationController?, isEditing: Bool, animated: Bool) {
-        navigationController?.setToolbarItems([spacer, trash], animated: animated)
-        navigationController?.setToolbarHidden(!isEditing, animated: animated)
-    }
     
     // MARK: - UICollectionViewDelegate
     
@@ -155,12 +161,14 @@ class PostListV2ViewController: UIViewController, UICollectionViewDelegate, UICo
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        
+        let cell = collectionView.cellForItem(at: indexPath) as? PostV2Cell
+        let post = viewModel.listItems[indexPath.row]
+
         if isEditing {
-            
+            cell?.isSelected = true
+            selectedPosts.append(post)
+            postListDelegate?.updateSelectedPosts(selectedPosts, indexPaths: collectionView.indexPathsForSelectedItems ?? [])
         } else {
-            let post = viewModel.listItems[indexPath.row]
-            let cell = collectionView.cellForItem(at: indexPath) as? PostV2Cell
             let thumbImage = cell?.photoView.image
             let vc = PostDetailViewController(postId: post.id,
                                               post: post,
@@ -170,8 +178,6 @@ class PostListV2ViewController: UIViewController, UICollectionViewDelegate, UICo
             navigationController?.pushViewController(vc, animated: true)
         }
     }
-    
-    
     // MARK: - UICollectionViewDelegateFlowLayout
 }
 
@@ -191,3 +197,16 @@ extension PostListV2ViewController: PostDetailDelegate {
 
 
 
+class UACollectionView: UICollectionView {
+    public var contentSizeStream: AnyPublisher<CGSize, Never> {
+        contentSizeSubject.eraseToAnyPublisher()
+    }
+    
+    private let contentSizeSubject = CurrentValueSubject<CGSize, Never>(.zero)
+    
+    override var contentSize: CGSize {
+        didSet {
+            contentSizeSubject.value = contentSize
+        }
+    }
+}

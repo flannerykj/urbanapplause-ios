@@ -46,7 +46,7 @@ class ArtistProfileViewController: UIViewController {
     let refreshControl: UIRefreshControl = {
         let control = UIRefreshControl()
         control.addTarget(self, action: #selector(refreshUserProfile(sender:)), for: .valueChanged)
-        control.backgroundColor = UIColor.backgroundMain
+        control.backgroundColor = UIColor.systemBackground
         return control
     }()
 
@@ -75,7 +75,7 @@ class ArtistProfileViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = UIColor.backgroundMain
+        view.backgroundColor = UIColor.systemBackground
         navigationItem.title = artist.signing_name
         view.addSubview(tabsViewController.view!)
         tabsViewController.view!.fill(view: view)

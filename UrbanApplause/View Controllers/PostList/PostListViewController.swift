@@ -103,6 +103,7 @@ class PostListViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        navigationItem.largeTitleDisplayMode = .never
         loadMoreSpinner.hidesWhenStopped = true
         view.addSubview(tableView)
         tableView.fill(view: self.view)
@@ -229,7 +230,7 @@ extension PostListViewController: UITableViewDelegate, UITableViewDataSource {
         if let title = self.listTitle {
             let view = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: sectionHeaderHeight))
             view.layoutMargins = StyleConstants.defaultMarginInsets
-            view.backgroundColor = UIColor.backgroundMain
+            view.backgroundColor = UIColor.systemBackground
             let label = UILabel(type: .h8, text: title)
             view.addSubview(label)
             view.layoutMargins = StyleConstants.defaultPaddingInsets

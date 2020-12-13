@@ -276,13 +276,14 @@ class PostDetailViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        navigationItem.largeTitleDisplayMode = .never
         self.fetchPost()
         refreshControl.addTarget(self, action: #selector(refreshPostInfo(_:)), for: .valueChanged)
         let gr = UITapGestureRecognizer(target: self, action: #selector(showImageDetail(_:)))
         photoView.isUserInteractionEnabled = true
         photoView.addGestureRecognizer(gr)
         // nav setup
-        view.backgroundColor = UIColor.backgroundMain
+        view.backgroundColor = UIColor.systemBackground
         // let editButton = UIBarButtonItem(barButtonSystemItem: .edit, target: self, action: #selector(edit))
         navigationItem.rightBarButtonItem = optionsButton
         

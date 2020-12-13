@@ -7,8 +7,25 @@
 //
 import UIKit
 import Shared
+import Combine
 
-class ProfileViewController: UIViewController {
+enum ProfileTableRow: Int, CaseIterable {
+    case posted
+    case applauded
+    
+    
+    var title: String {
+        switch self {
+        case .posted:
+            return "Posted"
+        case .applauded:
+            return "Applauded"
+        }
+    }
+}
+
+class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+    private var subscriptions = Set<AnyCancellable>()
     var appContext: AppContext
     var user: User
     
@@ -21,21 +38,15 @@ class ProfileViewController: UIViewController {
         return false
     }
     
-    lazy var tabItems: [ToolbarTabItem] = {
-        let userPostsViewModel = DynamicPostListViewModel(filterForPostedBy: user, filterForArtist: nil, filterForQuery: nil,
-                                                   appContext: appContext)
-        let userPostsVC = PostListViewController(viewModel: userPostsViewModel, appContext: appContext)
-
-        let applaudedPostsViewModel = DynamicPostListViewModel(filterForUserApplause: user, appContext: appContext)
-        let userApplauseVC = PostListViewController(viewModel: applaudedPostsViewModel,
-                                                    appContext: appContext)
-        
-        return [
-            ToolbarTabItem(title: "Posts", viewController: userPostsVC, delegate: self),
-            ToolbarTabItem(title: "Applause", viewController: userApplauseVC, delegate: self)
-        ]
+    lazy var tableView: UATableView = {
+        let tableView = UATableView()
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "ProfileTableCell")
+        tableView.delegate = self
+        tableView.dataSource = self
+        tableView.tableFooterView = UIView()
+        return tableView
     }()
-    
+
     init(user: User, appContext: AppContext) {
         self.appContext = appContext
         self.user = user
@@ -85,12 +96,9 @@ class ProfileViewController: UIViewController {
         return stackView
     }()
     
-    lazy var tabsViewController = TabbedToolbarViewController(headerContent: headerStackView,
-                                                              tabItems: self.tabItems,
-                                                              appContext: appContext)
-    
     override func viewDidLoad() {
         super.viewDidLoad()
+        navigationController?.navigationBar.prefersLargeTitles = true // Enable when is first vc on nav stack
         view.backgroundColor = UIColor.systemBackground
         navigationItem.title = isAuthUser ? "My Profile" : self.user.username
         if isAuthUser {
@@ -98,13 +106,35 @@ class ProfileViewController: UIViewController {
                                              target: self, action: #selector(pressedEdit(_:)))
             navigationItem.rightBarButtonItem = editButton
         }
-        view.addSubview(tabsViewController.view!)
-        tabsViewController.view!.snp.makeConstraints {
-            $0.edges.equalTo(view)
+        view.addSubview(headerStackView)
+        headerStackView.snp.makeConstraints {
+            $0.top.leading.trailing.equalTo(view.safeAreaLayoutGuide)
         }
-        addChild(tabsViewController)
-        tabsViewController.didMove(toParent: self)
+        view.addSubview(tableView)
+        tableView.snp.makeConstraints {
+            $0.top.equalTo(headerStackView.snp.bottom)
+            $0.leading.trailing.equalTo(view)
+            $0.bottom.lessThanOrEqualTo(view.safeAreaLayoutGuide)
+            $0.height.equalTo(0)
+        }
         updateLabels()
+        
+        tableView.contentSizeStream
+            .sink { size in
+                self.tableView.snp.updateConstraints { make in
+                    make.height.equalTo(size.height)
+                }
+                self.tableView.layoutIfNeeded()
+            }
+            .store(in: &subscriptions)
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        if let selectedIndexPath = tableView.indexPathForSelectedRow {
+            tableView.deselectRow(at: selectedIndexPath, animated: true)
+        }
     }
     
     @objc func refreshUserProfile(sender: UIRefreshControl) {
@@ -146,6 +176,40 @@ class ProfileViewController: UIViewController {
         let vc = EditProfileViewController(appContext: appContext)
         vc.delegate = self
         navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    
+    // MARK: - UITableViewDelegate, UITableViewDataSource
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return ProfileTableRow.allCases.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "ProfileTableCell", for: indexPath)
+        let rowType = ProfileTableRow.allCases[safe: indexPath.row]
+        cell.textLabel?.text = rowType?.title
+        cell.accessoryType = .disclosureIndicator
+        return cell
+    }
+    
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        guard let rowType = ProfileTableRow.allCases[safe: indexPath.row] else { return }
+
+        switch rowType {
+        case .applauded:
+            let applaudedPostsViewModel = DynamicPostListViewModel(filterForUserApplause: user, appContext: appContext)
+            let userApplauseVC = PostListViewController(viewModel: applaudedPostsViewModel,
+                                                        appContext: appContext)
+            userApplauseVC.navigationItem.title = "Applauded"
+            navigationController?.pushViewController(userApplauseVC, animated: true)
+        case .posted:
+            let userPostsViewModel = DynamicPostListViewModel(filterForPostedBy: user, filterForArtist: nil, filterForQuery: nil,
+                                                       appContext: appContext)
+            let userPostsVC = PostListViewController(viewModel: userPostsViewModel, appContext: appContext)
+            userPostsVC.navigationItem.title = "Posted"
+            navigationController?.pushViewController(userPostsVC, animated: true)
+        }
     }
 }
 

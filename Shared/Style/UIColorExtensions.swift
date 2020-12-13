@@ -10,16 +10,6 @@ import Foundation
 import UIKit
 
 public extension UIColor {
-    static var backgroundLight: UIColor {
-        return UIColor(hexString: "#FAFBFFFF").withDarkModeOption(UIColor.backgroundMain)
-    }
-    static var backgroundMain: UIColor {
-        if #available(iOS 13.0, *) {
-            return UIColor.systemGray6
-        } else {
-            return UIColor(hexString: "#FAFBFFFF")
-        }
-    }
     static var borderColor = UIColor.systemGray
     static var placeholderText = UIColor.systemGray
     static var success = UIColor.systemGreen

@@ -13,6 +13,41 @@ import Shared
 
 class PostV2Cell: UICollectionViewCell {
     
+    lazy var selectionOverlayView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .gray
+        view.layer.opacity = 0.0
+        return view
+    }()
+    
+    lazy var selectionCheckMarkView: UIImageView = {
+        let imageView = UIImageView(image: UIImage(systemName: "checkmark.circle"))
+        imageView.isHidden = true
+        imageView.contentMode = .scaleAspectFit
+        imageView.tintColor = .white
+        return imageView
+    }()
+    
+    var isInEditingMode: Bool = false {
+        didSet {
+            if isInEditingMode {
+                selectionOverlayView.layer.opacity = 0.5
+            } else {
+                selectionOverlayView.layer.opacity = 0.0
+                selectionCheckMarkView.isHidden = true
+            }
+        }
+    }
+    
+    override var isSelected: Bool {
+        didSet {
+            if isSelected, isInEditingMode {
+                selectionCheckMarkView.isHidden = false
+            } else {
+                selectionCheckMarkView.isHidden = true
+            }
+        }
+    }
     var indexPath: IndexPath?
     var appContext: AppContext?
     var subscriber: FileDownloadSubscriber? {
@@ -73,6 +108,17 @@ class PostV2Cell: UICollectionViewCell {
         contentView.addSubview(photoView)
         photoView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
+        }
+        
+        addSubview(selectionOverlayView)
+        selectionOverlayView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+        
+        addSubview(selectionCheckMarkView)
+        selectionCheckMarkView.snp.makeConstraints { make in
+            make.bottom.right.equalToSuperview().inset(8)
+            make.height.width.equalTo(24)
         }
     
     }

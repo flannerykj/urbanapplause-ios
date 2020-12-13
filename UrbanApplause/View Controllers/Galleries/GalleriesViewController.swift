@@ -20,7 +20,7 @@ enum GalleryScope: Int, CaseIterable {
         case .publicCollections:
             return "Public"
         case .myCollections:
-            return "My collections"
+            return "My Galleries"
         }
     }
 }
@@ -33,7 +33,7 @@ class GalleriesViewController: UIViewController, UISearchControllerDelegate, UIS
     private lazy var searchVC: UISearchController = {
         let controller = UISearchController(searchResultsController: nil)
         controller.searchResultsUpdater = self
-        controller.searchBar.placeholder = "Search collections"
+        controller.searchBar.placeholder = "Search galleries"
         controller.delegate = self
         controller.searchBar.delegate = self
         return controller
@@ -62,9 +62,10 @@ class GalleriesViewController: UIViewController, UISearchControllerDelegate, UIS
     
     override func viewDidLoad() {
         super.viewDidLoad()
-       
+        navigationController?.navigationBar.prefersLargeTitles = true
+        navigationItem.largeTitleDisplayMode = .always
         definesPresentationContext = true
-        view.backgroundColor = UIColor.backgroundMain
+        view.backgroundColor = UIColor.systemBackground
         view.addSubview(searchScopeControl)
         view.addSubview(galleryListVC.view)
         

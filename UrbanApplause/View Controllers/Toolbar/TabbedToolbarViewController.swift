@@ -148,7 +148,7 @@ class TabbedToolbarViewController: UIViewController {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.heightAnchor.constraint(equalToConstant: 2).isActive = true
-        view.backgroundColor = UIColor.backgroundLight
+        view.backgroundColor = UIColor.systemGray6
         return view
     }()
 

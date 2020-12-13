@@ -65,7 +65,7 @@ public enum PrivateRouter: EndpointConfiguration {
     case addToCollection(collectionId: Int, postId: Int, annotation: String)
     case deleteFromCollection(collectionId: Int, postId: Int)
     case updateCollectionPost(collectionId: Int, postId: Int, values: Parameters)
-    
+    case updateCollectionPosts(collectionId: Int, postsIdsToAdd: [Int], postIdsToRemove: [Int])
     // report issue with content
     case createPostFlag(postId: Int, reason: PostFlagReason)
     case createCommentFlag(commentId: Int, reason: PostFlagReason)
@@ -84,7 +84,7 @@ public enum PrivateRouter: EndpointConfiguration {
         switch self {
         case .deletePost, .deletePostImage, .removeClap, .deleteCollection, .deleteFromCollection, .deleteComment:
             return .delete
-        case .editPost, .updateUser, .updateCollection, .updateCollectionPost:
+        case .editPost, .updateUser, .updateCollection, .updateCollectionPost, .updateCollectionPosts:
             return .put
         case .authenticate, .createPost, .createUser, .addOrRemoveClap, .addOrRemoveVisit, .createCollection,
              .addToCollection, .uploadImages, .createArtist, .createArtistGroup, .createComment, .createPostFlag, .blockUser:
@@ -139,7 +139,7 @@ public enum PrivateRouter: EndpointConfiguration {
             return "collections"
         case .deleteCollection(let collectionId), .updateCollection(let collectionId, _):
             return "collections/\(collectionId)"
-        case .addToCollection(let collectionId, _, _):
+        case .addToCollection(let collectionId, _, _), .updateCollectionPosts(let collectionId, _, _):
             return "collections/\(collectionId)/posts"
         case .deleteFromCollection(let collectionId, let postId),
              .updateCollectionPost(let collectionId, let postId, _):
@@ -202,6 +202,8 @@ public enum PrivateRouter: EndpointConfiguration {
             return .requestParameters(bodyParameters: ["collection": values], urlParameters: nil)
         case .addToCollection(_, let postId, _):
             return .requestParameters(bodyParameters: ["PostId": postId], urlParameters: nil)
+        case .updateCollectionPosts(_, let postsIdsToAdd, let postIdsToRemove):
+            return .requestParameters(bodyParameters: ["addPostIds": postsIdsToAdd, "removePostIds": postIdsToRemove], urlParameters: nil)
         case .addOrRemoveClap(let postId, let userId):
             return .requestParameters(bodyParameters: ["clap": ["PostId": postId, "UserId": userId]],
                                       urlParameters: nil)

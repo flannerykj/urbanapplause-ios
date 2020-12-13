@@ -165,7 +165,8 @@ class UATabBar: UITabBar {
         let to = middleButton.center
         let radius: CGFloat = diameter/2
         let hitTestRadius = radius + overflow
-        return sqrt((from.x - to.x) * (from.x - to.x) + (from.y - to.y) * (from.y - to.y)) <= hitTestRadius ?
+        let didTapMiddleButton = sqrt((from.x - to.x) * (from.x - to.x) + (from.y - to.y) * (from.y - to.y)) <= hitTestRadius
+        return didTapMiddleButton && !middleButton.isHidden ?
             middleButton : super.hitTest(point, with: event)
     }
 
@@ -218,6 +219,7 @@ extension TabBarController: CreatePostControllerDelegate {
         searchRootVC.createPostController(controller, didBeginUploadForData: didBeginUploadForData, forPost: post, job: job)
     }
 }
+
 extension TabBarController: ImagePickerDelegate {
     func imagePickerDidCancel(pickerController: UIImagePickerController?) {
         pickerController?.dismiss(animated: true, completion: nil)
