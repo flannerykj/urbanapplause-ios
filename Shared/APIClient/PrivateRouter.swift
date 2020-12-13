@@ -198,6 +198,8 @@ public enum PrivateRouter: EndpointConfiguration {
             return .requestParameters(bodyParameters: ["user": values], urlParameters: nil)
         case .createCollection(let values):
             return .requestParameters(bodyParameters: ["collection": values], urlParameters: nil)
+        case .updateCollection(_, let values):
+            return .requestParameters(bodyParameters: ["collection": values], urlParameters: nil)
         case .addToCollection(_, let postId, _):
             return .requestParameters(bodyParameters: ["PostId": postId], urlParameters: nil)
         case .addOrRemoveClap(let postId, let userId):

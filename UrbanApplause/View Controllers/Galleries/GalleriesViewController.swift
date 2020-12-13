@@ -96,7 +96,7 @@ class GalleriesViewController: UIViewController, UISearchControllerDelegate, UIS
         updateSearchResults()
     }
     @objc func createCollection(_: Any) {
-        let vc = NewCollectionViewController(appContext: appContext)
+        let vc = CollectionFormViewController(existingCollection: nil, appContext: appContext)
         vc.delegate = galleryListVC
         present(UINavigationController(rootViewController: vc), animated: true, completion: nil)
     }

@@ -54,7 +54,7 @@ class ProfileViewController: UIViewController {
     let refreshControl: UIRefreshControl = {
         let control = UIRefreshControl()
         control.addTarget(self, action: #selector(refreshUserProfile(sender:)), for: .valueChanged)
-        control.backgroundColor = UIColor.backgroundMain
+        control.backgroundColor = UIColor.systemBackground
         return control
     }()
 
@@ -91,7 +91,7 @@ class ProfileViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = UIColor.backgroundMain
+        view.backgroundColor = UIColor.systemBackground
         navigationItem.title = isAuthUser ? "My Profile" : self.user.username
         if isAuthUser {
             let editButton = UIBarButtonItem(barButtonSystemItem: .edit,

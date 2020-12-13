@@ -42,14 +42,16 @@ class TourOverviewCell: UITableViewCell {
     
     private lazy var bottomBorderLine: UIView = {
         let view = UIView()
-        view.backgroundColor = UIColor.systemGray3
+        view.backgroundColor = UIColor.clear
         return view
     }()
     
     private lazy var stackView: UIStackView = {
-        let view = UIStackView(arrangedSubviews: [titleLabelView, subtitleLabel, startButton])
+        let view = UIStackView(arrangedSubviews: [titleLabelView, /*subtitleLabel,*/ startButton])
         view.axis = .vertical
-        view.spacing = 16
+        view.insetsLayoutMarginsFromSafeArea = true
+        view.spacing = 8
+        view.layoutMargins = UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
         return view
     }()
     

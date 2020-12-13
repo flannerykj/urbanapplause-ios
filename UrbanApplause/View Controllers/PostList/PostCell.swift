@@ -151,8 +151,7 @@ class PostCell: UITableViewCell {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         selectionStyle = UITableViewCell.SelectionStyle.none
         contentView.addSubview(contentStackView)
-        contentView.backgroundColor = UIColor.backgroundLight
-        backgroundColor = UIColor.backgroundMain
+        backgroundColor = UIColor.systemBackground
         // cardView constraints
         contentStackView.fill(view: contentView)
         addSubview(dividerView)

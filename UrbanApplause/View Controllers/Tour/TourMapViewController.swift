@@ -33,9 +33,7 @@ class TourMapViewController: UIViewController, FloatingPanelControllerDelegate {
         self.viewModel = TourMapDataStream(appContext: appContext, collection: collection)
         super.init(nibName: nil, bundle: nil)
         hidesBottomBarWhenPushed = true
-
     }
-
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -43,7 +41,7 @@ class TourMapViewController: UIViewController, FloatingPanelControllerDelegate {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        navigationItem.title = collection.title
+        navigationItem.title = "\(collection.title) Tour"
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -55,6 +53,8 @@ class TourMapViewController: UIViewController, FloatingPanelControllerDelegate {
         super.viewDidLoad()
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        locationManager.requestLocation()
+        locationManager.startUpdatingLocation()
         
         view.backgroundColor = UIColor.backgroundMain
         view.addSubview(mapView)
@@ -80,7 +80,6 @@ class TourMapViewController: UIViewController, FloatingPanelControllerDelegate {
         subscribeToDataStream()
         viewModel.fetchPosts()
         presentBottomSheet()
-       
     }
     
     // MARK: - FloatingPanelControllerDelegate
@@ -89,20 +88,18 @@ class TourMapViewController: UIViewController, FloatingPanelControllerDelegate {
         case .tip:
             viewModel.annotationsStream
                 .first()
-                .sink(receiveValue: { annotations in
+                .sink(receiveValue: { viewModels in
                     // reset map zoom
-                    self.setMapRegion(for: annotations, mapBounds: self.mapView.bounds)
+                    self.setMapRegion(for: viewModels.map { $0.post }, mapBounds: self.mapView.bounds)
                 })
                 .store(in: &cancellables)
         default:
             break
         }
-        
     }
     
     func presentBottomSheet() {
         fpc = FloatingPanelController()
-
         let layout = TourFloatingPanelLayout()
         fpc.layout = layout
         fpc.delegate = self
@@ -120,11 +117,12 @@ class TourMapViewController: UIViewController, FloatingPanelControllerDelegate {
     
     private func subscribeToDataStream() {
         viewModel.annotationsStream
-            .sink(receiveValue: { annotations in
+            .sink(receiveValue: { viewModels in
                 DispatchQueue.main.async {
                     self.mapView.removeAnnotations(self.mapView.annotations)
-                    self.mapView.addAnnotations(annotations)
-                    self.setMapRegion(for: annotations, mapBounds: self.mapView.bounds)
+                    self.mapView.addAnnotations(viewModels.map { $0.post })
+                    self.setMapRegion(for: viewModels.map { $0.post }, mapBounds: self.mapView.bounds)
+                    // self.updateRouteLine(for: viewModels.map { $0.post })
                 }
             })
             .store(in: &cancellables)
@@ -134,10 +132,11 @@ class TourMapViewController: UIViewController, FloatingPanelControllerDelegate {
                 return [seed[1], newValue]
                 }
             .combineLatest(viewModel.annotationsStream)
-            .sink { indices, annotations in
+            .sink { indices, viewModels in
                 let previousSelectedIndex = indices[0] as? Int
                 let currentSelectedIndex = indices[1] as? Int
-
+                
+                let annotations = viewModels.map { $0.post }
             if let i = currentSelectedIndex {
                 self.fpc.move(to: .half, animated: true)
                 self.mapView.selectAnnotation(annotations[i], animated: true)
@@ -158,10 +157,10 @@ class TourMapViewController: UIViewController, FloatingPanelControllerDelegate {
     @objc func didTapMap(_ sender: UITapGestureRecognizer) {
         viewModel.annotationsStream
             .first()
-            .sink { annotations in
+            .sink { viewModels in
                 self.fpc.move(to: .tip, animated: true, completion: {
                     self.viewModel.setSelectedPostIndex(nil)
-                    self.setMapRegion(for: annotations, mapBounds: self.mapView.bounds)
+                    self.setMapRegion(for: viewModels.map { $0.post }, mapBounds: self.mapView.bounds)
                 })
             }
             .store(in: &cancellables)
@@ -173,9 +172,6 @@ class TourMapViewController: UIViewController, FloatingPanelControllerDelegate {
         mapView.showsUserLocation = true
         mapView.delegate = self
         mapView.layoutMargins = UIEdgeInsets(top: AnnotationContentView.height, left: AnnotationContentView.width/2, bottom: 0, right: AnnotationContentView.width/2)
-        mapView.register(PostGISClusterAnnotationView.self,
-                         forAnnotationViewWithReuseIdentifier: MKMapViewDefaultAnnotationViewReuseIdentifier)
-        
         mapView.register(PostAnnotationView.self,
                          forAnnotationViewWithReuseIdentifier: MKMapViewDefaultAnnotationViewReuseIdentifier)
         
@@ -185,10 +181,29 @@ class TourMapViewController: UIViewController, FloatingPanelControllerDelegate {
         return mapView
     }()
     
+    private func updateRouteLine(for annotations: [MKAnnotation]) {
+        guard var startingCoordinates = viewModel.startingPoint?.coordinate else { return }
+    
+        for annotation in annotations {
+            let request = MKDirections.Request()
+            request.source = MKMapItem(placemark: MKPlacemark(coordinate: startingCoordinates))
+            request.destination = MKMapItem(placemark: MKPlacemark(coordinate: annotation.coordinate))
+            request.transportType = .walking
+            let directions = MKDirections(request: request)
+            directions.calculate(completionHandler: { [weak self] response, error in
+                if let route = response?.routes.first {
+                    self?.mapView.addOverlay(route.polyline)
+                    self?.mapView.setVisibleMapRect(route.polyline.boundingMapRect, animated: true)
+                }
+            })
+            startingCoordinates = annotation.coordinate
+        }
+    }
+    
     @objc func tappedAnnotation(sender: UITapGestureRecognizer) {
         guard let annotationView = sender.view as? MKAnnotationView else { return }
 
-        if let post = annotationView.annotation as? Post {
+        if let post = annotationView.annotation as? WaypointViewModel {
             viewModel.annotationsStream
                 .first()
                 .sink { annotations in
@@ -289,9 +304,8 @@ class TourMapViewController: UIViewController, FloatingPanelControllerDelegate {
 
 extension TourMapViewController: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
-        if let postAnnotation = annotation as? Post {
-            // receiving posts from backend - blue
-            return PostAnnotationView(annotation: postAnnotation, reuseIdentifier: PostAnnotationView.reuseIdentifier)
+        if let viewModel = annotation as? WaypointViewModel {
+            return PostAnnotationView(annotation: viewModel.post, reuseIdentifier: PostAnnotationView.reuseIdentifier)
         }
         log.debug("returning nil for annotation: \(annotation)")
         return nil
@@ -314,10 +328,20 @@ extension TourMapViewController: MKMapViewDelegate {
         
     }
     
-    func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
-        // called as soon as map stops moving.
-        // self.updatePostsForVisibleRegion()
+    func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {}
+    
+//    func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
+//        let renderer = MKPolylineRenderer(polyline: overlay as! MKPolyline)
+//        renderer.strokeColor = UIColor.blue
+//
+//        return renderer
+//    }
+//
+    func mapView(_ mapView: MKMapView, didAdd renderers: [MKOverlayRenderer]) {
+        
     }
+    
+    
 }
 
 extension TourMapViewController: CLLocationManagerDelegate {
@@ -329,7 +353,11 @@ extension TourMapViewController: CLLocationManagerDelegate {
                 self.showAlertForDeniedPermissions(permissionType: Strings.LocationPermissionType)
             } else {
                 if let location = locationManager.location {
-                    self.zoomToLocation(location)
+                    if awaitingZoomToCurrentLocation {
+                        self.zoomToLocation(location)
+                        self.awaitingZoomToCurrentLocation = false
+                    }
+                    self.viewModel.updateStartingPoint(location)
                 } else {
                     self.locationManager.requestLocation()
                 }
@@ -337,9 +365,12 @@ extension TourMapViewController: CLLocationManagerDelegate {
         }
     }
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        if self.awaitingZoomToCurrentLocation, let location = locations.first {
-            self.awaitingZoomToCurrentLocation = false
-            self.zoomToLocation(location)
+        if let location = locations.first {
+            if self.awaitingZoomToCurrentLocation {
+                self.awaitingZoomToCurrentLocation = false
+                self.zoomToLocation(location)
+            }
+            self.viewModel.updateStartingPoint(location)
         }
     }
     
@@ -382,7 +413,7 @@ class TourFloatingPanelLayout: FloatingPanelLayout {
         return [
             .full: FloatingPanelLayoutAnchor(absoluteInset: 16.0, edge: .top, referenceGuide: .safeArea),
             .half: FloatingPanelLayoutAnchor(fractionalInset: 0.5, edge: .bottom, referenceGuide: .safeArea),
-            .tip: FloatingPanelLayoutAnchor(absoluteInset: 44.0, edge: .bottom, referenceGuide: .safeArea),
+            .tip: FloatingPanelLayoutAnchor(absoluteInset: 100.0, edge: .bottom, referenceGuide: .safeArea),
         ]
     }
 

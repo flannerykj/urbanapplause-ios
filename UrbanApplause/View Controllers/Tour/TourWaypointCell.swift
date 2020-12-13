@@ -13,32 +13,28 @@ import Shared
 import CoreLocation
 
 class TourWaypointCell: UITableViewCell {
-    let label = UILabel()
-    let subtitleLabel = UILabel()
+    let label = UILabel(type: .label)
+    let subtitleLabel = UILabel(type: .small)
     
     
     private lazy var stackView: UIStackView = {
-        let view = UIStackView(arrangedSubviews: [label, subtitleLabel, detailView])
+        let detailDividerLine = UIView()
+        detailDividerLine.translatesAutoresizingMaskIntoConstraints = false
+        let view = UIStackView(arrangedSubviews: [label, subtitleLabel, detailDividerLine, detailView])
         view.axis = .vertical
-        view.spacing = 16
         return view
     }()
     
     private lazy var detailView: UIView = {
         let view = UIView()
-        view.backgroundColor = UIColor.systemPink
+//        view.backgroundColor = UIColor.systemPink
         return view
     }()
     
-    func configureForPost(_ post: Post, currentLocation: CLLocation?) {
-        label.text = post.Location?.street_address
+    func configureForViewModel(_ viewModel: WaypointViewModel, currentLocation: CLLocation?) {
+        label.text = viewModel.post.Location?.street_address
         
-        if let postLocation = post.Location,
-           let distance = currentLocation?.distance(from: postLocation.clLocation) {
-            subtitleLabel.text = "\(distance) meters"
-        } else {
-            subtitleLabel.text = ""
-        }
+        subtitleLabel.text = getDistanceText(from: viewModel.distance)
     }
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -74,6 +70,25 @@ class TourWaypointCell: UITableViewCell {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    private func getDistanceText(from distance: CLLocationDistance?) -> String? {
+        if distance == 0 { return "Current location" }
+        guard let roundedDistance = distance?.rounded() else { return nil }
+        
+        if roundedDistance == 1 {
+            return "1 meter"
+        } else if roundedDistance < 500 {
+            // Show in meters
+            return "\(roundedDistance) meters"
+        } else {
+            let roundedKM = (roundedDistance / 1000).rounded()
+            if roundedKM == 1000 {
+                return "1 km"
+            } else {
+                return "\(roundedKM) km"
+            }
+        }
     }
 }
     

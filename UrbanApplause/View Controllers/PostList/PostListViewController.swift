@@ -27,7 +27,7 @@ class PostListViewController: UIViewController {
     var query: String?
     var appContext: AppContext
     var viewModel: PostListViewModel
-    var backgroundColor = UIColor.systemGray6
+    var backgroundColor = UIColor.systemBackground
     var tableContentHeight: CGFloat = 0
     weak var postListDelegate: PostListControllerDelegate?
     let LEFT_EDITING_MARGIN: CGFloat = 12

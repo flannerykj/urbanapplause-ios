@@ -106,6 +106,14 @@ class GalleryListViewModel {
         self.collections.value = updatedCollections
     }
     
+    public func updateCollection(_ collection: Collection) {
+        let updated: [Collection] = self.collections.value.map { (currCollection: Collection) in
+            if currCollection.id == collection.id { return currCollection }
+            return currCollection
+        }
+        self.collections.value = updated
+    }
+    
     public func deleteCollection(atIndexPath indexPath: IndexPath) {
         let collection = self.collections.value[indexPath.row]
        

@@ -164,7 +164,7 @@ class TabbedToolbarViewController: UIViewController {
             activeTabUnderline.heightAnchor.constraint(equalToConstant: 2),
             activeTabUnderline.bottomAnchor.constraint(equalTo: view.bottomAnchor)
             ])
-        view.backgroundColor = .systemGray6
+        view.backgroundColor = .systemBackground
         return view
     }()
     lazy var controllersScrollViewHeightConstraint = controllersScrollView.heightAnchor.constraint(equalToConstant:
@@ -203,7 +203,7 @@ class TabbedToolbarViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = UIColor.backgroundMain
+        view.backgroundColor = UIColor.systemBackground
         view.addSubview(containerScrollView)
         NSLayoutConstraint.activate([
             containerScrollView.rightAnchor.constraint(equalTo: view.rightAnchor),

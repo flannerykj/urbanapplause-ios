@@ -519,7 +519,7 @@ class PostDetailViewController: UIViewController {
         let galleriesViewModel = GalleryListViewModel(userId: userId,
                                                       appContext: appContext,
                                                       initialQuery: initialQuery)
-        
+        galleriesViewModel.getData(query: initialQuery)
         let vc = GalleriesListViewController(viewModel: galleriesViewModel,
                                            appContext: appContext)
         vc.navigationItem.title = Strings.SaveToGalleryButtonTitle

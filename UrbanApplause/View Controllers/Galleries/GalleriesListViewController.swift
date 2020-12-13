@@ -52,17 +52,14 @@ class GalleriesListViewController: UIViewController, GalleriesListViewControllab
     let errorMessageLabel = UILabel(type: .body, color: .systemRed)
     let noResultsMessageLabel = UILabel(type: .body)
     
-    public func setEnableSelfSizing(_ isSelfSizingEnabled: Bool) {
-        tableView.setEnableSelfSizing(isSelfSizingEnabled)
-    }
-    private lazy var tableView: SelfSizingTableView = {
-       let tableView = SelfSizingTableView()
+    private lazy var tableView: UATableView = {
+       let tableView = UATableView()
         tableView.refreshControl = refreshControl
         tableView.register(GalleryCell.self, forCellReuseIdentifier: GalleryCell.ReuseID)
         tableView.delegate = self
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.tableFooterView = UIView()
-        tableView.backgroundColor = UIColor.backgroundMain
+        tableView.backgroundColor = UIColor.systemBackground
         tableView.separatorColor = UIColor.systemGray
         return tableView
     }()
@@ -102,7 +99,7 @@ class GalleriesListViewController: UIViewController, GalleriesListViewControllab
         super.viewDidLoad()
         setupSubviews()
         refreshControl.addTarget(self, action: #selector(refreshData(_:)), for: .valueChanged)
-
+        view.backgroundColor = .systemBackground
         // nav setup
         let doneButton = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(cancel(_:)))
         navigationItem.rightBarButtonItem = doneButton
@@ -112,7 +109,6 @@ class GalleriesListViewController: UIViewController, GalleriesListViewControllab
         tableView.dataSource = self.dataSource
 
         setupSubscriptions()
-       
     }
     
     // MARK: - Private
@@ -178,7 +174,7 @@ class GalleriesListViewController: UIViewController, GalleriesListViewControllab
         self.dismiss(animated: true, completion: nil)
     }
     @objc func createCollection(_: UIButton) {
-        let vc = NewCollectionViewController(appContext: appContext)
+        let vc = CollectionFormViewController(existingCollection: nil, appContext: appContext)
         vc.delegate = self
         navigationController?.pushViewController(vc, animated: true)
     }
@@ -203,34 +199,11 @@ extension GalleriesListViewController: UITableViewDelegate {
 }
 
 extension GalleriesListViewController: NewCollectionViewControllerDelegate {
+    func didUpdateCollection(collection: Collection) {
+        viewModel.updateCollection(collection)
+    }
+    
     func didCreateCollection(collection: Collection) {
         viewModel.addCollection(collection)
-    }
-}
-
-
-class SelfSizingTableView: UITableView {
-    private var isSelfSizingEnabled: Bool = false
-    private var heightConstraint: Constraint?
-    
-    func setEnableSelfSizing(_ enableSelfSizing: Bool) {
-        self.isSelfSizingEnabled = enableSelfSizing
-        isScrollEnabled = !enableSelfSizing
-        invalidateIntrinsicContentSize()
-    }
-
-    private var storedContentSize: CGSize = .zero
-    
-    override func setNeedsLayout() {
-        heightConstraint?.deactivate()
-        
-        snp.makeConstraints { make in
-            self.heightConstraint = make.height.equalTo(contentSize.height).constraint
-        }
-        
-        if isSelfSizingEnabled {
-            heightConstraint?.activate()
-        }
-        super.setNeedsLayout()
     }
 }

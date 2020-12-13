@@ -53,7 +53,7 @@ class PostAnnotationView: MKMarkerAnnotationView, PostAnnotationViewProtocol {
         markerTintColor = .clear
         clusteringIdentifier = "post"
         addSubview(contentView)
-        
+        backgroundColor = .systemPink
 //        #if DEBUG
 //        contentView.backgroundColor = UIColor.systemPink
 //        #endif

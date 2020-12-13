@@ -19,7 +19,7 @@ enum TourInfoSection: Int, CaseIterable {
 }
 
 class TourInfoViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
-    private var annotations: [Post] = []
+    private var annotations: [WaypointViewModel] = []
     private let tourDataStream: TourMapDataStreaming
     private var cancellables = Set<AnyCancellable>()
     
@@ -106,14 +106,16 @@ class TourInfoViewController: UIViewController, UITableViewDelegate, UITableView
             cell.configureForCollection(tourDataStream.collection)
             return cell
         case .waypoints:
-            let post = annotations[indexPath.row]
+            let viewModel = annotations[indexPath.row]
             let cell = tableView.dequeueReusableCell(withIdentifier: "TourWaypointCell", for: indexPath) as! TourWaypointCell
-            cell.configureForPost(post, currentLocation: nil)
+            cell.configureForViewModel(viewModel, currentLocation: nil)
             return cell
         }
     }
     
-    
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return 0
+    }
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let sectionType = TourInfoSection.allCases[section]
@@ -121,7 +123,7 @@ class TourInfoViewController: UIViewController, UITableViewDelegate, UITableView
         case .overview:
             return nil
         case .waypoints:
-            return TableSectionHeaderView(height: 100, title: "Waypoints")
+            return nil // TableSectionHeaderView(height: 100, title: "Waypoints")
         }
     }
 
@@ -146,13 +148,4 @@ class TourInfoViewController: UIViewController, UITableViewDelegate, UITableView
         }
     }
     
-}
-
-
-class ExpandedPostCell: UITableViewCell {
-    
-    override func prepareForReuse() {
-        super.prepareForReuse()
-        backgroundColor = .red
-    }
 }

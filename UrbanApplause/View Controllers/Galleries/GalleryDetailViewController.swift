@@ -15,7 +15,7 @@ protocol CollectionDetailControllerDelegate: class {
     func collectionDetail(didDeleteCollection collection: Collection)
 }
 
-class GalleryDetailViewController: UIViewController {
+class GalleryDetailViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     private var subscriptions = Set<AnyCancellable>()
     var appContext: AppContext
     var postListViewModel: DynamicPostListViewModel
@@ -32,9 +32,6 @@ class GalleryDetailViewController: UIViewController {
         let vc = UITableViewController()
         return vc
     }()
-    
-    
-    lazy var postListVC = PostListViewController(viewModel: postListViewModel, appContext: appContext)
     
     init(gallery: Collection, appContext: AppContext) {
         self.appContext = appContext
@@ -53,29 +50,101 @@ class GalleryDetailViewController: UIViewController {
                                           target: self,
                                           action: #selector(showOptionsMenu(_:)))
     
-    lazy var finishEditingButton = UIBarButtonItem(barButtonSystemItem: .done,
-                                                   target: self,
-                                                   action: #selector(finishEditing(_:)))
-    private let refreshControl = UIRefreshControl()
+    lazy var cancelSelectButton = UIBarButtonItem(title: "Cancel",
+                                             style: .plain,
+                                          target: self,
+                                          action: #selector(finishSelectingPosts(_:)))
+
+    lazy var selectPostsButton = UIBarButtonItem(title: "Select",
+                                             style: .plain,
+                                          target: self,
+                                          action: #selector(startSelectingPosts(_:)))
+
+    private let activityIndicator = UIActivityIndicatorView()
     
     private lazy var collectionInfoView = CollectionInfoView()
+    private lazy var collectionViewLayout: UICollectionViewFlowLayout = {
+        let layout = UICollectionViewFlowLayout()
+        return layout
+    }()
+    private let loadingIndicatorHeight: CGFloat = 24
+
+    private lazy var collectionView: UACollectionView = {
+        let view = UACollectionView(frame: .zero, collectionViewLayout: collectionViewLayout)
+        view.register(PostV2Cell.self, forCellWithReuseIdentifier: "PostV2Cell")
+        view.delegate = self
+        view.dataSource = self
+        view.backgroundColor = .systemBackground
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(activityIndicator)
+        activityIndicator.snp.makeConstraints { make in
+            make.centerX.centerY.equalToSuperview()
+            make.width.height.equalTo(24)
+        }
+        return view
+    }()
     
     private lazy var scrollView: UIScrollView = {
         let view = UIScrollView()
         // view.refreshControl = refreshControl
+        view.alwaysBounceVertical = true
         return view
     }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
-        navigationItem.title = gallery.title
+        
         
         setupSubviews()
         setupConstraints()
         
-        navigationItem.rightBarButtonItem = optionsButton
-        collectionInfoView.updateForCollection(gallery)
+        configureViewForCollection(gallery)
+        configureForSelectionMode(isSelecting: isEditing)
+        
+
+        postListViewModel.didUpdateListItems = { addedIndexPaths, removedIndexPaths, shouldReload in
+            DispatchQueue.main.async {
+                if shouldReload {
+                    self.collectionView.reloadData()
+                } else {
+                    self.collectionView.performBatchUpdates({
+                        self.collectionView.deleteItems(at: removedIndexPaths)
+                        self.collectionView.insertItems(at: addedIndexPaths)
+                    }, completion: { _ in
+//                        self.updateTableHeader()
+//                        self.updateTableFooter()
+                    })
+                }
+
+            }
+        }
+        
+        postListViewModel.didSetErrorMessage = { message in
+//            self.updateTableHeader()
+        }
+        
+        postListViewModel.didSetLoading = { isLoading in
+            DispatchQueue.main.async {
+                if isLoading {
+                    self.activityIndicator.startAnimating()
+                    self.activityIndicator.isHidden = false
+                } else {
+                    self.activityIndicator.isHidden = true
+                    self.activityIndicator.stopAnimating()
+                }
+            }
+        }
+        activityIndicator.startAnimating()
+        postListViewModel.fetchListItems(forceReload: false)
+    }
+    
+    private func configureForSelectionMode(isSelecting: Bool) {
+        if isSelecting {
+            navigationItem.rightBarButtonItems = [cancelSelectButton]
+        } else {
+            navigationItem.rightBarButtonItems = [optionsButton, selectPostsButton]
+        }
     }
     
     private func setupSubviews() {
@@ -83,12 +152,10 @@ class GalleryDetailViewController: UIViewController {
         
         view.addSubview(scrollView)
         view.addSubview(galleryFooterView)
-        scrollView.addSubview(postListVC.view)
+        
         scrollView.addSubview(collectionInfoView)
-        postListVC.postListDelegate = self
-        addChild(postListVC)
-        postListVC.didMove(toParent: self)
-        postListVC.tableView.isScrollEnabled = false
+        scrollView.addSubview(collectionView)
+        
     }
     
     private func setupConstraints() {
@@ -103,32 +170,40 @@ class GalleryDetailViewController: UIViewController {
         collectionInfoView.snp.makeConstraints { make in
             make.leading.trailing.top.equalToSuperview()
         }
-        postListVC.view.snp.makeConstraints { make in
+        
+        collectionView.snp.makeConstraints { make in
             make.top.equalTo(collectionInfoView.snp.bottom)
             make.leading.trailing.bottom.equalToSuperview()
             make.width.equalToSuperview()
             make.height.equalTo(0)
         }
         
-        postListVC.tableView.contentSizeStream
+        collectionView.contentSizeStream
+            .map { (size: CGSize) -> CGSize in
+                let height = max(size.height, self.loadingIndicatorHeight)
+                return CGSize(width: size.width, height: height)
+            }
             .sink { size in
                 print("height: ", size.height)
-                self.postListVC.view.snp.updateConstraints { make in
+                self.collectionView.snp.updateConstraints { make in
                     make.height.equalTo(size.height)
                 }
-                self.postListVC.view.layoutIfNeeded()
+                self.collectionView.layoutIfNeeded()
             }
             .store(in: &subscriptions)
-        
-        
-        
-        
     }
     
 //    @objc func didPullRefresh(_ sender: UIRefreshControl) {
 //        postListViewModel.fetchListItems(forceReload: true)
 //    }
 //
+    @objc func startSelectingPosts(_ sender: UIBarButtonItem) {
+        configureForSelectionMode(isSelecting: true)
+    }
+    
+    @objc func finishSelectingPosts(_ sender: UIBarButtonItem) {
+        configureForSelectionMode(isSelecting: false)
+    }
     @objc func showOptionsMenu(_: Any) {
         let optionsModal = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         
@@ -137,26 +212,23 @@ class GalleryDetailViewController: UIViewController {
                 self.confirmDeleteCollection()
             })
         })
-        
-//        let makePrivatePublicAction = UIAlertAction(title: gallery.is_public ? "Make private" : "Make public" , style: .default, handler: { _ in
-//            optionsModal.dismiss(animated: true, completion: {
-//
-//            })
-//        })
+
+        let editAction = UIAlertAction(title: "Edit collection details" , style: .default, handler: { _ in
+            optionsModal.dismiss(animated: true, completion: {
+                let vc = CollectionFormViewController(existingCollection: self.gallery, appContext: self.appContext)
+                vc.delegate = self
+                self.present(UANavigationController(rootViewController: vc), animated: true, completion: nil)
+            })
+        })
         let cancel = UIAlertAction(title: "Cancel", style: .cancel, handler: { _ in
             optionsModal.dismiss(animated: true, completion: nil)
         })
         
-//        optionsModal.addAction(makePrivatePublicAction)
+        optionsModal.addAction(editAction)
         optionsModal.addAction(deleteAction)
         optionsModal.addAction(cancel)
         
         present(optionsModal, animated: true, completion: nil)
-    }
-    @objc func finishEditing(_: Any) {
-        postListVC.tableView.tableFooterView = nil
-        self.postListVC.tableView.setEditing(false, animated: true)
-        self.navigationItem.rightBarButtonItem = optionsButton
     }
     
     func confirmDeleteCollection() {
@@ -174,17 +246,18 @@ class GalleryDetailViewController: UIViewController {
             
             let endpoint = PrivateRouter.deleteCollection(id: self.gallery.id)
             _ = self.appContext.networkService.request(endpoint,
-                                                            completion: {(result: UAResult<CollectionContainer>) in
-                switch result {
-                case .success:
-                    DispatchQueue.main.async {
-                        // self.delegate?.collectionDetail(didDeleteCollection: self.collection)
-                        // self.navigationController?.popViewController(animated: true)
-                    }
-                case .failure(let error):
-                    log.error(error)
-                }
-            })
+                                                       completion: {(result: UAResult<CollectionContainer>) in
+                                                        switch result {
+                                                        case .success(let container):
+                                                            DispatchQueue.main.async {
+                                                                self.delegate?.collectionDetail(didDeleteCollection: container.collection)
+                                                                self.navigationController?.popViewController(animated: true)
+                                                            }
+                                                        case .failure(let error):
+                                                            log.error(error)
+                                                            self.showAlert(title: "Unable to delete collection", message: "Didn't work. not sure why. ", onDismiss: nil)
+                                                        }
+                                                       })
         })
         alertController.addAction(deleteAction)
         alertController.addAction(cancelAction)
@@ -195,6 +268,65 @@ class GalleryDetailViewController: UIViewController {
         alertController.popoverPresentationController?.sourceRect = rect
         present(alertController, animated: true, completion: nil)
     }
+    
+    private func configureViewForCollection(_ collection: Collection) {
+        collectionInfoView.updateForCollection(collection)
+        self.gallery = collection
+        self.navigationItem.title = collection.title
+    }
+    
+    // MARK: - UICollectionViewDelegate
+    
+    // MARK: - UICollectionViewDataSource
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return postListViewModel.listItems.count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let post = postListViewModel.listItems[indexPath.row]
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PostV2Cell", for: indexPath) as! PostV2Cell
+        if let firstFile = post.PostImages?.first {
+            if let thumb = firstFile.thumbnail {
+                let imageJob = appContext.fileCache.getJobForFile(thumb, isThumb: true)
+                cell.downloadJob = imageJob
+            } else {
+                let imageJob = appContext.fileCache.getJobForFile(firstFile, isThumb: true)
+                cell.downloadJob = imageJob
+            }
+        }
+        cell.appContext = appContext
+        cell.post = post
+        cell.indexPath = indexPath
+        return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        let width = collectionView.bounds.width/4
+        return CGSize(width: width, height: width)
+    }
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+        return .zero
+    }
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
+        return 0
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        
+        if isEditing {
+            
+        } else {
+            let post = postListViewModel.listItems[indexPath.row]
+            let cell = collectionView.cellForItem(at: indexPath) as? PostV2Cell
+            let thumbImage = cell?.photoView.image
+            let vc = PostDetailViewController(postId: post.id,
+                                              post: post,
+                                              thumbImage: thumbImage,
+                                              appContext: appContext)
+            vc.delegate = self
+            navigationController?.pushViewController(vc, animated: true)
+        }
+    }
 }
 
 extension GalleryDetailViewController: PostListControllerDelegate {
@@ -203,20 +335,20 @@ extension GalleryDetailViewController: PostListControllerDelegate {
     }
     
     func didDeletePost(_ post: Post, atIndexPath indexPath: IndexPath) {
-        self.postListVC.tableView.beginUpdates()
-        self.postListVC.viewModel.removeListItem(atIndex: indexPath.row)
-        self.postListVC.tableView.deleteRows(at: [indexPath], with: .automatic)
-        self.postListVC.tableView.endUpdates()
-        
-        let endpoint = PrivateRouter.deleteFromCollection(collectionId: gallery.id, postId: post.id)
-        _ = self.appContext.networkService.request(endpoint, completion: { (result: UAResult<PostContainer>) in
-            switch result {
-            case .success:
-                break
-            case .failure(let error):
-                log.error(error)
-            }
-        })
+//        self.postListVC.tableView.beginUpdates()
+//        self.postListVC.viewModel.removeListItem(atIndex: indexPath.row)
+//        self.postListVC.tableView.deleteRows(at: [indexPath], with: .automatic)
+//        self.postListVC.tableView.endUpdates()
+//        
+//        let endpoint = PrivateRouter.deleteFromCollection(collectionId: gallery.id, postId: post.id)
+//        _ = self.appContext.networkService.request(endpoint, completion: { (result: UAResult<PostContainer>) in
+//            switch result {
+//            case .success:
+//                break
+//            case .failure(let error):
+//                log.error(error)
+//            }
+//        })
     }
 }
 
@@ -267,27 +399,28 @@ private class GalleryDetailFooterView: UIView {
 
 fileprivate class CollectionInfoView: UIView {
     private let titleLabel = UILabel(type: .h3)
+    private let descriptionLabel = UILabel(type: .body)
+
     
-    
-    private let isPublicControl = UISwitch()
-    
-    private lazy var isPublicView: UIView = {
-        let label = UILabel(type: .small, text: "Is public")
-        let view = UIView()
-        view.addSubview(label)
-        view.addSubview(isPublicControl)
-        label.snp.makeConstraints { make in
-            make.top.leading.bottom.equalToSuperview()
-        }
-        isPublicControl.snp.makeConstraints { make in
-            make.top.trailing.bottom.equalToSuperview()
-            make.leading.equalTo(label.snp.trailing).offset(8)
-        }
-        return view
-    }()
+//    private let isPublicControl = UISwitch()
+//
+//    private lazy var isPublicView: UIView = {
+//        let label = UILabel(type: .small, text: "Is public")
+//        let view = UIView()
+//        view.addSubview(label)
+//        view.addSubview(isPublicControl)
+//        label.snp.makeConstraints { make in
+//            make.top.leading.bottom.equalToSuperview()
+//        }
+//        isPublicControl.snp.makeConstraints { make in
+//            make.top.trailing.bottom.equalToSuperview()
+//            make.leading.equalTo(label.snp.trailing).offset(8)
+//        }
+//        return view
+//    }()
     
     private lazy var stackView: UIStackView = {
-        let view = UIStackView(arrangedSubviews: [titleLabel, isPublicView])
+        let view = UIStackView(arrangedSubviews: [titleLabel, descriptionLabel])
         view.axis = .vertical
         view.isLayoutMarginsRelativeArrangement = true
         view.layoutMargins = UIEdgeInsets(top: StyleConstants.contentMargin, left: StyleConstants.contentMargin, bottom: StyleConstants.contentMargin, right: StyleConstants.contentMargin)
@@ -298,7 +431,7 @@ fileprivate class CollectionInfoView: UIView {
     
     func updateForCollection(_ collection: Collection) {
         titleLabel.text = collection.title
-        isPublicControl.isOn = collection.is_public
+        descriptionLabel.text = collection.description
     }
     
     init() {
@@ -312,5 +445,44 @@ fileprivate class CollectionInfoView: UIView {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+}
+
+
+extension GalleryDetailViewController: NewCollectionViewControllerDelegate {
+    func didCreateCollection(collection: Collection) {
+        log.error("Detail view doesn't handle creating new collections")
+    }
+    
+    func didUpdateCollection(collection: Collection) {
+        configureViewForCollection(collection)
+    }
+}
+extension GalleryDetailViewController: PostDetailDelegate {
+    func postDetail(_ controller: PostDetailViewController, didUpdatePost post: Post) {
+        
+    }
+    
+    func postDetail(_ controller: PostDetailViewController, didBlockUser user: User) {
+        
+    }
+    
+    func postDetail(_ controller: PostDetailViewController, didDeletePost post: Post) {
+        
+    }
+    
+    
+}
+class UACollectionView: UICollectionView {
+    public var contentSizeStream: AnyPublisher<CGSize, Never> {
+        contentSizeSubject.eraseToAnyPublisher()
+    }
+    
+    private let contentSizeSubject = CurrentValueSubject<CGSize, Never>(.zero)
+    
+    override var contentSize: CGSize {
+        didSet {
+            contentSizeSubject.value = contentSize
+        }
     }
 }
