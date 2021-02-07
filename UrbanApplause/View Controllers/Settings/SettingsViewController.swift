@@ -93,12 +93,7 @@ extension SettingsViewController: UITableViewDataSource, UITableViewDelegate {
         cell.textLabel?.font = TypographyStyle.body.font
         cell.detailTextLabel?.font = TypographyStyle.body.font
         cell.imageView?.image = settingsItem.image
-        
-        if settingsItem == .logout {
-            // cell.textLabel?.style(as: .link)
-        } else {
-            cell.accessoryType = .disclosureIndicator
-        }
+        cell.accessoryType = settingsItem.accessoryType
         return cell
     }
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {

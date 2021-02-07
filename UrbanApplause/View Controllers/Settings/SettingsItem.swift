@@ -58,4 +58,15 @@ enum SettingsItem {
             return UIImage(systemName: "lock")
         }
     }
+    
+    var accessoryType: UITableViewCell.AccessoryType {
+        switch self {
+        case .privacyPolicy, .termsOfService:
+            return .detailButton
+        case .logout:
+            return .none
+        default:
+            return .disclosureIndicator
+        }
+    }
 }
