@@ -11,7 +11,7 @@ import Cloudinary
 
 fileprivate let log = DHLogger.self
 
-public class CloudinaryService {
+public class CloudinaryService: RemoteImageService {
     private let config = CLDConfiguration(cloudName: Config.cloudinaryCloudName, apiKey: Config.cloudinaryApiKey, apiSecret: Config.cloudinaryApiSecret, secure: true)
     private let cloudinary: CLDCloudinary
     
@@ -21,15 +21,20 @@ public class CloudinaryService {
     }
     
     public func downloadFile(filename: String,
-                             transformation: CLDTransformation?,
+                             transformation: RemoteImageTransformation,
                              updateProgress: @escaping (Double) -> Void,
                              completion: @escaping (Data?, RemoteImageError?) -> Void) {
         let publicId = filename
         let urlGen = cloudinary.createUrl()
         
-        if let transformation = transformation {
+        switch transformation {
+        case .thumb:
+            let transformation = CLDTransformation().setCrop(.scale).setWidth(99)
             urlGen.setTransformation(transformation)
+        case .original:
+            break
         }
+
         
         guard let url = urlGen.setResourceType(CLDUrlResourceType.image).generate(publicId, signUrl: true) else {
             log.error("Invalid filename")

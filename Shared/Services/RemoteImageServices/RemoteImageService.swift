@@ -8,6 +8,21 @@
 
 import Foundation
 
+public protocol RemoteImageService {
+    func downloadFile(filename: String,
+                             transformation: RemoteImageTransformation,
+                             updateProgress: @escaping (Double) -> Void,
+                             completion: @escaping (Data?, RemoteImageError?) -> Void)
+    
+    func uploadFile(data: Data, publicId: String, onCompletion: @escaping (Bool, Error?) -> ())
+}
+
+
+public enum RemoteImageTransformation {
+    case original
+    case thumb
+}
+
 public enum RemoteImageError: UAError {
     case invalidFilename
     case uploadError(String?)
@@ -48,8 +63,3 @@ public enum RemoteImageError: UAError {
     }
 }
 
-public protocol RemoteImageService {
-    func downloadFile(filename: String,
-                      updateProgress: @escaping (Double) -> Void,
-                      completion: @escaping (Data?, RemoteImageError?) -> Void)
-}

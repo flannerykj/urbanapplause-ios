@@ -12,8 +12,10 @@ import UIKit
 fileprivate let log = DHLogger.self
 
 public class FileService: NSObject {
+    private let remoteImageService: RemoteImageService
     
-    public override init() {
+    public init(remoteImageService: RemoteImageService) {
+        self.remoteImageService = remoteImageService
         super.init()
         
         NotificationCenter.default.addObserver(forName: UIApplication.didReceiveMemoryWarningNotification, object: nil, queue: .main, using: { notification in
@@ -21,7 +23,6 @@ public class FileService: NSObject {
         })
         
     }
-    let spacesFileRepository = CloudinaryService()
     typealias Handler = (UAResult<FileDownloadJob>) -> Void
     
     private let fullResImageCache = Cache<String, FileDownloadJob>()
@@ -35,7 +36,7 @@ public class FileService: NSObject {
             return job
         }
         // create and save reference to a new job
-        let job = FileDownloadJob(file: file, spacesFileRepository: spacesFileRepository, isThumb: isThumb)
+        let job = FileDownloadJob(file: file, spacesFileRepository: remoteImageService, isThumb: isThumb)
         cache[file.storage_location] = job
         return job
     }

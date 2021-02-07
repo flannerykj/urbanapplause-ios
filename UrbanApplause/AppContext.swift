@@ -30,8 +30,8 @@ class AppContext: NSObject {
     
     private(set) var store = Store()
     lazy private(set) var authService = AuthService(keychainService: keychainService)
-    lazy private(set) var fileCache: FileService = FileService()
-    
+    lazy private(set) var remoteImageService: RemoteImageService = CloudinaryService()
+    lazy private(set) var fileCache: FileService = FileService(remoteImageService: remoteImageService)
     lazy private(set) var networkService = APIClient(customHeaders: customHeaders, handleAuthError: { _ in
            self.endSession()
         })

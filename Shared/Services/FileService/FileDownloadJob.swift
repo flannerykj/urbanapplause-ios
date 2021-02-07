@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import Cloudinary
 
 fileprivate let log = DHLogger.self
 
@@ -22,15 +21,15 @@ public struct FileDownloadSubscriber {
 public class FileDownloadJob: NSObject {
     private var file: File
     private var subscribers: [FileDownloadSubscriber] = []
-    private var spacesFileRepository: CloudinaryService
+    private var remoteImageService: RemoteImageService
     private let isThumb: Bool
     public var initializedAt = Date()
     public var lastSubscriptionAt = Date()
     
-    public init(file: File, spacesFileRepository: CloudinaryService, isThumb: Bool) {
+    public init(file: File, spacesFileRepository: RemoteImageService, isThumb: Bool) {
         // setup
         self.file = file
-        self.spacesFileRepository = spacesFileRepository
+        self.remoteImageService = spacesFileRepository
         self.isThumb = isThumb
         super.init()
     }
@@ -111,12 +110,8 @@ public class FileDownloadJob: NSObject {
         }
     }
     private func fetchDataFromCDN() {
-        var transformation: CLDTransformation?
-        if isThumb {
-            transformation = CLDTransformation().setCrop(.scale).setWidth(99)
-        }
         self.downloading = true
-        spacesFileRepository.downloadFile(filename: file.storage_location, transformation: transformation, updateProgress: { progress in
+        remoteImageService.downloadFile(filename: file.storage_location, transformation: isThumb ? .thumb : .original, updateProgress: { progress in
             self.downloadProgress = Float(progress)
         }, completion: { data, error in
             self.downloading = false
