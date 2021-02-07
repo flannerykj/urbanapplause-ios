@@ -8,7 +8,6 @@ target 'UrbanApplause' do
   pod 'Eureka', :git => 'https://github.com/xmartlabs/Eureka.git', :branch => 'xcode12' 
   pod 'ViewRow'
   pod 'SwiftLint'
-  pod 'AWSS3'
   pod 'SnapKit'
   pod 'Cloudinary'
   pod 'RxSwift'

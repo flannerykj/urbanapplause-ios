@@ -26,16 +26,16 @@ public struct Location: Codable {
 }
 public extension Location {
     var description: String {
-       var locationStrings = [String]()
-       if let city = city, city.count > 0 {
-           locationStrings.append(city)
-       }
+        var locationStrings = [String]()
         if let address = street_address, address.count > 0 {
             locationStrings.append(address)
         }
-       if let country = country, country.count > 0 {
-           locationStrings.append(country)
-       }
+        if let city = city, city.count > 0 {
+            locationStrings.append(city)
+        }
+        if let country = country, country.count > 0 {
+            locationStrings.append(country)
+        }
         return locationStrings.joined(separator: ", ")
     }
     

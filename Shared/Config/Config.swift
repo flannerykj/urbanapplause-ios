@@ -11,9 +11,6 @@ import Foundation
 public struct Config {
     public static let apiEndpoint = Environment.current.variables["API_ENDPOINT"]! as String
     public static let webEndpoint = Environment.current.variables["WEB_HOST"]! as String
-    public static let awsAccessKeyId = "" // Environment.current.variables["AWS_ACCESS_KEY_ID"]! as String
-    public static let awsSecretAccessKey = "" // Environment.current.variables["AWS_SECRET_ACCESS_KEY"]! as String
-    public static let awsBucketName = "" // Environment.current.variables["AWS_BUCKET_NAME"]! as String
     public static let cloudinaryCloudName = Environment.current.variables["CLOUDINARY_CLOUD_NAME"]! as String
     public static let cloudinaryApiKey = Environment.current.variables["CLOUDINARY_API_KEY"]! as String
     public static let cloudinaryApiSecret = Environment.current.variables["CLOUDINARY_API_SECRET"]! as String

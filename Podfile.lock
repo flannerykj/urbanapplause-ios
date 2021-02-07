@@ -1,25 +1,21 @@
 PODS:
-  - AWSCore (2.18.0)
-  - AWSS3 (2.18.0):
-    - AWSCore (= 2.18.0)
-  - Cloudinary (2.9.0):
-    - Cloudinary/ios (= 2.9.0)
-  - Cloudinary/ios (2.9.0)
+  - Cloudinary (2.10.1):
+    - Cloudinary/ios (= 2.10.1)
+  - Cloudinary/ios (2.10.1)
   - Eureka (5.2.1)
-  - FloatingPanel (2.0.1)
-  - RxCocoa (5.1.1):
-    - RxRelay (~> 5)
-    - RxSwift (~> 5)
-  - RxRelay (5.1.1):
-    - RxSwift (~> 5)
-  - RxSwift (5.1.1)
+  - FloatingPanel (2.2.0)
+  - RxCocoa (6.0.0):
+    - RxRelay (= 6.0.0)
+    - RxSwift (= 6.0.0)
+  - RxRelay (6.0.0):
+    - RxSwift (= 6.0.0)
+  - RxSwift (6.0.0)
   - SnapKit (5.0.1)
-  - SwiftLint (0.40.3)
+  - SwiftLint (0.42.0)
   - ViewRow (0.8):
     - Eureka (>= 5.0.0)
 
 DEPENDENCIES:
-  - AWSS3
   - Cloudinary
   - Eureka (from `https://github.com/xmartlabs/Eureka.git`, branch `xcode12`)
   - FloatingPanel
@@ -31,8 +27,6 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
-    - AWSCore
-    - AWSS3
     - Cloudinary
     - FloatingPanel
     - RxCocoa
@@ -53,18 +47,16 @@ CHECKOUT OPTIONS:
     :git: https://github.com/xmartlabs/Eureka.git
 
 SPEC CHECKSUMS:
-  AWSCore: e8cc7fd06efa211328942cc7c9f6dddbe889a115
-  AWSS3: 31b24341477f8eaae01542900e2253e908eed1ee
-  Cloudinary: 8e9511826bd58df6b14f0c6c042f2c5a034081f4
+  Cloudinary: 064f057fe9b7d6268ed74de5590920e21de6db0d
   Eureka: c883105488e05bc65539f583246ecf9657cabbfe
-  FloatingPanel: 579a5ac0154f923a9d7302c4f13dbc0268511c92
-  RxCocoa: 32065309a38d29b5b0db858819b5bf9ef038b601
-  RxRelay: d77f7d771495f43c556cbc43eebd1bb54d01e8e9
-  RxSwift: 81470a2074fa8780320ea5fe4102807cb7118178
+  FloatingPanel: 54b478292da5340317ce78afcaca88fab6f3b57e
+  RxCocoa: 3f79328fafa3645b34600f37c31e64c73ae3a80e
+  RxRelay: 8d593be109c06ea850df027351beba614b012ffb
+  RxSwift: c14e798c59b9f6e9a2df8fd235602e85cc044295
   SnapKit: 97b92857e3df3a0c71833cce143274bf6ef8e5eb
-  SwiftLint: dfd554ff0dff17288ee574814ccdd5cea85d76f7
+  SwiftLint: 4fa9579c63416865179bc416f0a92d55f009600d
   ViewRow: 8da541e9c019f3be63f4e28f311a62cac2045ecf
 
-PODFILE CHECKSUM: c943fff828a6fd756dfa6ad57768887477e30fb4
+PODFILE CHECKSUM: 894ab330691aba3fd056a20a1cafe0d0f61d555a
 
 COCOAPODS: 1.9.3
