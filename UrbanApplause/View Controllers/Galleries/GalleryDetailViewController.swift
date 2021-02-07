@@ -20,7 +20,16 @@ class GalleryDetailViewController: UIViewController {
     private var subscriptions = Set<AnyCancellable>()
     private var selectedPosts: [Post] = [] {
         didSet {
-            selectedItemsToolbarLabel.text = selectedPosts.count == 1 ? "1 post selected" : "\(selectedPosts.count) posts selected"
+            deleteToolbarItem2.isEnabled = selectedPosts.count > 0
+
+            switch selectedPosts.count {
+            case 0:
+                selectedItemsToolbarLabel.text = ""
+            case 1:
+                selectedItemsToolbarLabel.text = "1 post selected"
+            default:
+                selectedItemsToolbarLabel.text = "\(selectedPosts.count) posts selected"
+            }
         }
     }
     
@@ -29,11 +38,11 @@ class GalleryDetailViewController: UIViewController {
     var gallery: Collection
     weak var delegate: CollectionDetailControllerDelegate?
     
-    private lazy var galleryFooterView: GalleryDetailFooterView = {
-        let view = GalleryDetailFooterView()
-        view.listener = self
-        return view
-    }()
+//    private lazy var galleryFooterView: GalleryDetailFooterView = {
+//        let view = GalleryDetailFooterView()
+//        view.listener = self
+//        return view
+//    }()
     
     lazy var detailsTableView: UITableViewController = {
         let vc = UITableViewController()
@@ -94,6 +103,7 @@ class GalleryDetailViewController: UIViewController {
         setupConstraints()
         
         configureViewForCollection(gallery)
+        setUpSelectionToolbar()
         configureForSelectionMode(isSelecting: isEditing)
     }
     
@@ -111,38 +121,42 @@ class GalleryDetailViewController: UIViewController {
         }
     }
     
+    private func setUpSelectionToolbar() {
+        let spacer = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        toolbarItems = [UIBarButtonItem(customView: selectedItemsToolbarLabel), spacer, deleteToolbarItem2]
+        selectedItemsToolbarLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        selectedItemsToolbarLabel.numberOfLines = 1
+    }
+    
     private func setupSubviews() {
-//        refreshControl.addTarget(self, action: #selector(didPullRefresh(_:)), for: .valueChanged)
-        
+
+        refreshControl.addTarget(self, action: #selector(didPullRefresh(_:)), for: .valueChanged)
+        scrollView.refreshControl = refreshControl
         view.addSubview(scrollView)
-        view.addSubview(galleryFooterView)
+//        view.addSubview(galleryFooterView)
         scrollView.addSubview(postListVC.view)
-//        scrollView.addSubview(collectionInfoView)
+        scrollView.addSubview(collectionInfoView)
         postListVC.postListDelegate = self
         addChild(postListVC)
         postListVC.didMove(toParent: self)
         postListVC.isScrollEnabled = false
-        
-        let spacer = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-
-        toolbarItems = [UIBarButtonItem(customView: selectedItemsToolbarLabel), spacer, deleteToolbarItem2]
     }
     
     private func setupConstraints() {
         scrollView.snp.makeConstraints { make in
+            make.leading.trailing.top.bottom.equalToSuperview()
+        }
+//        galleryFooterView.snp.makeConstraints { make in
+//            make.top.equalTo(scrollView.snp.bottom)
+//            make.leading.trailing.bottom.equalToSuperview()
+//        }
+        
+        collectionInfoView.snp.makeConstraints { make in
             make.leading.trailing.top.equalToSuperview()
         }
-        galleryFooterView.snp.makeConstraints { make in
-            make.top.equalTo(scrollView.snp.bottom)
-            make.leading.trailing.bottom.equalToSuperview()
-        }
-        
-//        collectionInfoView.snp.makeConstraints { make in
-//            make.leading.trailing.top.equalToSuperview()
-//        }
         postListVC.view.snp.makeConstraints { make in
-//            make.top.equalTo(collectionInfoView.snp.bottom)
-            make.top.leading.trailing.bottom.equalToSuperview()
+            make.top.equalTo(collectionInfoView.snp.bottom)
+            make.leading.trailing.bottom.equalToSuperview()
             make.width.equalToSuperview()
             make.height.equalTo(0)
         }
@@ -157,10 +171,11 @@ class GalleryDetailViewController: UIViewController {
             .store(in: &subscriptions)
     }
     
-//    @objc func didPullRefresh(_ sender: UIRefreshControl) {
-//        postListViewModel.fetchListItems(forceReload: true)
-//    }
-//
+    @objc func didPullRefresh(_ sender: UIRefreshControl) {
+        sender.endRefreshing()
+        postListViewModel.fetchListItems(forceReload: true)
+    }
+    
     @objc func startSelectingPosts(_ sender: UIBarButtonItem) {
         configureForSelectionMode(isSelecting: true)
     }
@@ -304,8 +319,6 @@ extension GalleryDetailViewController: PostListV2ViewControllerDelegate {
 //            }
 //        })
     }
-    
-    
 }
 
 
@@ -348,45 +361,26 @@ private class GalleryDetailFooterView: UIView {
 
     @objc func startTour(_: UIButton) {
         listener?.didTapStartTour()
-
     }
 }
 
 
 fileprivate class CollectionInfoView: UIView {
-    private let titleLabel = UILabel(type: .h3)
     private let descriptionLabel = UILabel(type: .body)
-
-    
-//    private let isPublicControl = UISwitch()
-//
-//    private lazy var isPublicView: UIView = {
-//        let label = UILabel(type: .small, text: "Is public")
-//        let view = UIView()
-//        view.addSubview(label)
-//        view.addSubview(isPublicControl)
-//        label.snp.makeConstraints { make in
-//            make.top.leading.bottom.equalToSuperview()
-//        }
-//        isPublicControl.snp.makeConstraints { make in
-//            make.top.trailing.bottom.equalToSuperview()
-//            make.leading.equalTo(label.snp.trailing).offset(8)
-//        }
-//        return view
-//    }()
+    private let visibilityStatusLabel = UILabel(type: .small)
     
     private lazy var stackView: UIStackView = {
-        let view = UIStackView(arrangedSubviews: [titleLabel, descriptionLabel])
+        let view = UIStackView(arrangedSubviews: [descriptionLabel, visibilityStatusLabel])
         view.axis = .vertical
         view.isLayoutMarginsRelativeArrangement = true
-        view.layoutMargins = UIEdgeInsets(top: StyleConstants.contentMargin, left: StyleConstants.contentMargin, bottom: StyleConstants.contentMargin, right: StyleConstants.contentMargin)
+        view.layoutMargins = UIEdgeInsets(top: 0, left: StyleConstants.contentMargin, bottom: StyleConstants.contentMargin, right: StyleConstants.contentMargin)
         view.spacing = 8
         return view
     }()
     
     
     func updateForCollection(_ collection: Collection) {
-        titleLabel.text = collection.title
+        visibilityStatusLabel.text = collection.is_public ? "Public" : "Private"
         descriptionLabel.text = collection.description
     }
     

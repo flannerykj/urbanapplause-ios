@@ -13,7 +13,7 @@ import Photos
 private let log = DHLogger.self
 
 public protocol ImagePickerDelegate: class {
-    func imagePicker(pickerController: UIImagePickerController?, didSelectImage imageData: Data?)
+    func imagePicker(pickerController: UIImagePickerController?, didSelectImage imageData: Data?, dataWithEXIF: Data?)
     func imagePickerDidCancel(pickerController: UIImagePickerController?)
 
 }
@@ -47,19 +47,19 @@ open class ImagePicker: NSObject {
                     if status == .authorized {
                         self._showActionSheet(from: sourceView)
                     } else {
-                        self.delegate?.imagePicker(pickerController: nil, didSelectImage: nil)
+                        self.delegate?.imagePicker(pickerController: nil, didSelectImage: nil, dataWithEXIF: nil)
                     }
                 }
             })
         case .denied, .restricted:
             self.presentationController?.showAlertForDeniedPermissions(permissionType: "photo library",
                                                                        handleOpenSettings: nil)
-            self.delegate?.imagePicker(pickerController: nil, didSelectImage: nil)
+            self.delegate?.imagePicker(pickerController: nil, didSelectImage: nil, dataWithEXIF: nil)
             return
         case .authorized:
             _showActionSheet(from: sourceView)
         @unknown default:
-            self.delegate?.imagePicker(pickerController: nil, didSelectImage: nil)
+            self.delegate?.imagePicker(pickerController: nil, didSelectImage: nil, dataWithEXIF: nil)
         }
     }
 
@@ -100,12 +100,8 @@ open class ImagePicker: NSObject {
 }
 
 extension ImagePicker: UIImagePickerControllerDelegate {
-    public func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-        delegate?.imagePickerDidCancel(pickerController: picker)
-    }
-
-    public func imagePickerController(_ picker: UIImagePickerController,
-                                      didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
+    
+    private func getDataWithEXIF(from info: [UIImagePickerController.InfoKey: Any], completion: @escaping (Data?) -> ()) {
         if let asset = info[.phAsset] as? PHAsset {
             // user selected a photo from library.
             let requestOptions = PHImageRequestOptions()
@@ -117,22 +113,42 @@ extension ImagePicker: UIImagePickerControllerDelegate {
                                                           resultHandler: { data, typeIdentifier, orientation, _ in
                                                             DispatchQueue.main.async {
                                                                 if let imgData = data {
-                                                                    self.delegate?.imagePicker(pickerController: picker,
-                                                                                               didSelectImage: imgData)
+                                                                    completion(imgData)
                                                                 } else {
-                                                                    log.error("could not get image data")
+                                                                    log.error("could not get image EXIF")
                                                                 }
                                                             }
             })
         } else {
-            // user took a picture with camera
-            guard let image = info[.editedImage] as? UIImage,
-                let imageData = image.pngData() else {
+            // User did not grant access to Photo Library, therefore we do not have access to metadata
+            completion(nil)
+        }
+    }
+    public func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        delegate?.imagePickerDidCancel(pickerController: picker)
+    }
+
+    public func imagePickerController(_ picker: UIImagePickerController,
+                                      didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
+        var selectedImage: UIImage?
+        
+         if let asset = info[.originalImage] as? UIImage {
+            // User selected from image library
+            selectedImage = asset
+        } else {
+            // User took a picture with camera
+            guard let image = info[.editedImage] as? UIImage else {
                 log.error("Camera returned no data")
                 return
             }
-            self.delegate?.imagePicker(pickerController: picker, didSelectImage: imageData)
+            selectedImage = image
         }
+        
+        getDataWithEXIF(from: info, completion: { dataWithEXIF in
+            self.delegate?.imagePicker(pickerController: picker,
+                                       didSelectImage: selectedImage?.jpegData(compressionQuality: 0.7),
+                                       dataWithEXIF: dataWithEXIF)
+        })
     }
 }
 

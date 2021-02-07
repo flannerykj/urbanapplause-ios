@@ -43,6 +43,7 @@ class PostDetailViewController: UIViewController {
             mapView.setRegion(region, animated: true)
             updateVisitedButton()
             updateApplaudedButton()
+            addedToCollections = post.Collections ?? []
         }
     }
     var isLoading: Bool = false {

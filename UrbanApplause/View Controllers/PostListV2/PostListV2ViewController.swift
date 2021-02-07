@@ -178,6 +178,17 @@ class PostListV2ViewController: UIViewController, UICollectionViewDelegate, UICo
             navigationController?.pushViewController(vc, animated: true)
         }
     }
+    
+    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
+        let cell = collectionView.cellForItem(at: indexPath) as? PostV2Cell
+        let post = viewModel.listItems[indexPath.row]
+
+        if isEditing {
+            cell?.isSelected = false
+            selectedPosts.removeAll { $0.id == post.id }
+            postListDelegate?.updateSelectedPosts(selectedPosts, indexPaths: collectionView.indexPathsForSelectedItems ?? [])
+        }
+    }
     // MARK: - UICollectionViewDelegateFlowLayout
 }
 
@@ -192,6 +203,7 @@ extension PostListV2ViewController: PostDetailDelegate {
     
     func postDetail(_ controller: PostDetailViewController, didDeletePost post: Post) {
         
+//        postListDelegate?.didDeletePost(<#T##post: Post##Post#>, atIndexPath: <#T##IndexPath#>)
     }
 }
 

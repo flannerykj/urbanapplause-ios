@@ -224,14 +224,20 @@ extension TabBarController: ImagePickerDelegate {
     func imagePickerDidCancel(pickerController: UIImagePickerController?) {
         pickerController?.dismiss(animated: true, completion: nil)
     }
-    func imagePicker(pickerController: UIImagePickerController?, didSelectImage imageData: Data?) {
+    func imagePicker(pickerController: UIImagePickerController?, didSelectImage imageData: Data?, dataWithEXIF: Data?) {
         guard let data = imageData, let picker = pickerController else {
             return
         }
-        createNewPost(pickerController: picker, withImageData: data)
+        createNewPost(pickerController: picker, withImageData: data, dataWithEXIF: dataWithEXIF)
     }
-    private func createNewPost(pickerController: UIImagePickerController, withImageData imageData: Data) {
+    private func createNewPost(pickerController: UIImagePickerController, withImageData imageData: Data, dataWithEXIF: Data?) {
+        var imageEXIFService: ImageEXIFService?
+        
+        if let data = dataWithEXIF {
+            imageEXIFService = ImageEXIFService(data: data)
+        }
         let controller = CreatePostViewController(imageData: imageData,
+                                                  imageEXIFService: imageEXIFService,
                                                   placemark: self.selectedPlacemark,
                                                   hideNavbarOnDisappear: true,
                                                   appContext: self.appContext)

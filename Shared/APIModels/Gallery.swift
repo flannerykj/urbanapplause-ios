@@ -62,8 +62,3 @@ public enum Gallery: Equatable {
         }
     }
 }
-extension Gallery: Hashable {
-    public var hashValue: Int {
-        return self.id
-    }
-}

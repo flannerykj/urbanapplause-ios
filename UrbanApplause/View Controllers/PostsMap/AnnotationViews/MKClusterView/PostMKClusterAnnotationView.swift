@@ -93,9 +93,9 @@ class PostMKClusterAnnotationView: MKAnnotationView, PostAnnotationViewProtocol 
         addSubview(clusterMembersCountView)
         clusterMembersCountView.centerYAnchor.constraint(equalTo: contentView.topAnchor).isActive = true
         clusterMembersCountView.centerXAnchor.constraint(equalTo: contentView.rightAnchor).isActive = true
-        #if DEBUG
-        contentView.backgroundColor = .orange
-        #endif
+//        #if DEBUG
+//        contentView.backgroundColor = .orange
+//        #endif
     }
 
     required init?(coder aDecoder: NSCoder) {

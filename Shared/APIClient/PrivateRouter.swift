@@ -256,5 +256,4 @@ public enum PrivateRouter: EndpointConfiguration {
             return .request
         }
     }
-
 }

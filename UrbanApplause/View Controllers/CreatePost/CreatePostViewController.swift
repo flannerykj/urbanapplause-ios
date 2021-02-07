@@ -56,7 +56,7 @@ private struct FormSectionKeys {
 class CreatePostViewController: FormViewController, UINavigationControllerDelegate,
 UIImagePickerControllerDelegate, UnsavedChangesController {
     private var hideNavbarOnDisappear: Bool // Set true if previous vc (i.e. UIImagePicker) requires navigationController's navbar to be hidden.
-    private var imageService: ImageEXIFService
+    private var imageService: ImageEXIFService?
     private let spacesFileRepository = CloudinaryService()
     var post: Post?
     var hasUnsavedChanges: Bool = false
@@ -115,12 +115,12 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
         return view
     }()
     
-    init(imageData: Data, placemark: CLPlacemark? = nil, hideNavbarOnDisappear: Bool, appContext: AppContext) {
+    init(imageData: Data, imageEXIFService: ImageEXIFService?, placemark: CLPlacemark? = nil, hideNavbarOnDisappear: Bool, appContext: AppContext) {
         self.appContext = appContext
         self.hideNavbarOnDisappear = hideNavbarOnDisappear
         self.initialPlacemark = placemark
         self.selectedImageData = imageData
-        self.imageService = ImageEXIFService(data: imageData)
+        self.imageService = imageEXIFService
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -338,14 +338,24 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
     }
     
     func fillFormFromExifData() {
+        guard let imageService = self.imageService else {
+            showAlertForExtendedLocationPermissions()
+            return
+        }
+        
         if let dateRow = self.form.rowBy(tag: FormFieldKeys.recordedAt) as? DateRow,
             let date = imageService.dateFromExif {
             dateRow.value = date
             dateRow.updateCell()
         }
-        if let locationRow = self.form.rowBy(tag: FormFieldKeys.location) as? LocationRow,
-            let placemark = imageService.placemarkFromExif {
-            guard let location = placemark.location else { return }
+        if let locationRow = self.form.rowBy(tag: FormFieldKeys.location) as? LocationRow {
+            guard let placemark = imageService.placemarkFromExif else {
+                showAlertForExtendedLocationPermissions()
+                return
+            }
+            guard let location = placemark.location else {
+                return
+            }
             CLGeocoder().reverseGeocodeLocation(location,
                                                 completionHandler: { (placemarks, _) in
                                                     if let placemarkWithInfo = placemarks?.first {
@@ -439,7 +449,7 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
                                                 guard let firstPlacemark = placemarks?[0],
                                                     let locationBody = self.makeNewLocationBody(from: firstPlacemark) else { return }
                                                 payload["location"] = locationBody
-                                                self.savePost(body: payload)
+                                                self.save(body: payload)
                                             } else {
                                                 self.newPostState = .initial
                                                 self.showAlert(message: Strings.LocationLookupError)
@@ -447,57 +457,74 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
         })
     }
 
-    func savePost(body: Parameters) {
-        self.newPostState = .savingPost
-        // Create new Post and Post Images with filenames for uploaded images
-        _ = networkService.request(PrivateRouter.createPost(values: body),
-                                   completion: { (result: UAResult<PostContainer>) in
-                                    DispatchQueue.main.async {
-                                        switch result {
-                                        case .success(let container):
-                                            self.delegate?.createPostController(self, didCreatePost: container.post)
-                                            self.saveImages(post: container.post)
-                                        case .failure(let error):
-                                            self.isLoading = false
-                                            self.newPostState = .initial
-                                            self.showAlert(message: error.userMessage)
-                                        }
-                                    }
-        })
-    }
-    
-    func saveImages(post: Post) {
-        self.newPostState = .uploadingImages
+    func save(body: Parameters) {
+        var payload = body
         guard let userID = self.appContext.store.user.data?.id else {
             log.error("no user")
             return
         }
-        // Add new Post Images to Post
+        let secondsSince1970 = Int(Date().timeIntervalSince1970 * 1000)
         
-        let endpoint = PrivateRouter.uploadImages(postId: post.id, userId: userID, imagesData: [selectedImageData])
-        let job = networkService.request(endpoint, completion: { (result: UAResult<PostImagesContainer>) in
-            DispatchQueue.main.async {
-                self.isLoading = false
-                self.newPostState = .initial
-                switch result {
-                case .success(let container):
-                    post.PostImages = container.images
-                    // Backend won't have finished compressing images yet, so save on frontend to dispaly immediately
-                    if let file = container.images.first {
-                        self.appContext.fileCache.addLocalData(self.selectedImageData, for: file, isThumb: false)
-                        self.appContext.fileCache.addLocalData(self.selectedImageData, for: file, isThumb: true)
-                    }
-                    self.delegate?.createPostController(self, didUploadImageData: self.selectedImageData, forPost: post)
-                    self.dismiss(animated: true, completion: nil)
-                case .failure(let error):
-                    self.showAlert(message: error.userMessage)
+        let imageID = "\(String(secondsSince1970))_\(String(userID))"
+        print("image id: ", imageID)
+        self.newPostState = .uploadingImages
+
+        CloudinaryService()
+            .uploadFile(data: selectedImageData, publicId: imageID, onCompletion: { success, error in
+                guard success, error == nil else {
+                    self.isLoading = false
+                    self.newPostState = .initial
+                    self.showAlert(message: "Unable to upload image")
+                    return
                 }
-            }
+                self.newPostState = .savingPost
+                // Create new Post and Post Images with filenames for uploaded images
+                payload["filenames"] = [imageID]
+                _ = self.networkService.request(PrivateRouter.createPost(values: payload),
+                                           completion: { (result: UAResult<PostContainer>) in
+                                            DispatchQueue.main.async {
+                                                switch result {
+                                                case .success(let container):
+                                                    self.delegate?.createPostController(self, didCreatePost: container.post)
+                                                    self.delegate?.createPostController(self, didUploadImageData: self.selectedImageData, forPost: container.post)
+                                                    self.dismiss(animated: true, completion: nil)
+                                                case .failure(let error):
+                                                    self.isLoading = false
+                                                    self.newPostState = .initial
+                                                    self.showAlert(message: error.userMessage)
+                                                }
+                                            }
+            })
         })
-        delegate?.createPostController(self, didBeginUploadForData: selectedImageData, forPost: post, job: job)
     }
+
     @objc func cancel(_ sender: UIBarButtonItem) {
         self.confirmDiscardChanges()
+    }
+    
+    // MARK: - Private
+    
+    private func showAlertForExtendedLocationPermissions() {
+        let alertController = UIAlertController(title: "We weren't able to fill in the location of this photo for you.", message: "Make sure Photo Library permissions are set to 'All photos' if you want location auto-filled", preferredStyle: .alert)
+        let goToSettings = UIAlertAction(title: "Go to settings", style: .default, handler: { _ in
+            guard let settingsUrl = URL(string: UIApplication.openSettingsURLString) else {
+                return
+            }
+            
+            if UIApplication.shared.canOpenURL(settingsUrl) {
+                UIApplication.shared.open(settingsUrl, completionHandler: { (success) in
+                    log.info("Settings opened: \(success)") // Prints true
+                })
+            }
+            alertController.dismiss(animated: true, completion: nil)
+        })
+        let notNow = UIAlertAction(title: "Not now", style: .default, handler: { _ in
+            alertController.dismiss(animated: true, completion: nil)
+        })
+        alertController.addAction(goToSettings)
+        alertController.addAction(notNow)
+        
+        presentAlertInCenter(alertController, animated: true, completion: nil)
     }
 }
 

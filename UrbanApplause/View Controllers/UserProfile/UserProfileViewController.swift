@@ -12,7 +12,7 @@ import Combine
 enum ProfileTableRow: Int, CaseIterable {
     case posted
     case applauded
-    
+    case visited
     
     var title: String {
         switch self {
@@ -20,19 +20,22 @@ enum ProfileTableRow: Int, CaseIterable {
             return "Posted"
         case .applauded:
             return "Applauded"
+        case .visited:
+            return "Visited"
         }
     }
 }
 
-class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, ImagePickerDelegate {
+    
     private var subscriptions = Set<AnyCancellable>()
+    private lazy var imagePicker = ImagePicker(presentationController: self, delegate: self)
     var appContext: AppContext
     var user: User
     
     var isAuthUser: Bool {
         if let userId = self.appContext.store.user.data?.id,
             userId == user.id {
-            log.debug("user id: \(userId)")
             return true
         }
         return false
@@ -44,6 +47,7 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
         tableView.delegate = self
         tableView.dataSource = self
         tableView.tableFooterView = UIView()
+        tableView.isScrollEnabled = false
         return tableView
     }()
 
@@ -69,30 +73,35 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
         return control
     }()
 
-    let profileIcon = UIImageView(image: UIImage(systemName: "person.fill"))
+    let profileIcon: UIImageView = {
+        let imageView = UIImageView(image: UIImage(systemName: "person.circle"))
+        imageView.contentMode = .scaleAspectFit
+        imageView.snp.makeConstraints { make in
+            make.height.width.equalTo(48)
+        }
+        let gr = UITapGestureRecognizer(target: self, action: #selector(editProfilePhoto(_:)))
+        imageView.addGestureRecognizer(gr)
+        return imageView
+    }()
 
     lazy var headerTextStackView: UIStackView = {
         let stackView = UIStackView(arrangedSubviews: [nameLabel, bioLabel, memberSinceLabel])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.alignment = .leading
         stackView.axis = .vertical
-        stackView.spacing = 6
+        stackView.spacing = 8
         return stackView
     }()
     
     lazy var headerStackView: UIStackView = {
         let stackView = UIStackView(arrangedSubviews: [profileIcon, headerTextStackView])
-        profileIcon.contentMode = .scaleAspectFit
-
-        NSLayoutConstraint.activate([
-            profileIcon.widthAnchor.constraint(equalToConstant: 55),
-            profileIcon.heightAnchor.constraint(equalTo: profileIcon.widthAnchor)
-        ])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.alignment = .top
         stackView.axis = .horizontal
         stackView.distribution = .fill
-        stackView.spacing = StyleConstants.contentMargin
+        stackView.spacing = 12
+        stackView.isLayoutMarginsRelativeArrangement = true
+        stackView.layoutMargins = UIEdgeInsets(top: 8, left: 12, bottom: 8, right: 12)
         return stackView
     }()
     
@@ -112,7 +121,7 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
         }
         view.addSubview(tableView)
         tableView.snp.makeConstraints {
-            $0.top.equalTo(headerStackView.snp.bottom)
+            $0.top.equalTo(headerStackView.snp.bottom).offset(16)
             $0.leading.trailing.equalTo(view)
             $0.bottom.lessThanOrEqualTo(view.safeAreaLayoutGuide)
             $0.height.equalTo(0)
@@ -137,6 +146,16 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
         }
     }
     
+    // MARK: - ImagePickerDelegate
+    func imagePicker(pickerController: UIImagePickerController?, didSelectImage imageData: Data?, dataWithEXIF: Data?) {
+
+    }
+    
+    func imagePickerDidCancel(pickerController: UIImagePickerController?) {
+        
+    }
+    
+    
     @objc func refreshUserProfile(sender: UIRefreshControl) {
         let endpoint = PrivateRouter.getUser(id: user.id)
         _ = appContext.networkService.request(endpoint) { (result: UAResult<UserContainer>) in
@@ -158,17 +177,21 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
     }
     
     func updateLabels() {
+        for view in headerTextStackView.arrangedSubviews {
+            view.removeFromSuperview()
+        }
+        
         nameLabel.text = user.username
+        headerTextStackView.addArrangedSubview(nameLabel)
+        
         if let bio = user.bio, bio.count > 0 {
-            bioLabel.isHidden = false
             bioLabel.text = bio
             bioLabel.font = TypographyStyle.body.font
-        } else {
-            bioLabel.isHidden = !isAuthUser
-            bioLabel.font = TypographyStyle.placeholder.font
+            headerTextStackView.addArrangedSubview(bioLabel)
         }
         if let dateString = user.createdAt?.justTheDate {
             memberSinceLabel.text = "\(Strings.MemberSinceFieldLabel) \(dateString)"
+            headerTextStackView.addArrangedSubview(memberSinceLabel)
         }
     }
    
@@ -178,6 +201,9 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
         navigationController?.pushViewController(vc, animated: true)
     }
     
+    @objc func editProfilePhoto(_ sender: UIView) {
+        let picker = self.imagePicker.showActionSheet(from: sender)
+    }
     
     // MARK: - UITableViewDelegate, UITableViewDataSource
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -195,21 +221,24 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard let rowType = ProfileTableRow.allCases[safe: indexPath.row] else { return }
-
+        var viewModel: DynamicPostListViewModel
+        var controllerTitle: String
+        
         switch rowType {
         case .applauded:
-            let applaudedPostsViewModel = DynamicPostListViewModel(filterForUserApplause: user, appContext: appContext)
-            let userApplauseVC = PostListViewController(viewModel: applaudedPostsViewModel,
-                                                        appContext: appContext)
-            userApplauseVC.navigationItem.title = "Applauded"
-            navigationController?.pushViewController(userApplauseVC, animated: true)
+            viewModel = DynamicPostListViewModel(filterForUserApplause: user, appContext: appContext)
+            controllerTitle = "Applauded"
         case .posted:
-            let userPostsViewModel = DynamicPostListViewModel(filterForPostedBy: user, filterForArtist: nil, filterForQuery: nil,
+            viewModel = DynamicPostListViewModel(filterForPostedBy: user, filterForArtist: nil, filterForQuery: nil,
                                                        appContext: appContext)
-            let userPostsVC = PostListViewController(viewModel: userPostsViewModel, appContext: appContext)
-            userPostsVC.navigationItem.title = "Posted"
-            navigationController?.pushViewController(userPostsVC, animated: true)
+            controllerTitle = "Posted"
+        case .visited:
+            viewModel = DynamicPostListViewModel(filterForVisitedBy: user, appContext: appContext)
+            controllerTitle = "Visited"
         }
+        let postsController = PostListViewController(viewModel: viewModel, appContext: appContext)
+        postsController.navigationItem.title = controllerTitle
+        navigationController?.pushViewController(postsController, animated: true)
     }
 }
 
