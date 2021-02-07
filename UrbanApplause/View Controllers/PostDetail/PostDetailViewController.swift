@@ -247,17 +247,29 @@ class PostDetailViewController: UIViewController {
         let stackView = UIStackView(arrangedSubviews: [photoView,
                                                        metadataStackView,
                                                        optionsStackView,
-                                                       mapView])
+                                                       mapViewWrapper])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
         return stackView
     }()
-    
+
     lazy var mapView: MKMapView = {
         let mapView = MKMapView()
         mapView.delegate = self
         mapView.register(MKMarkerAnnotationView.self, forAnnotationViewWithReuseIdentifier: markerReuseIdentifier)
         return mapView
+    }()
+    
+    lazy var mapViewWrapper: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(mapView)
+        mapView.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(16)
+            make.top.equalToSuperview()
+            make.bottom.equalTo(view.safeAreaLayoutGuide).inset(48)
+        }
+        return view
     }()
     
     lazy var scrollView: UIScrollView = {
