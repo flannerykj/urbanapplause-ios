@@ -113,7 +113,7 @@ public extension Strings {
         return String(format: format, count)
     }
     // Errors
-    static let MissingPermissionsErrorMessage = NSLocalizedString("Please enable @ permissions in your Settings", comment: "")
+    static let MissingPermissionsErrorMessage = NSLocalizedString("Please enable %@ permissions in your Settings", comment: "")
 
     static let LocationServicesNotEnabledError = NSLocalizedString("Please enable location services under Settings.", comment: "")
     static func MustBeLoggedInToPerformAction(_ action: String) -> String {
