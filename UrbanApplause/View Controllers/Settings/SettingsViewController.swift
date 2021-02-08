@@ -108,7 +108,7 @@ extension SettingsViewController: UITableViewDataSource, UITableViewDelegate {
         let helpItem = sections[indexPath.section][indexPath.row]
         switch helpItem {
         case .logout:
-            appContext.endSession()
+            confirmLogout()
         case .account:
             let accountVC = AccountViewController(appContext: appContext)
             navigationController?.pushViewController(accountVC, animated: true)
@@ -123,6 +123,20 @@ extension SettingsViewController: UITableViewDataSource, UITableViewDelegate {
                 navigationController?.pushViewController(vc, animated: true)
             }
         }
+    }
+    
+    private func confirmLogout() {
+        let alert = UIAlertController(title: "Log out?", message: "Are you sure you want to log out?", preferredStyle: .alert)
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: { _ in
+            alert.dismiss(animated: true, completion: nil)
+        })
+        let logoutAction = UIAlertAction(title: "Log out", style: .destructive, handler: { [weak self] _ in
+            alert.dismiss(animated: true, completion: nil)
+            self?.appContext.endSession()
+        })
+        alert.addAction(logoutAction)
+        alert.addAction(cancelAction)
+        present(alert, animated: true, completion: nil)
     }
 }
 extension SettingsViewController: SFSafariViewControllerDelegate {
