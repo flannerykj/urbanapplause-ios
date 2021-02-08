@@ -26,10 +26,10 @@ enum ProfileTableRow: Int, CaseIterable {
     }
 }
 
-class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, ImagePickerDelegate {
+class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UAImagePickerDelegate {
     
     private var subscriptions = Set<AnyCancellable>()
-    private lazy var imagePicker = ImagePicker(presentationController: self, delegate: self)
+    private lazy var imagePicker = UAImagePicker(presentationController: self, delegate: self)
     var appContext: AppContext
     var user: User
     

@@ -1,30 +1,29 @@
 //
-//  ImagePicker.swift
+//  UAImagePicker.swift
 //  UrbanApplause
 //
-//  Created by Flannery Jefferson on 2020-01-09.
-//  Copyright © 2020 Flannery Jefferson. All rights reserved.
+//  Created by Flann on 2021-02-07.
+//  Copyright © 2021 Flannery Jefferson. All rights reserved.
 //
 
+import AVFoundation
 import Foundation
 import UIKit
 import Photos
+import Shared
 
-private let log = DHLogger.self
-
-public protocol ImagePickerDelegate: class {
+public protocol UAImagePickerDelegate: class {
     func imagePicker(pickerController: UIImagePickerController?, didSelectImage imageData: Data?, dataWithEXIF: Data?)
     func imagePickerDidCancel(pickerController: UIImagePickerController?)
-
 }
 
-open class ImagePicker: NSObject {
+open class UAImagePicker: NSObject {
     
     private let pickerController: UIImagePickerController
     private weak var presentationController: UIViewController?
-    private weak var delegate: ImagePickerDelegate?
+    private weak var delegate: UAImagePickerDelegate?
 
-    public init(presentationController: UIViewController, delegate: ImagePickerDelegate) {
+    public init(presentationController: UIViewController, delegate: UAImagePickerDelegate) {
         self.pickerController = UIImagePickerController()
 
         super.init()
@@ -71,21 +70,50 @@ open class ImagePicker: NSObject {
     }
     
     private func onSelectCamera() {
-        self.pickerController.sourceType = .camera
-        self.presentationController?.present(self.pickerController, animated: true)
-    }
-    
-    private func onSelectPhotoLibrary() {
         let onPermissionGranted = {
-            self.pickerController.sourceType = .photoLibrary
+            self.pickerController.sourceType = .camera
             self.presentationController?.present(self.pickerController, animated: true)
         }
         
         let onPermissionsDenied = {
-            self.presentationController?.showAlertForDeniedPermissions(permissionType: "photo library",
-                                                                       handleOpenSettings: nil)
-            self.delegate?.imagePicker(pickerController: nil, didSelectImage: nil, dataWithEXIF: nil)
+            self.presentationController?.showAlertForDeniedPermissions(permissionType: "camera", onDismiss: {
+                self.delegate?.imagePicker(pickerController: nil, didSelectImage: nil, dataWithEXIF: nil)
+            }, showOpenSettingsButton: true)
         }
+        
+        if AVCaptureDevice.authorizationStatus(for: AVMediaType.video) ==  AVAuthorizationStatus.authorized {
+            DispatchQueue.main.async {
+                onPermissionGranted()
+            }
+        } else {
+            AVCaptureDevice.requestAccess(for: AVMediaType.video, completionHandler: { (granted: Bool) -> Void in
+                DispatchQueue.main.async {
+                   if granted == true {
+                        onPermissionGranted()
+                   } else {
+                        onPermissionsDenied()
+                   }
+                }
+           })
+        }
+    }
+    
+    private func onSelectPhotoLibrary() {
+        let onPermissionGranted = {
+            DispatchQueue.main.async {
+                self.pickerController.sourceType = .photoLibrary
+                self.presentationController?.present(self.pickerController, animated: true)
+            }
+        }
+        
+        let onPermissionsDenied = {
+            DispatchQueue.main.async {
+                self.presentationController?.showAlertForDeniedPermissions(permissionType: "photo library", onDismiss: {
+                    self.delegate?.imagePicker(pickerController: nil, didSelectImage: nil, dataWithEXIF: nil)
+                }, showOpenSettingsButton: true)
+            }
+        }
+        
         let status = PHPhotoLibrary.authorizationStatus()
         switch status {
         case .notDetermined:
@@ -111,7 +139,7 @@ open class ImagePicker: NSObject {
     }
 }
 
-extension ImagePicker: UIImagePickerControllerDelegate {
+extension UAImagePicker: UIImagePickerControllerDelegate {
     
     private func getDataWithEXIF(from info: [UIImagePickerController.InfoKey: Any], completion: @escaping (Data?) -> ()) {
         if let asset = info[.phAsset] as? PHAsset {
@@ -164,12 +192,12 @@ extension ImagePicker: UIImagePickerControllerDelegate {
     }
 }
 
-extension ImagePicker: UINavigationControllerDelegate {
+extension UAImagePicker: UINavigationControllerDelegate {
 
 }
-extension ImagePicker: UIAdaptivePresentationControllerDelegate {
+extension UAImagePicker: UIAdaptivePresentationControllerDelegate {
     
 }
-extension ImagePicker: UIViewControllerTransitioningDelegate {
+extension UAImagePicker: UIViewControllerTransitioningDelegate {
     
 }

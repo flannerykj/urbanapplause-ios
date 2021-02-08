@@ -126,17 +126,32 @@ extension SettingsViewController: UITableViewDataSource, UITableViewDelegate {
     }
     
     private func confirmLogout() {
-        let alert = UIAlertController(title: "Log out?", message: "Are you sure you want to log out?", preferredStyle: .alert)
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: { _ in
-            alert.dismiss(animated: true, completion: nil)
+        let alert = UIAlertController(title: nil, message: "Are you sure you want to log out?", preferredStyle: .alert)
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: { [weak self] _ in
+            alert.dismiss(animated: true, completion: {
+                self?.clearTableSelection()
+            })
         })
         let logoutAction = UIAlertAction(title: "Log out", style: .destructive, handler: { [weak self] _ in
-            alert.dismiss(animated: true, completion: nil)
+            alert.dismiss(animated: true, completion: {
+                self?.clearTableSelection()
+            })
             self?.appContext.endSession()
         })
         alert.addAction(logoutAction)
         alert.addAction(cancelAction)
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            alert.popoverPresentationController?.sourceView = sourceView
+            alert.popoverPresentationController?.sourceRect = sourceView.bounds
+            alert.popoverPresentationController?.permittedArrowDirections = [.down, .up]
+        }
         present(alert, animated: true, completion: nil)
+    }
+    
+    private func clearTableSelection() {
+        if let selected = tableView.indexPathForSelectedRow {
+            tableView.deselectRow(at: selected, animated: true)
+        }
     }
 }
 extension SettingsViewController: SFSafariViewControllerDelegate {

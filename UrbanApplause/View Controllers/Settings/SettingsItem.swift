@@ -61,9 +61,7 @@ enum SettingsItem {
     
     var accessoryType: UITableViewCell.AccessoryType {
         switch self {
-        case .privacyPolicy, .termsOfService:
-            return .detailButton
-        case .logout:
+        case .privacyPolicy, .termsOfService, .logout:
             return .none
         default:
             return .disclosureIndicator

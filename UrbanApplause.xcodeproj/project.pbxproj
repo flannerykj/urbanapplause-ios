@@ -15,6 +15,7 @@
 		326BC2A32567C31F008DEBBB /* TourMapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 326BC2A22567C31F008DEBBB /* TourMapViewController.swift */; };
 		326BC319256810CA008DEBBB /* ExperimentManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 326BC318256810CA008DEBBB /* ExperimentManager.swift */; };
 		326BC3E6256AE370008DEBBB /* TourInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 326BC3E5256AE370008DEBBB /* TourInfoViewController.swift */; };
+		32A5D56725D0DDFD00E66634 /* UAImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32A5D56625D0DDFD00E66634 /* UAImagePicker.swift */; };
 		32D93F2D257297B8000207E4 /* TableSectionHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32D93F2C257297B8000207E4 /* TableSectionHeaderView.swift */; };
 		32D93F3325778016000207E4 /* TourMapViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32D93F3225778016000207E4 /* TourMapViewModel.swift */; };
 		32D93F3A257A3C22000207E4 /* TourWaypointCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32D93F39257A3C22000207E4 /* TourWaypointCell.swift */; };
@@ -279,6 +280,7 @@
 		326BC2A22567C31F008DEBBB /* TourMapViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TourMapViewController.swift; sourceTree = "<group>"; };
 		326BC318256810CA008DEBBB /* ExperimentManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExperimentManager.swift; sourceTree = "<group>"; };
 		326BC3E5256AE370008DEBBB /* TourInfoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TourInfoViewController.swift; sourceTree = "<group>"; };
+		32A5D56625D0DDFD00E66634 /* UAImagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UAImagePicker.swift; sourceTree = "<group>"; };
 		32D93F2C257297B8000207E4 /* TableSectionHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableSectionHeaderView.swift; sourceTree = "<group>"; };
 		32D93F3225778016000207E4 /* TourMapViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TourMapViewModel.swift; sourceTree = "<group>"; };
 		32D93F39257A3C22000207E4 /* TourWaypointCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TourWaypointCell.swift; sourceTree = "<group>"; };
@@ -882,6 +884,7 @@
 				3A33AA25237F3BE0007B4DD7 /* Settings */,
 				3A33AA24237F3BD5007B4DD7 /* ReportContent */,
 				3AF60D9A234A1AC5002A1DBD /* Galleries */,
+				32A5D56625D0DDFD00E66634 /* UAImagePicker.swift */,
 			);
 			path = "View Controllers";
 			sourceTree = "<group>";
@@ -1614,6 +1617,7 @@
 				3AA7672223507BEA00A70DE4 /* AuthViewModel.swift in Sources */,
 				3AE86AE723BE41890097DB1A /* UserProfileViewModel.swift in Sources */,
 				3A22219123AD4C8200FE9262 /* GalleryCellViewModel.swift in Sources */,
+				32A5D56725D0DDFD00E66634 /* UAImagePicker.swift in Sources */,
 				3AF4850721E298EE00FBC33E /* LoadingViewController.swift in Sources */,
 				3ACB5B31236C64850004FA31 /* ForgotPasswordViewController.swift in Sources */,
 				3A22219823B0AF4300FE9262 /* GalleryCell.swift in Sources */,

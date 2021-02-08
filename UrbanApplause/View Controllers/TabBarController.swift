@@ -17,7 +17,7 @@ class TabBarController: UITabBarController {
     var appContext: AppContext
     let uaTabBar = UATabBar()
     var selectedPlacemark: CLPlacemark?
-    var imagePicker: ImagePicker!
+    var imagePicker: UAImagePicker!
     
     init(store: Store, appContext: AppContext) {
         self.store = store
@@ -71,7 +71,7 @@ class TabBarController: UITabBarController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.imagePicker = ImagePicker(presentationController: self, delegate: self)
+        self.imagePicker = UAImagePicker(presentationController: self, delegate: self)
         delegate = self
         uaTabBar.frame = self.tabBar.frame
         uaTabBar.delegate = self
@@ -220,7 +220,7 @@ extension TabBarController: CreatePostControllerDelegate {
     }
 }
 
-extension TabBarController: ImagePickerDelegate {
+extension TabBarController: UAImagePickerDelegate {
     func imagePickerDidCancel(pickerController: UIImagePickerController?) {
         pickerController?.dismiss(animated: true, completion: nil)
     }
