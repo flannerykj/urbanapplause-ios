@@ -8,6 +8,7 @@
 
 import UIKit
 import Shared
+import SnapKit
 
 protocol PostCellDelegate: class {
     func postCell(_ cell: PostCell, didUpdatePost post: Post, atIndexPath indexPath: IndexPath)
@@ -70,10 +71,6 @@ class PostCell: UITableViewCell {
         let view = UIImageView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.clipsToBounds = true
-        NSLayoutConstraint.activate([
-            view.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width/4),
-            view.heightAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.75)
-            ])
         view.contentMode = .scaleAspectFill
         view.layer.masksToBounds = true
         return view
@@ -136,25 +133,27 @@ class PostCell: UITableViewCell {
         return view
     }()
         
-    lazy var contentStackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [photoView, rightContentStackView])
-        stackView.axis = .horizontal
-        stackView.spacing = 24
-        stackView.alignment = .top
-        stackView.layoutMargins = StyleConstants.defaultPaddingInsets
-        stackView.isLayoutMarginsRelativeArrangement = true
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        return stackView
-    }()
-    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         selectionStyle = UITableViewCell.SelectionStyle.none
-        contentView.addSubview(contentStackView)
+        
+        contentView.addSubview(photoView)
+        contentView.addSubview(rightContentStackView)
+        addSubview(dividerView)
+
+        
+        photoView.snp.makeConstraints { make in
+            make.leading.top.bottom.equalToSuperview()
+            make.width.equalTo(100)
+        }
+        
+        rightContentStackView.snp.makeConstraints { make in
+            make.top.bottom.trailing.equalToSuperview().inset(16)
+            make.leading.equalTo(photoView.snp.trailing).offset(16)
+        }
         backgroundColor = UIColor.systemBackground
         // cardView constraints
-        contentStackView.fill(view: contentView)
-        addSubview(dividerView)
+        
         
         NSLayoutConstraint.activate([
             dividerView.rightAnchor.constraint(equalTo: rightAnchor),

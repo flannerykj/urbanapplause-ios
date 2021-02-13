@@ -59,7 +59,6 @@ class GalleriesListViewController: UIViewController, GalleriesListViewControllab
         tableView.delegate = self
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.tableFooterView = UIView()
-        tableView.backgroundColor = UIColor.systemBackground
         return tableView
     }()
     
@@ -103,7 +102,7 @@ class GalleriesListViewController: UIViewController, GalleriesListViewControllab
         super.viewDidLoad()
         setupSubviews()
         refreshControl.addTarget(self, action: #selector(refreshData(_:)), for: .valueChanged)
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = .secondarySystemBackground
         // nav setup
         let doneButton = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(cancel(_:)))
         navigationItem.rightBarButtonItem = doneButton
@@ -203,7 +202,7 @@ extension GalleriesListViewController: UITableViewDelegate {
  
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
-            
+            // TODO
         }
     }
 }

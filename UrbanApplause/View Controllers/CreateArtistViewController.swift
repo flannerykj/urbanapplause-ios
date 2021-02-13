@@ -28,6 +28,19 @@ class CreateArtistViewController: FormViewController {
             }
         }
     }
+    
+    var showMoreOptions: Bool = false {
+        didSet {
+            if let toggleableSection = form.sectionBy(tag: "toggleable_fields") {
+                if let buttonRow = form.rowBy(tag: "toggle_fields_button") as? ButtonRow {
+                    buttonRow.title = showMoreOptions ? Strings.ShowFewerFieldsButtonTitle : Strings.ShowMoreFieldsButtonTitle
+                    buttonRow.updateCell()
+                }
+                toggleableSection.hidden = Condition(booleanLiteral: !showMoreOptions)
+                toggleableSection.evaluateHidden()
+            }
+        }
+    }
     init(appContext: AppContext) {
         self.appContext = appContext
         super.init(nibName: nil, bundle: nil)
@@ -44,9 +57,10 @@ class CreateArtistViewController: FormViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         loader.startAnimating()
-        form +++ Section(Strings.NameFieldLabel)
+        form +++ Section("Signing name")
             <<< TextRow {
                 $0.tag = "signing_name"
+                $0.placeholder = "i.e. the name used to sign work"
                 $0.add(rule: RuleRequired(msg: Strings.MissingArtistNameError, id: nil))
                 $0.add(rule: RuleMinLength(minLength: 1, msg: Strings.MinCharacterCountError(1)))
                 $0.add(rule: RuleMaxLength(maxLength: 100, msg: Strings.MaxCharacterCountError(100), id: nil))
@@ -66,17 +80,11 @@ class CreateArtistViewController: FormViewController {
                 $0.tag = "instagram_handle"
                 $0.title = Strings.InstagramHandleFieldLabel
                 $0.placeholder = Strings.OptionalFieldLabel
-                $0.onChange { row in
-                    
-                }
             }
             <<< TwitterRow {
                 $0.tag = "twitter_handle"
                 $0.title = Strings.TwitterHandleFieldLabel
                 $0.placeholder = Strings.OptionalFieldLabel
-                $0.onChange { row in
-                    
-                }
             }
 
             <<< URLRow {
@@ -86,7 +94,43 @@ class CreateArtistViewController: FormViewController {
             <<< URLRow {
                 $0.title = Strings.WebsiteURLFieldLabel
                 $0.placeholder = Strings.OptionalFieldLabel
-
+            }
+        
+            +++ Section()
+            <<< ButtonRow {
+                $0.tag = "toggle_fields_button"
+                $0.title = Strings.ShowMoreFieldsButtonTitle
+                $0.onCellSelection { _, _ in
+                    self.showMoreOptions = !self.showMoreOptions
+                }
+            }
+        
+            // Toggleable section
+            +++ Section {
+                $0.tag = "toggleable_fields"
+                $0.hidden = Condition(booleanLiteral: !self.showMoreOptions)
+            }
+        
+            <<< TextRow {
+                $0.tag = "first_name"
+                $0.placeholder = "First Name"
+                $0.add(rule: RuleRequired(msg: Strings.MissingArtistNameError, id: nil))
+                $0.add(rule: RuleMaxLength(maxLength: 100, msg: Strings.MaxCharacterCountError(100), id: nil))
+                $0.onChange { _ in
+                    self.onUpdateForm()
+                }
+                $0.validationOptions = .validatesOnChange
+            }
+        
+            <<< TextRow {
+                $0.tag = "last_name"
+                $0.placeholder = "Last Name"
+                $0.add(rule: RuleRequired(msg: Strings.MissingArtistNameError, id: nil))
+                $0.add(rule: RuleMaxLength(maxLength: 100, msg: Strings.MaxCharacterCountError(100), id: nil))
+                $0.onChange { _ in
+                    self.onUpdateForm()
+                }
+                $0.validationOptions = .validatesOnChange
             }
         navigationItem.rightBarButtonItem = saveButton
         saveButton.isEnabled = false

@@ -29,7 +29,7 @@ public class CloudinaryService: RemoteImageService {
         
         switch transformation {
         case .thumb:
-            let transformation = CLDTransformation().setCrop(.scale).setWidth(99)
+            let transformation = CLDTransformation().setCrop(.scale).setWidth(130)
             urlGen.setTransformation(transformation)
         case .original:
             break

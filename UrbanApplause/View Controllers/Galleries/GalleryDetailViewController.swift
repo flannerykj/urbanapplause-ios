@@ -97,7 +97,7 @@ class GalleryDetailViewController: UIViewController {
         navigationController?.navigationBar.prefersLargeTitles = true
         navigationItem.largeTitleDisplayMode = .always
         
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = .secondarySystemBackground
         
         setupSubviews()
         setupConstraints()
@@ -348,7 +348,7 @@ private class GalleryDetailFooterView: UIView {
     init() {
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
-        backgroundColor = .systemBackground
+        backgroundColor = .secondarySystemBackground
         addSubview(startTourButton)
         startTourButton.snp.makeConstraints { maker in
             maker.edges.equalTo(self.safeAreaLayoutGuide).inset(8)

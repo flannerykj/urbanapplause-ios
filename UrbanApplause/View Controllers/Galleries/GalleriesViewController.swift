@@ -65,7 +65,7 @@ class GalleriesViewController: UIViewController, UISearchControllerDelegate, UIS
         navigationController?.navigationBar.prefersLargeTitles = true
         navigationItem.largeTitleDisplayMode = .always
         definesPresentationContext = true
-        view.backgroundColor = UIColor.systemBackground
+        view.backgroundColor = UIColor.secondarySystemBackground
         view.addSubview(searchScopeControl)
         view.addSubview(galleryListVC.view)
         

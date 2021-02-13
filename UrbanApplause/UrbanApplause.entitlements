@@ -4,6 +4,9 @@
 <dict>
 	<key>com.apple.developer.associated-domains</key>
 	<array>
+		<string>applinks:www.urbanapplause.com?mode=developer</string>
+		<string>applinks:urbanapplause.com?mode=developer</string>
+		<string>webcredentials:www.urbanapplause.com</string>
 		<string>webcredentials:urbanapplause.com</string>
 	</array>
 	<key>com.apple.security.application-groups</key>

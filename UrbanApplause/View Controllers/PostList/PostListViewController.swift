@@ -27,7 +27,7 @@ class PostListViewController: UIViewController {
     var query: String?
     var appContext: AppContext
     var viewModel: PostListViewModel
-    var backgroundColor = UIColor.systemBackground
+    var backgroundColor = UIColor.secondarySystemBackground
     var tableContentHeight: CGFloat = 0
     weak var postListDelegate: PostListControllerDelegate?
     let LEFT_EDITING_MARGIN: CGFloat = 12
@@ -230,7 +230,7 @@ extension PostListViewController: UITableViewDelegate, UITableViewDataSource {
         if let title = self.listTitle {
             let view = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: sectionHeaderHeight))
             view.layoutMargins = StyleConstants.defaultMarginInsets
-            view.backgroundColor = UIColor.systemBackground
+            view.backgroundColor = backgroundColor
             let label = UILabel(type: .h8, text: title)
             view.addSubview(label)
             view.layoutMargins = StyleConstants.defaultPaddingInsets

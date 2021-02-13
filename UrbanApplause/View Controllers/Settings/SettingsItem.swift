@@ -11,7 +11,7 @@ import UIKit
 import Shared
 
 enum SettingsItem {
-    case account, createAccount, login, termsOfService, privacyPolicy, logout
+    case account, createAccount, login, termsOfService, privacyPolicy, resetPassword, logout
     
     var title: String {
         switch self {
@@ -27,6 +27,8 @@ enum SettingsItem {
             return Strings.PrivacyPolicyLinkText
         case .logout:
             return Strings.LogOutButtonTitle
+        case .resetPassword:
+            return "Change password"
         }
     }
 
@@ -54,8 +56,10 @@ enum SettingsItem {
             return UIImage(systemName: "doc.plaintext")
         case .privacyPolicy:
             return UIImage(systemName: "hand.raised")
-        case .logout, .login:
+        case .resetPassword:
             return UIImage(systemName: "lock")
+        case .login, .logout:
+            return nil
         }
     }
     
@@ -65,6 +69,15 @@ enum SettingsItem {
             return .none
         default:
             return .disclosureIndicator
+        }
+    }
+    
+    var textColor: UIColor? {
+        switch self {
+        case .logout:
+            return UIColor.systemRed
+        default:
+            return nil
         }
     }
 }

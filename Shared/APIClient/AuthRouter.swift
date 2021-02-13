@@ -13,7 +13,8 @@ fileprivate let log = DHLogger.self
 public enum AuthRouter: EndpointConfiguration {
     
     case authenticate(email: String, password: String, username: String?, newUser: Bool)
-    case resetPassword(email: String)
+    case sendPasswordResetEmail(email: String)
+    case updatePassword(newPassword: String, email: String, resetToken: String)
     
     public var baseURL: URL {
         return URL(string: "\(Config.apiEndpoint)/auth")!
@@ -23,8 +24,10 @@ public enum AuthRouter: EndpointConfiguration {
         switch self {
         case .authenticate:
             return .post
-        case .resetPassword:
+        case .sendPasswordResetEmail:
             return .post
+        case .updatePassword:
+            return .put
         }
     }
     
@@ -35,8 +38,10 @@ public enum AuthRouter: EndpointConfiguration {
                 return "register"
             }
             return "login"
-        case .resetPassword:
+        case .sendPasswordResetEmail:
             return "reset-password"
+        case .updatePassword(_, _, let resetToken):
+            return "update-password/\(resetToken)"
         }
     }
     
@@ -46,8 +51,10 @@ public enum AuthRouter: EndpointConfiguration {
             let body: Parameters = ["user": ["email": email, "password": password, "username": username],
                                     "refresh_token": "true"] as [String: Any]
             return .requestParameters(bodyParameters: body, urlParameters: nil)
-        case .resetPassword(let email):
+        case .sendPasswordResetEmail(let email):
             return .requestParameters(bodyParameters: ["user": ["email": email]], urlParameters: nil)
+        case .updatePassword(let newPassword, let email, _):
+            return .requestParameters(bodyParameters: ["user": ["password": newPassword, "email": email]], urlParameters: nil)
         }
     }
 }

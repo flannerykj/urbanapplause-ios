@@ -113,7 +113,7 @@ class PostListV2ViewController: UIViewController, UICollectionViewDelegate, UICo
         view.register(PostV2Cell.self, forCellWithReuseIdentifier: "PostV2Cell")
         view.delegate = self
         view.dataSource = self
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = .secondarySystemBackground
         view.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(activityIndicator)
         activityIndicator.snp.makeConstraints { make in
@@ -134,6 +134,7 @@ class PostListV2ViewController: UIViewController, UICollectionViewDelegate, UICo
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let post = viewModel.listItems[indexPath.row]
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PostV2Cell", for: indexPath) as! PostV2Cell
+        cell.backgroundColor = .systemBackground
         if let firstFile = post.PostImages?.first {
             if let thumb = firstFile.thumbnail {
                 let imageJob = appContext.fileCache.getJobForFile(thumb, isThumb: true)

@@ -69,7 +69,7 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
     let refreshControl: UIRefreshControl = {
         let control = UIRefreshControl()
         control.addTarget(self, action: #selector(refreshUserProfile(sender:)), for: .valueChanged)
-        control.backgroundColor = UIColor.systemBackground
+        control.backgroundColor = UIColor.secondarySystemBackground
         return control
     }()
 
@@ -108,7 +108,7 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationController?.navigationBar.prefersLargeTitles = true // Enable when is first vc on nav stack
-        view.backgroundColor = UIColor.systemBackground
+        view.backgroundColor = UIColor.secondarySystemBackground
         navigationItem.title = isAuthUser ? "My Profile" : self.user.username
         if isAuthUser {
             let editButton = UIBarButtonItem(barButtonSystemItem: .edit,
@@ -212,6 +212,7 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "ProfileTableCell", for: indexPath)
+        cell.backgroundColor = .systemBackground
         let rowType = ProfileTableRow.allCases[safe: indexPath.row]
         cell.textLabel?.text = rowType?.title
         cell.accessoryType = .disclosureIndicator

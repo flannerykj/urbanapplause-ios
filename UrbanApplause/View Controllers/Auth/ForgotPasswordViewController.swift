@@ -89,7 +89,7 @@ class ForgotPasswordViewController: UIViewController {
         self.isLoading = true
         self.errorView.errorMessage = nil
         self.emailField.resignFirstResponder()
-        let endpoint = AuthRouter.resetPassword(email: email)
+        let endpoint = AuthRouter.sendPasswordResetEmail(email: email)
         _ = appContext.networkService.request(endpoint) { (result: UAResult<MessageContainer>) in
             DispatchQueue.main.async {
                 self.isLoading = false

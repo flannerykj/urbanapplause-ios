@@ -35,7 +35,7 @@ class PostMapViewController2: UIViewController {
     
     private func subscribeToMapData() {
         viewModel.error
-            .observeOn(MainScheduler.instance)
+            .observe(on: MainScheduler.instance)
             .subscribe(onNext: { (err: Error?) in
                 if let err = err {
                     self.handleError(err)
@@ -45,7 +45,7 @@ class PostMapViewController2: UIViewController {
         
         
         viewModel.mapMarkers
-            .observeOn(MainScheduler.instance)
+            .observe(on: MainScheduler.instance)
             .subscribe(onNext: { clustersAdded in
                 self.mapView.removeAnnotations(self.mapView.annotations)
                 if let clusters = clustersAdded {
@@ -55,7 +55,7 @@ class PostMapViewController2: UIViewController {
             .disposed(by: disposeBag)
         
         viewModel.isLoading
-            .observeOn(MainScheduler.instance)
+            .observe(on: MainScheduler.instance)
             .subscribe(onNext: { isLoading in
                 self.loadingView.isHidden = !isLoading
             })

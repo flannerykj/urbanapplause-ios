@@ -42,7 +42,7 @@ class SettingsViewController: UIViewController {
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.tableHeaderView = tableHeaderView
         tableView.tableFooterView = tableFooterView
-        tableView.backgroundColor = UIColor.systemBackground
+        tableView.backgroundColor = UIColor.secondarySystemBackground
         tableView.separatorColor = .systemGray
         return tableView
     }()
@@ -89,6 +89,10 @@ extension SettingsViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "HelpItem", for: indexPath)
         let settingsItem = sections[indexPath.section][indexPath.row]
+        if let textColor = settingsItem.textColor {
+            cell.textLabel?.textColor = textColor
+        }
+        cell.backgroundColor = .systemBackground
         cell.textLabel?.text = settingsItem.title
         cell.textLabel?.font = TypographyStyle.body.font
         cell.detailTextLabel?.font = TypographyStyle.body.font
@@ -101,7 +105,6 @@ extension SettingsViewController: UITableViewDataSource, UITableViewDelegate {
     }
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let view = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 32))
-        view.backgroundColor = UIColor.systemGray6
         return view
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -114,7 +117,9 @@ extension SettingsViewController: UITableViewDataSource, UITableViewDelegate {
             navigationController?.pushViewController(accountVC, animated: true)
         case .createAccount, .login:
             self.showAuth(isNewUser: helpItem == .createAccount, appContext: self.appContext)
-        default:
+        case .resetPassword:
+            self.sendPasswordResetEmail()
+        case .privacyPolicy, .termsOfService:
             if let url = helpItem.url {
                 let vc = SFSafariViewController(url: url, configuration: SFSafariViewController.Configuration())
                 vc.delegate = self
@@ -141,11 +146,37 @@ extension SettingsViewController: UITableViewDataSource, UITableViewDelegate {
         alert.addAction(logoutAction)
         alert.addAction(cancelAction)
         if UIDevice.current.userInterfaceIdiom == .pad {
-            alert.popoverPresentationController?.sourceView = sourceView
-            alert.popoverPresentationController?.sourceRect = sourceView.bounds
+            alert.popoverPresentationController?.sourceView = view
+            alert.popoverPresentationController?.sourceRect = view.bounds
             alert.popoverPresentationController?.permittedArrowDirections = [.down, .up]
         }
         present(alert, animated: true, completion: nil)
+    }
+    
+    private func sendPasswordResetEmail() {
+        guard let email = appContext.store.user.data?.email else {
+            log.error("No email")
+            return
+        }
+        let endpoint = AuthRouter.sendPasswordResetEmail(email: email)
+        _ = appContext.networkService.request(endpoint) { (result: UAResult<MessageContainer>) in
+            DispatchQueue.main.async {
+                // TODO: Show loading
+                switch result {
+                case .success:
+                    let successMessage = Strings.AuthResetPasswordSuccessMessage(emailAddress: email)
+                    self.showAlert(title: Strings.SuccessAlertTitle,
+                                   message: successMessage)
+                case .failure(let error):
+                    var message: String = "Unable to reset password"
+                    if let serverError = error as? UAServerError {
+                        message = serverError.userMessage
+                    }
+                    self.showAlert(title: Strings.ErrorAlertTitle,
+                                   message: message)
+                }
+            }
+        }
     }
     
     private func clearTableSelection() {
