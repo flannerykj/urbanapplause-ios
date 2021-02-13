@@ -50,15 +50,17 @@ enum SettingsItem {
     
     var image: UIImage? {
         switch self {
-        case .account, .createAccount:
+        case .account, .login:
             return UIImage(systemName: "person")
+        case .createAccount:
+            return UIImage(systemName: "person.badge.plus")
         case .termsOfService:
             return UIImage(systemName: "doc.plaintext")
         case .privacyPolicy:
             return UIImage(systemName: "hand.raised")
         case .resetPassword:
             return UIImage(systemName: "lock")
-        case .login, .logout:
+        case .logout:
             return nil
         }
     }

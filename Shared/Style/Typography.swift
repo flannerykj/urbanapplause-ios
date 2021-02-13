@@ -76,7 +76,7 @@ public enum TypographyStyle {
         case .error:
             return UIColor.error
         default:
-            return UIColor.systemGray
+            return UIColor.label
         }
     }
     
