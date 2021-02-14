@@ -10,6 +10,8 @@
 		239D3CCCB535048D1569D0FE /* Pods_UrbanApplauseTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8F04B06017455278535E351E /* Pods_UrbanApplauseTests.framework */; };
 		2CA81C3726C1FBA2033C905B /* Pods_Shared.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AE67C1727BC5F34DBC42F1D4 /* Pods_Shared.framework */; };
 		3234B166257D550E0030E170 /* NavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3234B165257D550E0030E170 /* NavigationController.swift */; };
+		323AB1C725D83E7B0056D1E0 /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 323AB1C625D83E7B0056D1E0 /* SearchViewController.swift */; };
+		323AB1CE25D843EB0056D1E0 /* SearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 323AB1CD25D843EB0056D1E0 /* SearchViewModel.swift */; };
 		3246CBEF258503A700DFC72C /* PostListV2ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3246CBEE258503A700DFC72C /* PostListV2ViewController.swift */; };
 		3246CBFF2585042B00DFC72C /* PostV2Cell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3246CBFE2585042B00DFC72C /* PostV2Cell.swift */; };
 		3254C26325D2FAE7003814EA /* AuthUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3254C26225D2FAE7003814EA /* AuthUser.swift */; };
@@ -17,6 +19,8 @@
 		326BC2A32567C31F008DEBBB /* TourMapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 326BC2A22567C31F008DEBBB /* TourMapViewController.swift */; };
 		326BC319256810CA008DEBBB /* ExperimentManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 326BC318256810CA008DEBBB /* ExperimentManager.swift */; };
 		326BC3E6256AE370008DEBBB /* TourInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 326BC3E5256AE370008DEBBB /* TourInfoViewController.swift */; };
+		3277F81525D84C9F001A7557 /* SearchResultsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3277F81425D84C9F001A7557 /* SearchResultsSection.swift */; };
+		3277F81F25D858DF001A7557 /* Search.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3277F81E25D858DF001A7557 /* Search.swift */; };
 		32A5D56725D0DDFD00E66634 /* UAImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32A5D56625D0DDFD00E66634 /* UAImagePicker.swift */; };
 		32A5D5AF25D28B3000E66634 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32A5D5AE25D28B3000E66634 /* SceneDelegate.swift */; };
 		32A5D62725D29CAA00E66634 /* PasswordResetViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32A5D62625D29CA900E66634 /* PasswordResetViewController.swift */; };
@@ -279,6 +283,8 @@
 		236A25B05EF50959CBA49F63 /* Pods-UrbanApplauseUpload.debug (production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UrbanApplauseUpload.debug (production).xcconfig"; path = "Target Support Files/Pods-UrbanApplauseUpload/Pods-UrbanApplauseUpload.debug (production).xcconfig"; sourceTree = "<group>"; };
 		30BDF2B9AAF15F5512CE90ED /* Pods-Shared.debug (development).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Shared.debug (development).xcconfig"; path = "Target Support Files/Pods-Shared/Pods-Shared.debug (development).xcconfig"; sourceTree = "<group>"; };
 		3234B165257D550E0030E170 /* NavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationController.swift; sourceTree = "<group>"; };
+		323AB1C625D83E7B0056D1E0 /* SearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewController.swift; sourceTree = "<group>"; };
+		323AB1CD25D843EB0056D1E0 /* SearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewModel.swift; sourceTree = "<group>"; };
 		3246CBEE258503A700DFC72C /* PostListV2ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostListV2ViewController.swift; sourceTree = "<group>"; };
 		3246CBFE2585042B00DFC72C /* PostV2Cell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostV2Cell.swift; sourceTree = "<group>"; };
 		3254C26225D2FAE7003814EA /* AuthUser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthUser.swift; sourceTree = "<group>"; };
@@ -286,6 +292,8 @@
 		326BC2A22567C31F008DEBBB /* TourMapViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TourMapViewController.swift; sourceTree = "<group>"; };
 		326BC318256810CA008DEBBB /* ExperimentManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExperimentManager.swift; sourceTree = "<group>"; };
 		326BC3E5256AE370008DEBBB /* TourInfoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TourInfoViewController.swift; sourceTree = "<group>"; };
+		3277F81425D84C9F001A7557 /* SearchResultsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchResultsSection.swift; sourceTree = "<group>"; };
+		3277F81E25D858DF001A7557 /* Search.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Search.swift; sourceTree = "<group>"; };
 		32A5D56625D0DDFD00E66634 /* UAImagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UAImagePicker.swift; sourceTree = "<group>"; };
 		32A5D5AE25D28B3000E66634 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		32A5D62625D29CA900E66634 /* PasswordResetViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasswordResetViewController.swift; sourceTree = "<group>"; };
@@ -568,6 +576,16 @@
 			path = Pods;
 			sourceTree = "<group>";
 		};
+		323AB1CC25D843770056D1E0 /* Search */ = {
+			isa = PBXGroup;
+			children = (
+				323AB1C625D83E7B0056D1E0 /* SearchViewController.swift */,
+				323AB1CD25D843EB0056D1E0 /* SearchViewModel.swift */,
+				3277F81425D84C9F001A7557 /* SearchResultsSection.swift */,
+			);
+			path = Search;
+			sourceTree = "<group>";
+		};
 		3246CBED2585039200DFC72C /* PostListV2 */ = {
 			isa = PBXGroup;
 			children = (
@@ -759,6 +777,7 @@
 				3AE4627E23D0ECFE0062C869 /* PostQuery.swift */,
 				3A97B33D23C7B9D300F4E25A /* PostSurfaceType.swift */,
 				3A72A59E23C7786400B64A06 /* ServerResponse.swift */,
+				3277F81E25D858DF001A7557 /* Search.swift */,
 				3A72A5A223C7787E00B64A06 /* User.swift */,
 				3A72A5A423C7788900B64A06 /* Visit.swift */,
 			);
@@ -878,6 +897,7 @@
 				3A31872D2353251A00D59F79 /* TabBarController.swift */,
 				3A179A712360F56900E0C3FF /* CreateArtistViewController.swift */,
 				3A12795223D089F30086AB6C /* CreateArtistGroupViewController.swift */,
+				323AB1CC25D843770056D1E0 /* Search */,
 				3A9467F923631F8200C446F7 /* SearchPostsViewController.swift */,
 				3234B165257D550E0030E170 /* NavigationController.swift */,
 				32A5D62625D29CA900E66634 /* PasswordResetViewController.swift */,
@@ -1509,6 +1529,7 @@
 				3A72A5A323C7787E00B64A06 /* User.swift in Sources */,
 				3A72A58D23C777DD00B64A06 /* Comment.swift in Sources */,
 				3A72A5E623C7906500B64A06 /* NSMutableAttributedString.swift in Sources */,
+				3277F81F25D858DF001A7557 /* Search.swift in Sources */,
 				3A72A5DB23C7906500B64A06 /* UITextView.swift in Sources */,
 				3A72A5A123C7787000B64A06 /* Errors.swift in Sources */,
 				3A72A5E323C7906500B64A06 /* CGRect.swift in Sources */,
@@ -1604,6 +1625,7 @@
 				3AD94799238F365600B5BF3B /* AnnotationContentView.swift in Sources */,
 				3AE86AE223BE3B310097DB1A /* ArtistProfileViewModel.swift in Sources */,
 				3ADEA8032391EA1D006B4EFF /* PostGISClusterAnnotationView.swift in Sources */,
+				3277F81525D84C9F001A7557 /* SearchResultsSection.swift in Sources */,
 				3AE86ADF23BE3B150097DB1A /* ArtistProfileViewController.swift in Sources */,
 				3A9127FC2366129F005944BE /* CommentCell.swift in Sources */,
 				3AF4851721E2B1C500FBC33E /* PostCell.swift in Sources */,
@@ -1655,6 +1677,7 @@
 				3A0C8FBC23B8FCEA0068AECA /* UATextView.swift in Sources */,
 				3ABC6A03236E7542009C180D /* PostAnnotation.swift in Sources */,
 				3AEA33772352003400ECBF8C /* DynamicPostListViewModel.swift in Sources */,
+				323AB1C725D83E7B0056D1E0 /* SearchViewController.swift in Sources */,
 				3A8D2434235538D200B98A9B /* PostImageCell.swift in Sources */,
 				3AE4627723D0C11E0062C869 /* ArtistGroupDetailViewController.swift in Sources */,
 				3A746E1D2372DC6100F36EFB /* NonClippingLabel.swift in Sources */,
@@ -1663,6 +1686,7 @@
 				3A179A702360F10200E0C3FF /* ActivityIndicator.swift in Sources */,
 				3AE4628523D0F6B90062C869 /* DynamicArtistListViewModel.swift in Sources */,
 				3A76EA8021DAD52A00FEDEC8 /* AuthViewController.swift in Sources */,
+				323AB1CE25D843EB0056D1E0 /* SearchViewModel.swift in Sources */,
 				3AB12E06236B6ED600A4E163 /* FlagPostViewController.swift in Sources */,
 				3A6FE0A623B7D0D50018018F /* AccountViewController.swift in Sources */,
 				3246CBFF2585042B00DFC72C /* PostV2Cell.swift in Sources */,
@@ -2369,7 +2393,7 @@
 				CODE_SIGN_ENTITLEMENTS = UrbanApplause/UrbanApplause.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 3;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = WJUFMSDDMW;
 				INFOPLIST_FILE = UrbanApplause/Info.plist;
@@ -2377,7 +2401,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 7;
+				MARKETING_VERSION = 8;
 				PRODUCT_BUNDLE_IDENTIFIER = com.urbanapplause.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -2395,7 +2419,7 @@
 				CODE_SIGN_ENTITLEMENTS = UrbanApplause/UrbanApplause.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 3;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = WJUFMSDDMW;
 				INFOPLIST_FILE = UrbanApplause/Info.plist;
@@ -2403,7 +2427,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 7;
+				MARKETING_VERSION = 8;
 				PRODUCT_BUNDLE_IDENTIFIER = com.urbanapplause.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -2482,7 +2506,7 @@
 				CODE_SIGN_ENTITLEMENTS = UrbanApplause/UrbanApplause.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 3;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = WJUFMSDDMW;
 				INFOPLIST_FILE = UrbanApplause/Info.plist;
@@ -2490,7 +2514,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 7;
+				MARKETING_VERSION = 8;
 				PRODUCT_BUNDLE_IDENTIFIER = com.urbanapplause.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

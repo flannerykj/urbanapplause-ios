@@ -40,9 +40,9 @@ class PostAnnotationView: MKMarkerAnnotationView, PostAnnotationViewProtocol {
     
     override var isSelected: Bool {
         didSet {
-            #if DEBUG
-            contentView.backgroundColor = isSelected ? UIColor.systemPink : UIColor.clear
-            #endif
+//            #if DEBUG
+//            contentView.backgroundColor = isSelected ? UIColor.systemPink : UIColor.clear
+//            #endif
         }
     }
 
@@ -53,9 +53,9 @@ class PostAnnotationView: MKMarkerAnnotationView, PostAnnotationViewProtocol {
         markerTintColor = .clear
         clusteringIdentifier = "post"
         addSubview(contentView)
-        #if DEBUG
-        contentView.backgroundColor = UIColor.systemPink
-        #endif
+//        #if DEBUG
+//        contentView.backgroundColor = UIColor.systemPink
+//        #endif
     }
     
     override func prepareForDisplay() {

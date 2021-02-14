@@ -45,9 +45,9 @@ class PostGISClusterAnnotationView: MKMarkerAnnotationView, PostAnnotationViewPr
         addSubview(clusterMembersCountView)
         clusterMembersCountView.centerYAnchor.constraint(equalTo: contentView.topAnchor).isActive = true
         clusterMembersCountView.centerXAnchor.constraint(equalTo: contentView.rightAnchor).isActive = true
-        #if DEBUG
-        contentView.backgroundColor = .green
-        #endif
+//        #if DEBUG
+//        contentView.backgroundColor = .green
+//        #endif
     }
     override func prepareForDisplay() {
         super.prepareForDisplay()

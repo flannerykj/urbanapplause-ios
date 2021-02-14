@@ -10,12 +10,15 @@ import Shared
 import Combine
 
 enum ProfileTableRow: Int, CaseIterable {
+    case account
     case posted
     case applauded
     case visited
     
     var title: String {
         switch self {
+        case .account:
+            return "Account"
         case .posted:
             return "Posted"
         case .applauded:
@@ -48,6 +51,7 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
         tableView.dataSource = self
         tableView.tableFooterView = UIView()
         tableView.isScrollEnabled = false
+        tableView.backgroundColor = UIColor.secondarySystemBackground
         return tableView
     }()
 
@@ -101,15 +105,14 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
         stackView.distribution = .fill
         stackView.spacing = 12
         stackView.isLayoutMarginsRelativeArrangement = true
-        stackView.layoutMargins = UIEdgeInsets(top: 8, left: 12, bottom: 8, right: 12)
+        stackView.layoutMargins = UIEdgeInsets(top: 24, left: 12, bottom: 8, right: 12)
         return stackView
     }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        navigationController?.navigationBar.prefersLargeTitles = true // Enable when is first vc on nav stack
         view.backgroundColor = UIColor.secondarySystemBackground
-        navigationItem.title = isAuthUser ? "My Profile" : self.user.username
+        navigationItem.title = isAuthUser ? "Profile" : self.user.username
         if isAuthUser {
             let editButton = UIBarButtonItem(barButtonSystemItem: .edit,
                                              target: self, action: #selector(pressedEdit(_:)))
@@ -140,7 +143,7 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
+        navigationController?.navigationBar.prefersLargeTitles = false
         if let selectedIndexPath = tableView.indexPathForSelectedRow {
             tableView.deselectRow(at: selectedIndexPath, animated: true)
         }
@@ -204,16 +207,38 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
     @objc func editProfilePhoto(_ sender: UIView) {
         let picker = self.imagePicker.showActionSheet(from: sender)
     }
+
+    private lazy var tableSections: [[ProfileTableRow]] = {
+        let publicItems: [ProfileTableRow] = [
+            .applauded, .posted, .visited
+        ]
+        let privateItems: [ProfileTableRow] = [
+            .account
+        ]
+        return isAuthUser ? [privateItems, publicItems] : [publicItems]
+    }()
     
     // MARK: - UITableViewDelegate, UITableViewDataSource
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return tableSections.count
+    }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return ProfileTableRow.allCases.count
+        tableSections[safe: section]?.count ?? 0
+    }
+    
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        guard section > 0 else { return 0 }
+        return 32
+    }
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let view = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 32))
+        return view
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "ProfileTableCell", for: indexPath)
         cell.backgroundColor = .systemBackground
-        let rowType = ProfileTableRow.allCases[safe: indexPath.row]
+        let rowType = tableSections[safe: indexPath.section]?[safe: indexPath.row]
         cell.textLabel?.text = rowType?.title
         cell.accessoryType = .disclosureIndicator
         return cell
@@ -221,22 +246,31 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        guard let rowType = ProfileTableRow.allCases[safe: indexPath.row] else { return }
-        var viewModel: DynamicPostListViewModel
-        var controllerTitle: String
-        
+        guard let rowType = tableSections[safe: indexPath.section]?[safe: indexPath.row] else { return }
+
         switch rowType {
+        case .account:
+            let vc = AccountViewController(appContext: appContext)
+            navigationController?.pushViewController(vc, animated: true)
+            return
         case .applauded:
-            viewModel = DynamicPostListViewModel(filterForUserApplause: user, appContext: appContext)
-            controllerTitle = "Applauded"
+            let viewModel = DynamicPostListViewModel(filterForUserApplause: user, appContext: appContext)
+            showPostListController(viewModel: viewModel, controllerTitle: "Applauded")
+
         case .posted:
-            viewModel = DynamicPostListViewModel(filterForPostedBy: user, filterForArtist: nil, filterForQuery: nil,
+            let viewModel = DynamicPostListViewModel(filterForPostedBy: user, filterForArtist: nil, filterForQuery: nil,
                                                        appContext: appContext)
-            controllerTitle = "Posted"
+            showPostListController(viewModel: viewModel, controllerTitle: "Posted")
+
         case .visited:
-            viewModel = DynamicPostListViewModel(filterForVisitedBy: user, appContext: appContext)
-            controllerTitle = "Visited"
+            let viewModel = DynamicPostListViewModel(filterForVisitedBy: user, appContext: appContext)
+            showPostListController(viewModel: viewModel, controllerTitle: "Visited")
         }
+        
+    }
+    
+    
+    private func showPostListController(viewModel: DynamicPostListViewModel, controllerTitle: String) {
         let postsController = PostListViewController(viewModel: viewModel, appContext: appContext)
         postsController.navigationItem.title = controllerTitle
         navigationController?.pushViewController(postsController, animated: true)

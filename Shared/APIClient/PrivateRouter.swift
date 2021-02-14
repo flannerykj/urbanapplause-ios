@@ -11,6 +11,8 @@ import Foundation
 // fileprivate let log = DHLogger.self
 
 public enum PrivateRouter: EndpointConfiguration {
+    case search(query: String, includeTypes: [String])
+    
     // auth
     case authenticate(email: String, password: String, username: String?, newUser: Bool)
     
@@ -96,6 +98,8 @@ public enum PrivateRouter: EndpointConfiguration {
     
     public var path: String {
         switch self {
+        case .search:
+            return "search"
         case .authenticate(_, _, _, let newUser):
             if newUser {
                 return "register"
@@ -161,6 +165,8 @@ public enum PrivateRouter: EndpointConfiguration {
     
     public var task: HTTPTask {
         switch self {
+        case .search(let query, let includeTypes):
+            return .requestParameters(bodyParameters: nil, urlParameters: ["query": query, "types": includeTypes.joined(separator: ",")])
         case .getCollections(let userId, let postId, let query, let isPublic):
             var params = Parameters()
             if let id = userId {

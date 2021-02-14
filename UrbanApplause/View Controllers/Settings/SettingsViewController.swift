@@ -10,9 +10,12 @@ import Foundation
 import UIKit
 import SafariServices
 import Shared
+import SnapKit
+//import SideMenuSwift
 
 class SettingsViewController: UIViewController {
-
+    private var tableViewLeftConstraint: Constraint?
+    
     var store: Store
     var appContext: AppContext
     
@@ -56,11 +59,13 @@ class SettingsViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        navigationController?.navigationBar.prefersLargeTitles = true
-        navigationItem.largeTitleDisplayMode = .always
         navigationItem.title = Strings.SettingsTabItemTitle
         view.addSubview(tableView)
-        tableView.fill(view: self.view)
+        tableView.snp.makeConstraints { make in
+//            make.width.equalTo(SideMenuController.preferences.basic.menuWidth)
+//            make.top.bottom.trailing.equalToSuperview()
+            make.edges.equalToSuperview()
+        }
     }
 }
 
@@ -69,7 +74,8 @@ extension SettingsViewController: UITableViewDataSource, UITableViewDelegate {
     var sections: [[SettingsItem]] {
         if appContext.authService.isAuthenticated {
             return [
-                [.account],
+                
+                [.profile],
                 [.termsOfService, .privacyPolicy],
                 [.logout]
             ]
@@ -112,13 +118,12 @@ extension SettingsViewController: UITableViewDataSource, UITableViewDelegate {
         switch helpItem {
         case .logout:
             confirmLogout()
-        case .account:
-            let accountVC = AccountViewController(appContext: appContext)
-            navigationController?.pushViewController(accountVC, animated: true)
+        case .profile:
+            guard let user = appContext.store.user.data else { return }
+            let profileVC = ProfileViewController(user: user, appContext: appContext)
+            pushControllerToContentView(profileVC)
         case .createAccount, .login:
             self.showAuth(isNewUser: helpItem == .createAccount, appContext: self.appContext)
-        case .resetPassword:
-            self.sendPasswordResetEmail()
         case .privacyPolicy, .termsOfService:
             if let url = helpItem.url {
                 let vc = SFSafariViewController(url: url, configuration: SFSafariViewController.Configuration())
@@ -153,36 +158,20 @@ extension SettingsViewController: UITableViewDataSource, UITableViewDelegate {
         present(alert, animated: true, completion: nil)
     }
     
-    private func sendPasswordResetEmail() {
-        guard let email = appContext.store.user.data?.email else {
-            log.error("No email")
-            return
-        }
-        let endpoint = AuthRouter.sendPasswordResetEmail(email: email)
-        _ = appContext.networkService.request(endpoint) { (result: UAResult<MessageContainer>) in
-            DispatchQueue.main.async {
-                // TODO: Show loading
-                switch result {
-                case .success:
-                    let successMessage = Strings.AuthResetPasswordSuccessMessage(emailAddress: email)
-                    self.showAlert(title: Strings.SuccessAlertTitle,
-                                   message: successMessage)
-                case .failure(let error):
-                    var message: String = "Unable to reset password"
-                    if let serverError = error as? UAServerError {
-                        message = serverError.userMessage
-                    }
-                    self.showAlert(title: Strings.ErrorAlertTitle,
-                                   message: message)
-                }
-            }
-        }
-    }
-    
     private func clearTableSelection() {
         if let selected = tableView.indexPathForSelectedRow {
             tableView.deselectRow(at: selected, animated: true)
         }
+    }
+    
+    private func pushControllerToContentView(_ controller: UIViewController) {
+//        sideMenuController?.hideMenu()
+//        if let navController = sideMenuController?.contentViewController as? UINavigationController {
+//            navController.pushViewController(controller, animated: true)
+//        } else {
+//            navigationController?.pushViewController(controller, animated: true)
+//        }
+        navigationController?.pushViewController(controller, animated: true)
     }
 }
 extension SettingsViewController: SFSafariViewControllerDelegate {

@@ -220,6 +220,15 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
                 ])
                 cell.update()
             }
+            +++ Section()
+            <<< TextRow { row in
+                row.tag = "title"
+                row.title = "Title"
+                row.placeholder = "Optional"
+                row.onChange { _ in
+                    self.hasUnsavedChanges = true
+                }
+            }
             
             +++ Section(Strings.LocationFieldLabel)
             <<< LocationRow { row in
@@ -414,6 +423,10 @@ UIImagePickerControllerDelegate, UnsavedChangesController {
        }
         if let surfaceType = formValues[FormFieldKeys.surfaceType] as? Bool {
             payload["surface_type"] = surfaceType
+        }
+        
+        if let title = formValues["title"] as? String {
+            payload["title"] = title
         }
         
         // Artists

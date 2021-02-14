@@ -11,7 +11,7 @@ import MapKit
 
 public class Post: NSObject, Codable {
     public var id: Int
-    // public var title: String?
+    public var title: String?
     public var content: String?
     public var active: Bool
     public var createdAt: Date?
@@ -45,7 +45,7 @@ extension Post: MKAnnotation {
         return CLLocationCoordinate2D(latitude: coords.latitude, longitude: coords.longitude)
     }
     
-    public var title: String? {
-        return (self.Artists ?? []).map { $0.signing_name ?? "Unknown" }.joined(separator: ", ")
+    public var descriptiveTitle: String? {
+        return self.title ?? (self.Artists ?? []).map { $0.signing_name ?? "Unknown" }.joined(separator: ", ")
     }
 }

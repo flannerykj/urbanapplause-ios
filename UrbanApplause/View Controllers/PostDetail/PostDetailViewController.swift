@@ -27,11 +27,15 @@ class PostDetailViewController: UIViewController {
     var post: Post? {
         didSet {
             guard let post = post else { return }
-            title = post.title
+            title = post.descriptiveTitle
             if let file = post.PostImages?.first {
                 downloadJob = appContext.fileCache.getJobForFile(file, isThumb: false)
             }
-            artistLabel.text = post.title
+            if let postTitle = post.title {
+                titleLabel.text = "\"\(postTitle)\""
+            } else {
+                titleLabel.text = "Untitled"
+            }
             setLocation(post.Location)
             setUser(post.User)
             setArtists(post.Artists ?? [], groups: post.ArtistGroups ?? [])
@@ -115,8 +119,8 @@ class PostDetailViewController: UIViewController {
     lazy var refreshControl = UIRefreshControl()
     
     lazy var photoView = LoadableImageView(initialState: .empty)
-    
-    var artistLabel: UILabel = {
+
+    var titleLabel: UILabel = {
         let label = UILabel()
         label.style(as: .h2)
         return label
@@ -202,7 +206,8 @@ class PostDetailViewController: UIViewController {
         
     }
     lazy var metadataStackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [postedByTextView, dateLabel, locationLabel, artistsTextView])
+        let stackView = UIStackView(arrangedSubviews: [titleLabel, locationLabel, artistsTextView, postedByTextView, dateLabel ])
+        stackView.setCustomSpacing(8, after: titleLabel)
         postedByTextView.setContentCompressionResistancePriority(.required, for: .vertical)
         dateLabel.setContentCompressionResistancePriority(.required, for: .vertical)
         locationLabel.setContentCompressionResistancePriority(.required, for: .vertical)

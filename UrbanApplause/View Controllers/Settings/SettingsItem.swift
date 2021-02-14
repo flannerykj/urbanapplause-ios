@@ -11,12 +11,12 @@ import UIKit
 import Shared
 
 enum SettingsItem {
-    case account, createAccount, login, termsOfService, privacyPolicy, resetPassword, logout
+    case profile, createAccount, login, termsOfService, privacyPolicy, logout
     
     var title: String {
         switch self {
-        case .account:
-            return Strings.AccountScreenTitle
+        case .profile:
+            return "Profile"
         case .createAccount:
             return Strings.CreateAccountButtonTitle
         case .login:
@@ -27,8 +27,6 @@ enum SettingsItem {
             return Strings.PrivacyPolicyLinkText
         case .logout:
             return Strings.LogOutButtonTitle
-        case .resetPassword:
-            return "Change password"
         }
     }
 
@@ -50,7 +48,7 @@ enum SettingsItem {
     
     var image: UIImage? {
         switch self {
-        case .account, .login:
+        case .profile, .login:
             return UIImage(systemName: "person")
         case .createAccount:
             return UIImage(systemName: "person.badge.plus")
@@ -58,8 +56,6 @@ enum SettingsItem {
             return UIImage(systemName: "doc.plaintext")
         case .privacyPolicy:
             return UIImage(systemName: "hand.raised")
-        case .resetPassword:
-            return UIImage(systemName: "lock")
         case .logout:
             return nil
         }
