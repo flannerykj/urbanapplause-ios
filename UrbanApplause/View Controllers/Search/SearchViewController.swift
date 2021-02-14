@@ -13,8 +13,7 @@ import SnapKit
 import FloatingPanel
 
 protocol SearchViewControllerDelegate: AnyObject {
-    func searchController(didRequestPanelState panelState: FloatingPanelState)
-    func searchController(didRequestZoomToLocation location: Location)
+    
 }
 
 protocol SearchViewControllable: AnyObject {
@@ -107,10 +106,6 @@ class SearchViewController: UIViewController, UISearchBarDelegate, UITableViewDe
         loadingView.stopAnimating()
         tableData = results
         tableView.reloadData()
-        
-        if results.count > 0 {
-            delegate?.searchController(didRequestPanelState: .full)
-        }
     }
 
     
@@ -130,12 +125,12 @@ class SearchViewController: UIViewController, UISearchBarDelegate, UITableViewDe
         case .posts(let posts):
             if let location = posts[indexPath.row].Location {
                 requestFullScreen = false
-                delegate?.searchController(didRequestZoomToLocation: location)
+//                delegate?.searchController(didRequestZoomToLocation: location)
             }
         case .locations(let locations):
             let location = locations[indexPath.row]
             requestFullScreen = false
-            delegate?.searchController(didRequestZoomToLocation: location)
+//            delegate?.searchController(didRequestZoomToLocation: location)
         case .groups(let groups):
             let group = groups[indexPath.row]
             navigationController?.pushViewController(ArtistGroupDetailViewController(groupID: group.id, group: group, appContext: appContext), animated: true)
@@ -147,10 +142,6 @@ class SearchViewController: UIViewController, UISearchBarDelegate, UITableViewDe
             let user = users[indexPath.row]
             let controller = ProfileViewController(user: user, appContext: appContext)
             navigationController?.pushViewController(controller, animated: true)
-        }
-        
-        if requestFullScreen {
-            delegate?.searchController(didRequestPanelState: .full)
         }
     }
     
@@ -205,7 +196,7 @@ class SearchViewController: UIViewController, UISearchBarDelegate, UITableViewDe
     
     // MARK: - UISearchBarDelegate
     func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
-        delegate?.searchController(didRequestPanelState: .full)
+        
     }
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
