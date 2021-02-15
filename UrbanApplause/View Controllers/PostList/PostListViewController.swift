@@ -96,7 +96,6 @@ class PostListViewController: UIViewController {
         tableView.delegate = self
         tableView.tableHeaderView = tableHeaderView
         tableView.tableFooterView = tableFooterView
-        tableView.backgroundColor = backgroundColor
         tableView.separatorStyle = .none
         return tableView
     }()

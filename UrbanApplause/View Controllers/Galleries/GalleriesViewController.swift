@@ -34,18 +34,20 @@ class GalleriesViewController: UIViewController, UISearchControllerDelegate, UIS
         let controller = UISearchController(searchResultsController: nil)
         controller.searchResultsUpdater = self
         controller.searchBar.placeholder = "Search galleries"
+        controller.automaticallyShowsScopeBar = true
+        controller.searchBar.scopeButtonTitles = GalleryScope.allCases.map { $0.title }
         controller.delegate = self
         controller.searchBar.delegate = self
         return controller
     }()
 
-    private lazy var searchScopeControl: UISegmentedControl = {
-        let control = UISegmentedControl(items: GalleryScope.allCases.map { $0.title })
-        control.selectedSegmentIndex = 0
-        control.addTarget(self, action: #selector(didUpdateSearchScope(_:)), for: .valueChanged)
-        return control
-    }()
-    
+//    private lazy var searchScopeControl: UISegmentedControl = {
+//        let control = UISegmentedControl(items: GalleryScope.allCases.map { $0.title })
+//        control.selectedSegmentIndex = 0
+//        control.addTarget(self, action: #selector(didUpdateSearchScope(_:)), for: .valueChanged)
+//        return control
+//    }()
+//
     lazy var galleryListVC = GalleriesListViewController(viewModel: galleryListViewModel,
                                                              appContext: appContext)
     
@@ -66,15 +68,11 @@ class GalleriesViewController: UIViewController, UISearchControllerDelegate, UIS
         navigationItem.largeTitleDisplayMode = .always
         definesPresentationContext = true
         view.backgroundColor = UIColor.secondarySystemBackground
-        view.addSubview(searchScopeControl)
         view.addSubview(galleryListVC.view)
         
-        searchScopeControl.snp.makeConstraints { make in
-            make.leading.trailing.top.equalTo(view.safeAreaLayoutGuide)
-            make.height.equalTo(44)
-        }
+
         galleryListVC.view.snp.makeConstraints { make in
-            make.top.equalTo(searchScopeControl.snp.bottom)
+            make.leading.trailing.top.equalTo(view.safeAreaLayoutGuide)
             make.leading.trailing.bottom.equalToSuperview()
         }
         galleryListVC.didMove(toParent: self)
@@ -117,13 +115,17 @@ class GalleriesViewController: UIViewController, UISearchControllerDelegate, UIS
         updateSearchResults()
     }
     
+    func searchBar(_ searchBar: UISearchBar, selectedScopeButtonIndexDidChange selectedScope: Int) {
+        updateSearchResults()
+    }
+    
     
     // MARK: - Private
     
     private func updateSearchResults() {
       
         let searchQuery = searchVC.searchBar.text
-        guard let scope = GalleryScope.allCases[safe: searchScopeControl.selectedSegmentIndex] else { return }
+        guard let scope = GalleryScope.allCases[safe: searchVC.searchBar.selectedScopeButtonIndex] else { return }
         var query: GalleryQuery
         
         switch scope {

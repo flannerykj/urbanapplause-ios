@@ -74,8 +74,6 @@ extension SettingsViewController: UITableViewDataSource, UITableViewDelegate {
     var sections: [[SettingsItem]] {
         if appContext.authService.isAuthenticated {
             return [
-                
-                [.profile],
                 [.termsOfService, .privacyPolicy],
                 [.logout]
             ]

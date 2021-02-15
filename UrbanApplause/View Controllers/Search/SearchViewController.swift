@@ -43,9 +43,7 @@ class SearchViewController: UIViewController, UISearchBarDelegate, UITableViewDe
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.dataSource = self
         tableView.delegate = self
-        tableView.tableFooterView = UIView()
-        tableView.backgroundColor = bgColor
-        SearchResultSection.registerCellClasses(forTableView: tableView)
+        
         return tableView
     }()
     

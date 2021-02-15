@@ -21,6 +21,9 @@
 		326BC3E6256AE370008DEBBB /* TourInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 326BC3E5256AE370008DEBBB /* TourInfoViewController.swift */; };
 		3277F81525D84C9F001A7557 /* SearchResultsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3277F81425D84C9F001A7557 /* SearchResultsSection.swift */; };
 		3277F81F25D858DF001A7557 /* Search.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3277F81E25D858DF001A7557 /* Search.swift */; };
+		32A1153425D97C8F00AA5276 /* SearchV2ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32A1153325D97C8F00AA5276 /* SearchV2ViewController.swift */; };
+		32A1153A25D97E6A00AA5276 /* SearchResultsInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32A1153925D97E6A00AA5276 /* SearchResultsInteractor.swift */; };
+		32A1154025D9801900AA5276 /* SearchResultsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32A1153F25D9801900AA5276 /* SearchResultsViewController.swift */; };
 		32A5D56725D0DDFD00E66634 /* UAImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32A5D56625D0DDFD00E66634 /* UAImagePicker.swift */; };
 		32A5D5AF25D28B3000E66634 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32A5D5AE25D28B3000E66634 /* SceneDelegate.swift */; };
 		32A5D62725D29CAA00E66634 /* PasswordResetViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32A5D62625D29CA900E66634 /* PasswordResetViewController.swift */; };
@@ -294,6 +297,9 @@
 		326BC3E5256AE370008DEBBB /* TourInfoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TourInfoViewController.swift; sourceTree = "<group>"; };
 		3277F81425D84C9F001A7557 /* SearchResultsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchResultsSection.swift; sourceTree = "<group>"; };
 		3277F81E25D858DF001A7557 /* Search.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Search.swift; sourceTree = "<group>"; };
+		32A1153325D97C8F00AA5276 /* SearchV2ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchV2ViewController.swift; sourceTree = "<group>"; };
+		32A1153925D97E6A00AA5276 /* SearchResultsInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchResultsInteractor.swift; sourceTree = "<group>"; };
+		32A1153F25D9801900AA5276 /* SearchResultsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchResultsViewController.swift; sourceTree = "<group>"; };
 		32A5D56625D0DDFD00E66634 /* UAImagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UAImagePicker.swift; sourceTree = "<group>"; };
 		32A5D5AE25D28B3000E66634 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		32A5D62625D29CA900E66634 /* PasswordResetViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasswordResetViewController.swift; sourceTree = "<group>"; };
@@ -607,6 +613,16 @@
 			path = Tour;
 			sourceTree = "<group>";
 		};
+		32A1153225D97C8000AA5276 /* SearchV2 */ = {
+			isa = PBXGroup;
+			children = (
+				32A1153325D97C8F00AA5276 /* SearchV2ViewController.swift */,
+				32A1153F25D9801900AA5276 /* SearchResultsViewController.swift */,
+				32A1153925D97E6A00AA5276 /* SearchResultsInteractor.swift */,
+			);
+			path = SearchV2;
+			sourceTree = "<group>";
+		};
 		3A111520236F757800341B89 /* UrbanApplauseTests */ = {
 			isa = PBXGroup;
 			children = (
@@ -901,6 +917,7 @@
 				3A9467F923631F8200C446F7 /* SearchPostsViewController.swift */,
 				3234B165257D550E0030E170 /* NavigationController.swift */,
 				32A5D62625D29CA900E66634 /* PasswordResetViewController.swift */,
+				32A1153225D97C8000AA5276 /* SearchV2 */,
 				3246CBED2585039200DFC72C /* PostListV2 */,
 				326BC3E4256AE362008DEBBB /* Tour */,
 				3AE4628023D0F3F40062C869 /* ArtistList */,
@@ -1642,6 +1659,7 @@
 				32D93F3A257A3C22000207E4 /* TourWaypointCell.swift in Sources */,
 				3AF4850121E2785100FBC33E /* CreatePostViewController.swift in Sources */,
 				3A9467FA23631F8200C446F7 /* SearchPostsViewController.swift in Sources */,
+				32A1153425D97C8F00AA5276 /* SearchV2ViewController.swift in Sources */,
 				3A1ECBF52267F6F50055FC9B /* UAButton.swift in Sources */,
 				3AE86AEE23BE42D10097DB1A /* TabbedToolbarViewController.swift in Sources */,
 				3A755E302355AD6900276555 /* CustomCells.swift in Sources */,
@@ -1692,6 +1710,7 @@
 				3246CBFF2585042B00DFC72C /* PostV2Cell.swift in Sources */,
 				3A1DCE172385947F0028D117 /* NewPostState.swift in Sources */,
 				3AE4628223D0F40B0062C869 /* ArtistListViewController.swift in Sources */,
+				32A1154025D9801900AA5276 /* SearchResultsViewController.swift in Sources */,
 				3A56B42523635DC0000F2A42 /* GalleriesViewController.swift in Sources */,
 				3ACB5B41236CED7E0004FA31 /* ImageCarouselViewController.swift in Sources */,
 				3A6FE0A423B681EE0018018F /* LoadableImageView.swift in Sources */,
@@ -1700,6 +1719,7 @@
 				3AE4628B23D0FEBA0062C869 /* PostListViewModel.swift in Sources */,
 				32A5D5AF25D28B3000E66634 /* SceneDelegate.swift in Sources */,
 				3ACAE1002390AB9F0025FB25 /* CircularLoader.swift in Sources */,
+				32A1153A25D97E6A00AA5276 /* SearchResultsInteractor.swift in Sources */,
 				3A31872E2353251A00D59F79 /* TabBarController.swift in Sources */,
 				3AB575B12274A9E500C8F597 /* CollectionFormViewController.swift in Sources */,
 				326BC2A32567C31F008DEBBB /* TourMapViewController.swift in Sources */,
@@ -2393,7 +2413,7 @@
 				CODE_SIGN_ENTITLEMENTS = UrbanApplause/UrbanApplause.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = WJUFMSDDMW;
 				INFOPLIST_FILE = UrbanApplause/Info.plist;
@@ -2419,7 +2439,7 @@
 				CODE_SIGN_ENTITLEMENTS = UrbanApplause/UrbanApplause.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = WJUFMSDDMW;
 				INFOPLIST_FILE = UrbanApplause/Info.plist;
@@ -2506,7 +2526,7 @@
 				CODE_SIGN_ENTITLEMENTS = UrbanApplause/UrbanApplause.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = WJUFMSDDMW;
 				INFOPLIST_FILE = UrbanApplause/Info.plist;

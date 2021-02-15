@@ -11,6 +11,7 @@ import Shared
 import UIKit
 
 typealias SearchResultCellDelegate = PostCellDelegate
+
 enum SearchResultSection {
     case posts([Post])
     case artists([Artist])
@@ -75,6 +76,40 @@ enum SearchResultSection {
         return cell
     }
     
+    var title: String {
+        switch self {
+        case .artists:
+            return "Artists"
+        case .posts:
+            return "Posts"
+        case .locations:
+            return "Places"
+        case .groups:
+            return "Artist Groups"
+        case .collections:
+            return "Collections"
+        case .users:
+            return "Users"
+        }
+    }
+    
+    var identifier: String {
+        switch self {
+        case .artists:
+            return "artists"
+        case .posts:
+            return "posts"
+        case .locations:
+            return "locations"
+        case .groups:
+            return "artist_groups"
+        case .collections:
+            return "collections"
+        case .users:
+            return "users"
+        }
+    }
+    
     // MARK: - Private
     
     private var cellIdentifier: String {
@@ -108,7 +143,7 @@ enum SearchResultSection {
         }
     }
     
-    private static var allCases: [SearchResultSection] {
+    static var allCases: [SearchResultSection] {
         [.posts([]), .artists([]), .locations([]), .groups([]), .collections([]), .users([])]
     }
 }

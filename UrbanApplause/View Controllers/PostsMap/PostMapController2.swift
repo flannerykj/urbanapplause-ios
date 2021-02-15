@@ -79,13 +79,22 @@ class PostMapViewController2: UIViewController {
         return view
     }()
     
+    private lazy var zoomToCurrentLocationButton: IconButton = IconButton(image: UIImage(systemName: "location"), activeImage: nil, imageColor: UIColor.systemBlue, activeImageColor: nil, backgroundColor: nil, activeBackgroundColor: nil, size: .init(width: 24, height: 24), imageSize: .init(width: 24, height: 24), target: self, action: #selector(requestZoomToCurrentLocation(_:)))
+    
+    private lazy var infoLocationButton: IconButton = IconButton(image: UIImage(systemName: "info.circle"), activeImage: nil, imageColor: UIColor.systemBlue, activeImageColor: nil, backgroundColor: nil, activeBackgroundColor: nil, size: .init(width: 24, height: 24), imageSize: .init(width: 24, height: 24), target: self, action: #selector(requestZoomToCurrentLocation(_:)))
+
     // MARK: - UIViewController
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        if let username = self.appContext.store.user.data?.username {
-            navigationItem.title = Strings.WelcomeMessage(username: username)
-        }
+        navigationController?.setNavigationBarHidden(true, animated: true)
     }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        navigationController?.setNavigationBarHidden(false, animated: true)
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         locationManager.delegate = self
@@ -101,23 +110,21 @@ class PostMapViewController2: UIViewController {
         mapView.addSubview(loadingView)
         loadingView.centerXAnchor.constraint(equalTo: mapView.centerXAnchor).isActive = true
         loadingView.topAnchor.constraint(equalTo: mapView.safeAreaLayoutGuide.topAnchor, constant: 24).isActive = true
-        let backItem = UIBarButtonItem()
-        backItem.title = Strings.MapTabItemTitle
-        navigationItem.backBarButtonItem = backItem
         
-        let locationButton = UIBarButtonItem(image: UIImage(systemName: "location"),
-                                             style: .plain,
-                                             target: self,
-                                             action: #selector(requestZoomToCurrentLocation(_:)))
-        
-        navigationItem.rightBarButtonItem = locationButton
-
         let gr = UILongPressGestureRecognizer(target: self, action: #selector(longPressedMap(sender:)))
         mapView.addGestureRecognizer(gr)
         
+        
+        view.addSubview(zoomToCurrentLocationButton)
+        zoomToCurrentLocationButton.snp.makeConstraints { make in
+            make.top.equalTo(view.safeAreaLayoutGuide).offset(16)
+            make.trailing.equalToSuperview().inset(16)
+        }
         subscribeToMapData()
     }
-    
+    @objc func tappedInfoButton(_ sender: UIBarButtonItem) {
+        
+    }
     @objc func longPressedMap(sender: UILongPressGestureRecognizer) {
         if sender.state == UIGestureRecognizer.State.began {
             let touchPoint = sender.location(in: self.mapView)

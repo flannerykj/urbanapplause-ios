@@ -36,7 +36,7 @@ class TabBarController: UITabBarController {
                                      image: UIImage(systemName: "map"),
                                      selectedImage: UIImage(systemName: "map.fill"))
     
-    lazy var searchRootVC = SearchPostsViewController(appContext: appContext)
+    lazy var searchRootVC = SearchV2ViewController(appContext: appContext)
     lazy var searchTab = UANavigationController(rootViewController: searchRootVC)
     lazy var searchTabBarItem = UITabBarItem(title: Strings.SearchTabItemTitle,
                                            image: UIImage(systemName: "magnifyingglass"),
@@ -80,7 +80,7 @@ class TabBarController: UITabBarController {
         mapTab.tabBarItem = mapTabBarItem
         // listTab.tabBarItem = listTabBarItem
         collectionsTab.tabBarItem = collectionsTabBarItem
-        // addTab.tabBarItem = addTabBarItem
+        searchTab.tabBarItem = searchTabBarItem
         profileTab?.tabBarItem = profileTabBarItem
         settingsTab.tabBarItem = settingsTabBarItem
 
@@ -91,10 +91,12 @@ class TabBarController: UITabBarController {
         
         if self.appContext.authService.isAuthenticated {
             controllers.append(collectionsTab)
-            
-            if let profileTab = profileTab {
-                controllers.append(profileTab)
-            }
+        }
+        
+        controllers.append(searchTab)
+        
+        if self.appContext.authService.isAuthenticated, let profileTab = profileTab {
+            controllers.append(profileTab)
         }
         controllers.append(settingsTab)
         
@@ -127,6 +129,17 @@ class TabBarController: UITabBarController {
 }
 
 extension TabBarController: UITabBarControllerDelegate {
+    func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
+        if let _ = (viewController as? UINavigationController)?.viewControllers[safe: 0] as? SearchV2ViewController  {
+            let searchVC = SearchV2ViewController(appContext: appContext)
+            searchVC.listener = self
+            present(UANavigationController(rootViewController: searchVC), animated: true, completion: {
+                searchVC.searchBar.becomeFirstResponder()
+            })
+            return false
+        }
+        return true
+    }
     override func tabBar(_ tabBar: UITabBar, didSelect item: UITabBarItem) {
         
         showFloatingButton()
@@ -134,10 +147,20 @@ extension TabBarController: UITabBarControllerDelegate {
         let indexOfSearchTab = 1
         if selectedIndex == indexOfSearchTab && item == searchTabBarItem {
             // search bar tab was double-tapped - focus the search bar
-            _ = searchRootVC.searchController.searchBar.becomeFirstResponder()
+            _ = searchRootVC.searchBar.becomeFirstResponder()
         }
     }
 }
+
+extension TabBarController: SearchV2ViewControllerListener {
+    func searchV2Controller(_ controller: SearchV2ViewController, didSelectLocation location: Location) {
+        dismiss(animated: true, completion: nil)
+        selectedIndex = 0 // Switch to map controller
+        mapRootVC.zoomToLocation(location.clLocation)
+    }
+}
+
+
 class UATabBar: UITabBar {
     let diameter: CGFloat = 60
 
@@ -201,22 +224,22 @@ class UATabBar: UITabBar {
 extension TabBarController: CreatePostControllerDelegate {
     func createPostController(_ controller: CreatePostViewController, didDeletePost post: Post) {
         mapRootVC.createPostController(controller, didDeletePost: post)
-        searchRootVC.createPostController(controller, didDeletePost: post)
+//        searchRootVC.createPostController(controller, didDeletePost: post)
     }
     
     func createPostController(_ controller: CreatePostViewController, didCreatePost post: Post) {
         mapRootVC.createPostController(controller, didCreatePost: post)
-        searchRootVC.createPostController(controller, didCreatePost: post)
+//        searchRootVC.createPostController(controller, didCreatePost: post)
     }
     
     func createPostController(_ controller: CreatePostViewController, didUploadImageData: Data, forPost post: Post) {
         mapRootVC.createPostController(controller, didUploadImageData: didUploadImageData, forPost: post)
-        searchRootVC.createPostController(controller, didUploadImageData: didUploadImageData, forPost: post)
+//        searchRootVC.createPostController(controller, didUploadImageData: didUploadImageData, forPost: post)
     }
     
     func createPostController(_ controller: CreatePostViewController, didBeginUploadForData: Data, forPost post: Post, job: NetworkServiceJob?) {
         mapRootVC.createPostController(controller, didBeginUploadForData: didBeginUploadForData, forPost: post, job: job)
-        searchRootVC.createPostController(controller, didBeginUploadForData: didBeginUploadForData, forPost: post, job: job)
+//        searchRootVC.createPostController(controller, didBeginUploadForData: didBeginUploadForData, forPost: post, job: job)
     }
 }
 
