@@ -29,6 +29,7 @@ class TabBarController: UITabBarController {
         fatalError("init(coder:) has not been implemented")
     }
 
+    // Tab 1: Map
     lazy var mapRootVC = PostMapViewController2(viewModel: PostMapViewModel2(appContext: appContext),
                                                appContext: appContext)
     lazy var mapTab = UANavigationController(rootViewController: mapRootVC)
@@ -36,11 +37,7 @@ class TabBarController: UITabBarController {
                                      image: UIImage(systemName: "map"),
                                      selectedImage: UIImage(systemName: "map.fill"))
     
-    lazy var searchRootVC = SearchV2ViewController(appContext: appContext)
-    lazy var searchTab = UANavigationController(rootViewController: searchRootVC)
-    lazy var searchTabBarItem = UITabBarItem(title: Strings.SearchTabItemTitle,
-                                           image: UIImage(systemName: "magnifyingglass"),
-                                           selectedImage: UIImage(systemName: "magnifyingglass"))
+    // Tab 2: Galleries
     
     lazy var collectionsRootVC = GalleriesViewController(userId: store.user.data?.id,
                                                            appContext: appContext)
@@ -48,10 +45,24 @@ class TabBarController: UITabBarController {
     let collectionsTabBarItem = UITabBarItem(title: Strings.GalleriesTabItemTitle,
                                              image: UIImage(systemName: "square.grid.2x2"),
                                              selectedImage: UIImage(systemName: "square.grid.2x2.fill"))
-
-    // lazy var addTab = NewPostViewController(appContext: self.appContext)
-    // let addTabBarItem = UITabBarItem(title: nil, image: nil, selectedImage: nil) // placeholder
     
+    // Tab 3: Search
+    lazy var searchPlaceholderController: UIViewController = {
+        let controller = UIViewController(nibName: nil, bundle: nil)
+        controller.restorationIdentifier = "search_placeholder"
+        return controller
+    }()
+    
+    private lazy var searchViewController = SearchV2ViewController(appContext: appContext)
+    private lazy var searchInteractor = SearchV2Interactor(appContext: appContext, viewControllable: searchViewController)
+    
+    lazy var searchTab = UANavigationController(rootViewController: searchPlaceholderController) // Placeholder. Present search controller modally on select tab.
+    lazy var searchTabBarItem = UITabBarItem(title: Strings.SearchTabItemTitle,
+                                           image: UIImage(systemName: "magnifyingglass"),
+                                           selectedImage: UIImage(systemName: "magnifyingglass"))
+
+
+    // Tab 4: Profile
     lazy var profileTab: UANavigationController? = {
         guard let user = store.user.data else { return nil }
         let profileRootVC = ProfileViewController(user: user, appContext: appContext)
@@ -62,6 +73,7 @@ class TabBarController: UITabBarController {
                                          image: UIImage(systemName: "person"),
                                          selectedImage: UIImage(systemName: "person.fill"))
     
+    // Tab 5: Settings
     lazy var settingsRootVC = SettingsViewController(store: store, appContext: appContext)
     lazy var settingsTab = UANavigationController(rootViewController: settingsRootVC)
     
@@ -69,8 +81,10 @@ class TabBarController: UITabBarController {
                                           image: UIImage(systemName: "gear"),
                                           selectedImage: nil)
 
+    // MARK: - UIViewController
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         self.imagePicker = UAImagePicker(presentationController: self, delegate: self)
         delegate = self
         uaTabBar.frame = self.tabBar.frame
@@ -130,16 +144,14 @@ class TabBarController: UITabBarController {
 
 extension TabBarController: UITabBarControllerDelegate {
     func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
-        if let _ = (viewController as? UINavigationController)?.viewControllers[safe: 0] as? SearchV2ViewController  {
-            let searchVC = SearchV2ViewController(appContext: appContext)
-            searchVC.listener = self
-            present(UANavigationController(rootViewController: searchVC), animated: true, completion: {
-                searchVC.searchBar.becomeFirstResponder()
-            })
+        if let viewController = (viewController as? UINavigationController)?.viewControllers[safe: 0], viewController.restorationIdentifier == "search_placeholder"  {
+            searchInteractor.listener = self
+            present(UANavigationController(rootViewController: searchViewController), animated: true, completion: nil)
             return false
         }
         return true
     }
+    
     override func tabBar(_ tabBar: UITabBar, didSelect item: UITabBarItem) {
         
         showFloatingButton()
@@ -147,17 +159,19 @@ extension TabBarController: UITabBarControllerDelegate {
         let indexOfSearchTab = 1
         if selectedIndex == indexOfSearchTab && item == searchTabBarItem {
             // search bar tab was double-tapped - focus the search bar
-            _ = searchRootVC.searchBar.becomeFirstResponder()
+            _ = searchViewController.searchBar.becomeFirstResponder()
         }
     }
 }
 
-extension TabBarController: SearchV2ViewControllerListener {
+extension TabBarController: SearchV2Listener {
     func searchV2Controller(_ controller: SearchV2ViewController, didSelectLocation location: Location) {
         dismiss(animated: true, completion: nil)
         selectedIndex = 0 // Switch to map controller
         mapRootVC.zoomToLocation(location.clLocation)
     }
+    
+
 }
 
 

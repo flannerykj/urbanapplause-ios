@@ -178,6 +178,7 @@ extension APIClient: URLSessionDownloadDelegate {
                                                   totalBytesExpectedToWrite: totalBytesExpectedToWrite)
     }
 }
+
 extension APIClient: URLSessionDataDelegate {
     public func urlSession(_ session: URLSession,
                     task: URLSessionTask,

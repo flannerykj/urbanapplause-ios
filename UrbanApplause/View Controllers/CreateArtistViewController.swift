@@ -134,6 +134,10 @@ class CreateArtistViewController: FormViewController {
             }
         navigationItem.rightBarButtonItem = saveButton
         saveButton.isEnabled = false
+        
+        if let nameRow = form.rowBy(tag: "signing_name") as? TextRow {
+            nameRow.cell.textField.becomeFirstResponder()
+        }
     }
     func onUpdateForm() {
         let errors = form.validate()

@@ -33,9 +33,13 @@ class AppContext: NSObject {
     lazy private(set) var remoteImageService: RemoteImageService = CloudinaryService()
     lazy private(set) var fileCache: FileService = FileService(remoteImageService: remoteImageService)
     lazy private(set) var networkService = APIClient(customHeaders: customHeaders, handleAuthError: { _ in
-           self.endSession()
-        })
-
+       self.endSession()
+    })
+    
+    lazy private(set) var networkServiceV2 = APIClientV2(getCustomHeaders: { self.customHeaders }, onReceiveAuthError: { _ in
+        self.endSession()
+    })
+    
     var customHeaders: [String: String] {
         var headers: [String: String] = [:]
         do {

@@ -37,10 +37,11 @@ fileprivate enum SearchResultsScope {
     }
 }
 protocol SearchV2ViewControllerListener: AnyObject {
+    func searchV2GetSavedSearches()
     func searchV2Controller(_ controller: SearchV2ViewController, didSelectLocation location: Location)
 }
 
-class SearchV2ViewController: UIViewController, UISearchResultsUpdating, UISearchBarDelegate, UISearchControllerDelegate {
+class SearchV2ViewController: UIViewController, UISearchResultsUpdating, UISearchBarDelegate, UISearchControllerDelegate, SearchV2ViewControllable {
     weak var listener: SearchV2ViewControllerListener?
     
     public var searchBar: UISearchBar {
@@ -78,6 +79,8 @@ class SearchV2ViewController: UIViewController, UISearchResultsUpdating, UISearc
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        listener?.searchV2GetSavedSearches()
+        
         galleryResultsInteractor.listener = self
         galleryListVC.listener = galleryResultsInteractor
        
@@ -92,8 +95,11 @@ class SearchV2ViewController: UIViewController, UISearchResultsUpdating, UISearc
         navigationItem.rightBarButtonItem = closeButton
         definesPresentationContext = true
         
-        updateSearchResults()
         searchVC.searchBar.becomeFirstResponder()
+    }
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        listener?.searchV2GetSavedSearches()
     }
     
     @objc func tappedClose(_: UIBarButtonItem) {
@@ -117,6 +123,11 @@ class SearchV2ViewController: UIViewController, UISearchResultsUpdating, UISearc
 
     func updateSearchResults(for searchController: UISearchController) {
         updateSearchResults()
+    }
+    
+    // MARK: - SearchV2ViewControllable
+    func updateSavedSearches(_ searches: [SavedSearch]) {
+        
     }
     
     

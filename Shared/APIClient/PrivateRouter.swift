@@ -12,6 +12,8 @@ import Foundation
 
 public enum PrivateRouter: EndpointConfiguration {
     case search(query: String, includeTypes: [String])
+    case getSavedSearches
+    case createSavedSearch(search: [String: Any])
     
     // auth
     case authenticate(email: String, password: String, username: String?, newUser: Bool)
@@ -89,7 +91,7 @@ public enum PrivateRouter: EndpointConfiguration {
         case .editPost, .updateUser, .updateCollection, .updateCollectionPost, .updateCollectionPosts:
             return .put
         case .authenticate, .createPost, .createUser, .addOrRemoveClap, .addOrRemoveVisit, .createCollection,
-             .addToCollection, .uploadImages, .createArtist, .createArtistGroup, .createComment, .createPostFlag, .blockUser:
+             .addToCollection, .uploadImages, .createArtist, .createArtistGroup, .createComment, .createPostFlag, .blockUser, .createSavedSearch:
             return .post
         default:
             return .get
@@ -100,6 +102,8 @@ public enum PrivateRouter: EndpointConfiguration {
         switch self {
         case .search:
             return "search"
+        case .getSavedSearches, .createSavedSearch:
+            return "saved_searches"
         case .authenticate(_, _, _, let newUser):
             if newUser {
                 return "register"
@@ -167,6 +171,8 @@ public enum PrivateRouter: EndpointConfiguration {
         switch self {
         case .search(let query, let includeTypes):
             return .requestParameters(bodyParameters: nil, urlParameters: ["query": query, "types": includeTypes.joined(separator: ",")])
+        case .createSavedSearch(let savedSearch):
+            return .requestParameters(bodyParameters: ["saved_search": savedSearch], urlParameters: nil)
         case .getCollections(let userId, let postId, let query, let isPublic):
             var params = Parameters()
             if let id = userId {

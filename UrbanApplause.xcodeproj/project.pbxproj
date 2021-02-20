@@ -24,6 +24,16 @@
 		32A1153425D97C8F00AA5276 /* SearchV2ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32A1153325D97C8F00AA5276 /* SearchV2ViewController.swift */; };
 		32A1153A25D97E6A00AA5276 /* SearchResultsInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32A1153925D97E6A00AA5276 /* SearchResultsInteractor.swift */; };
 		32A1154025D9801900AA5276 /* SearchResultsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32A1153F25D9801900AA5276 /* SearchResultsViewController.swift */; };
+		32A1157825DB057400AA5276 /* SavedSearch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32A1157725DB057400AA5276 /* SavedSearch.swift */; };
+		32A1157E25DB080700AA5276 /* SearchV2Interactor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32A1157D25DB080700AA5276 /* SearchV2Interactor.swift */; };
+		32A1158525DC10DF00AA5276 /* PostsAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32A1158425DC10DF00AA5276 /* PostsAPIService.swift */; };
+		32A1158F25DC10E700AA5276 /* UserAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32A1158E25DC10E700AA5276 /* UserAPIService.swift */; };
+		32A1159525DC10FC00AA5276 /* CollectionsAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32A1159425DC10FC00AA5276 /* CollectionsAPIService.swift */; };
+		32A1159B25DC6FBC00AA5276 /* APIClient2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32A1159A25DC6FBC00AA5276 /* APIClient2.swift */; };
+		32A115A225DD2EFE00AA5276 /* PostsStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32A115A125DD2EFE00AA5276 /* PostsStream.swift */; };
+		32A115C825DD48A400AA5276 /* AuthAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32A115C725DD48A400AA5276 /* AuthAPIService.swift */; };
+		32A115CE25DD48AE00AA5276 /* AuthStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32A115CD25DD48AE00AA5276 /* AuthStream.swift */; };
+		32A115EC25DE80FC00AA5276 /* UserStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32A115EB25DE80FC00AA5276 /* UserStream.swift */; };
 		32A5D56725D0DDFD00E66634 /* UAImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32A5D56625D0DDFD00E66634 /* UAImagePicker.swift */; };
 		32A5D5AF25D28B3000E66634 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32A5D5AE25D28B3000E66634 /* SceneDelegate.swift */; };
 		32A5D62725D29CAA00E66634 /* PasswordResetViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32A5D62625D29CA900E66634 /* PasswordResetViewController.swift */; };
@@ -300,6 +310,16 @@
 		32A1153325D97C8F00AA5276 /* SearchV2ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchV2ViewController.swift; sourceTree = "<group>"; };
 		32A1153925D97E6A00AA5276 /* SearchResultsInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchResultsInteractor.swift; sourceTree = "<group>"; };
 		32A1153F25D9801900AA5276 /* SearchResultsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchResultsViewController.swift; sourceTree = "<group>"; };
+		32A1157725DB057400AA5276 /* SavedSearch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedSearch.swift; sourceTree = "<group>"; };
+		32A1157D25DB080700AA5276 /* SearchV2Interactor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchV2Interactor.swift; sourceTree = "<group>"; };
+		32A1158425DC10DF00AA5276 /* PostsAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostsAPIService.swift; sourceTree = "<group>"; };
+		32A1158E25DC10E700AA5276 /* UserAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserAPIService.swift; sourceTree = "<group>"; };
+		32A1159425DC10FC00AA5276 /* CollectionsAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionsAPIService.swift; sourceTree = "<group>"; };
+		32A1159A25DC6FBC00AA5276 /* APIClient2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient2.swift; sourceTree = "<group>"; };
+		32A115A125DD2EFE00AA5276 /* PostsStream.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostsStream.swift; sourceTree = "<group>"; };
+		32A115C725DD48A400AA5276 /* AuthAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthAPIService.swift; sourceTree = "<group>"; };
+		32A115CD25DD48AE00AA5276 /* AuthStream.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthStream.swift; sourceTree = "<group>"; };
+		32A115EB25DE80FC00AA5276 /* UserStream.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserStream.swift; sourceTree = "<group>"; };
 		32A5D56625D0DDFD00E66634 /* UAImagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UAImagePicker.swift; sourceTree = "<group>"; };
 		32A5D5AE25D28B3000E66634 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		32A5D62625D29CA900E66634 /* PasswordResetViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasswordResetViewController.swift; sourceTree = "<group>"; };
@@ -617,10 +637,32 @@
 			isa = PBXGroup;
 			children = (
 				32A1153325D97C8F00AA5276 /* SearchV2ViewController.swift */,
+				32A1157D25DB080700AA5276 /* SearchV2Interactor.swift */,
 				32A1153F25D9801900AA5276 /* SearchResultsViewController.swift */,
 				32A1153925D97E6A00AA5276 /* SearchResultsInteractor.swift */,
 			);
 			path = SearchV2;
+			sourceTree = "<group>";
+		};
+		32A1158325DC10C900AA5276 /* APIServices */ = {
+			isa = PBXGroup;
+			children = (
+				32A1158425DC10DF00AA5276 /* PostsAPIService.swift */,
+				32A1158E25DC10E700AA5276 /* UserAPIService.swift */,
+				32A1159425DC10FC00AA5276 /* CollectionsAPIService.swift */,
+				32A115C725DD48A400AA5276 /* AuthAPIService.swift */,
+			);
+			path = APIServices;
+			sourceTree = "<group>";
+		};
+		32A115A025DD2EE100AA5276 /* Streams */ = {
+			isa = PBXGroup;
+			children = (
+				32A115A125DD2EFE00AA5276 /* PostsStream.swift */,
+				32A115CD25DD48AE00AA5276 /* AuthStream.swift */,
+				32A115EB25DE80FC00AA5276 /* UserStream.swift */,
+			);
+			path = Streams;
 			sourceTree = "<group>";
 		};
 		3A111520236F757800341B89 /* UrbanApplauseTests */ = {
@@ -654,6 +696,7 @@
 			isa = PBXGroup;
 			children = (
 				3AE4627A23D0C8C10062C869 /* LinkConvertible.swift */,
+				32A1159A25DC6FBC00AA5276 /* APIClient2.swift */,
 				3A72A5BC23C78A1100B64A06 /* APIClient.swift */,
 				3A72A5B823C789EF00B64A06 /* AuthRouter.swift */,
 				3A72A5BA23C789F800B64A06 /* PrivateRouter.swift */,
@@ -793,6 +836,7 @@
 				3AE4627E23D0ECFE0062C869 /* PostQuery.swift */,
 				3A97B33D23C7B9D300F4E25A /* PostSurfaceType.swift */,
 				3A72A59E23C7786400B64A06 /* ServerResponse.swift */,
+				32A1157725DB057400AA5276 /* SavedSearch.swift */,
 				3277F81E25D858DF001A7557 /* Search.swift */,
 				3A72A5A223C7787E00B64A06 /* User.swift */,
 				3A72A5A423C7788900B64A06 /* Visit.swift */,
@@ -896,6 +940,8 @@
 				3A76EA6D21DAD3C200FEDEC8 /* AppDelegate.swift */,
 				32A5D5AE25D28B3000E66634 /* SceneDelegate.swift */,
 				3A3187312353288700D59F79 /* Store.swift */,
+				32A115A025DD2EE100AA5276 /* Streams */,
+				32A1158325DC10C900AA5276 /* APIServices */,
 				3ACB5B37236CBB150004FA31 /* AppContext.swift */,
 				3A72A5EA23C7953600B64A06 /* Extensions */,
 				3A76EA7421DAD3C200FEDEC8 /* Assets.xcassets */,
@@ -1547,6 +1593,7 @@
 				3A72A58D23C777DD00B64A06 /* Comment.swift in Sources */,
 				3A72A5E623C7906500B64A06 /* NSMutableAttributedString.swift in Sources */,
 				3277F81F25D858DF001A7557 /* Search.swift in Sources */,
+				32A1157825DB057400AA5276 /* SavedSearch.swift in Sources */,
 				3A72A5DB23C7906500B64A06 /* UITextView.swift in Sources */,
 				3A72A5A123C7787000B64A06 /* Errors.swift in Sources */,
 				3A72A5E323C7906500B64A06 /* CGRect.swift in Sources */,
@@ -1592,6 +1639,7 @@
 				3A72A5C523C78A6400B64A06 /* HTTPMethod.swift in Sources */,
 				3A72A5E223C7906500B64A06 /* Array.swift in Sources */,
 				3A72A5D323C7906500B64A06 /* DateFormatter.swift in Sources */,
+				32A1159B25DC6FBC00AA5276 /* APIClient2.swift in Sources */,
 				3A72A5F023C7961900B64A06 /* ImagePicker.swift in Sources */,
 				3A72A5ED23C795ED00B64A06 /* Config.swift in Sources */,
 				3A72A5D423C7906500B64A06 /* Date+Format.swift in Sources */,
@@ -1657,6 +1705,7 @@
 				3A7553B02365EFD900634C32 /* UATextArea.swift in Sources */,
 				32D93F40257A7909000207E4 /* TourOverviewCell.swift in Sources */,
 				32D93F3A257A3C22000207E4 /* TourWaypointCell.swift in Sources */,
+				32A115A225DD2EFE00AA5276 /* PostsStream.swift in Sources */,
 				3AF4850121E2785100FBC33E /* CreatePostViewController.swift in Sources */,
 				3A9467FA23631F8200C446F7 /* SearchPostsViewController.swift in Sources */,
 				32A1153425D97C8F00AA5276 /* SearchV2ViewController.swift in Sources */,
@@ -1671,8 +1720,10 @@
 				3AA7672223507BEA00A70DE4 /* AuthViewModel.swift in Sources */,
 				3AE86AE723BE41890097DB1A /* UserProfileViewModel.swift in Sources */,
 				3A22219123AD4C8200FE9262 /* GalleryCellViewModel.swift in Sources */,
+				32A1159525DC10FC00AA5276 /* CollectionsAPIService.swift in Sources */,
 				32A5D56725D0DDFD00E66634 /* UAImagePicker.swift in Sources */,
 				3AF4850721E298EE00FBC33E /* LoadingViewController.swift in Sources */,
+				32A1158525DC10DF00AA5276 /* PostsAPIService.swift in Sources */,
 				3ACB5B31236C64850004FA31 /* ForgotPasswordViewController.swift in Sources */,
 				3A22219823B0AF4300FE9262 /* GalleryCell.swift in Sources */,
 				3A56B42323635C82000F2A42 /* GalleryDetailViewController.swift in Sources */,
@@ -1681,11 +1732,13 @@
 				3AE86AEC23BE42C00097DB1A /* TabbedToolbar.swift in Sources */,
 				3234B166257D550E0030E170 /* NavigationController.swift in Sources */,
 				3A12795323D089F30086AB6C /* CreateArtistGroupViewController.swift in Sources */,
+				32A115CE25DD48AE00AA5276 /* AuthStream.swift in Sources */,
 				3AB575AF2274A28400C8F597 /* GalleriesListViewController.swift in Sources */,
 				3AE4628D23D1002E0062C869 /* ArtistListViewModel.swift in Sources */,
 				3246CBEF258503A700DFC72C /* PostListV2ViewController.swift in Sources */,
 				32FABBB7256AEBF300D9B7AC /* GalleriesManager.swift in Sources */,
 				3A7553AC2365D98A00634C32 /* CommentListViewController.swift in Sources */,
+				32A1158F25DC10E700AA5276 /* UserAPIService.swift in Sources */,
 				32D93F3325778016000207E4 /* TourMapViewModel.swift in Sources */,
 				3A72A5EC23C7954100B64A06 /* UIViewControllerExtensions.swift in Sources */,
 				3A28764E226B83A300BCAE61 /* ImageDetailViewController.swift in Sources */,
@@ -1693,6 +1746,7 @@
 				3ACB5B3E236CE7EE0004FA31 /* SettingsViewController.swift in Sources */,
 				32A5D62725D29CAA00E66634 /* PasswordResetViewController.swift in Sources */,
 				3A0C8FBC23B8FCEA0068AECA /* UATextView.swift in Sources */,
+				32A115EC25DE80FC00AA5276 /* UserStream.swift in Sources */,
 				3ABC6A03236E7542009C180D /* PostAnnotation.swift in Sources */,
 				3AEA33772352003400ECBF8C /* DynamicPostListViewModel.swift in Sources */,
 				323AB1C725D83E7B0056D1E0 /* SearchViewController.swift in Sources */,
@@ -1707,6 +1761,7 @@
 				323AB1CE25D843EB0056D1E0 /* SearchViewModel.swift in Sources */,
 				3AB12E06236B6ED600A4E163 /* FlagPostViewController.swift in Sources */,
 				3A6FE0A623B7D0D50018018F /* AccountViewController.swift in Sources */,
+				32A1157E25DB080700AA5276 /* SearchV2Interactor.swift in Sources */,
 				3246CBFF2585042B00DFC72C /* PostV2Cell.swift in Sources */,
 				3A1DCE172385947F0028D117 /* NewPostState.swift in Sources */,
 				3AE4628223D0F40B0062C869 /* ArtistListViewController.swift in Sources */,
@@ -1723,6 +1778,7 @@
 				3A31872E2353251A00D59F79 /* TabBarController.swift in Sources */,
 				3AB575B12274A9E500C8F597 /* CollectionFormViewController.swift in Sources */,
 				326BC2A32567C31F008DEBBB /* TourMapViewController.swift in Sources */,
+				32A115C825DD48A400AA5276 /* AuthAPIService.swift in Sources */,
 				3AE86AE523BE41810097DB1A /* UserProfileViewController.swift in Sources */,
 				3ADD72C92383269A0007CAEF /* SettingsItem.swift in Sources */,
 				3A2C8D1A238F40BA000C3122 /* PostMapViewModel2.swift in Sources */,

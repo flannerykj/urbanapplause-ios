@@ -73,10 +73,15 @@ class ArtistProfileViewController: UIViewController {
                                                               tabItems: self.tabItems,
                                                               appContext: appContext)
     
+    private lazy var moreButton = UIBarButtonItem(image: UIImage(systemName: "ellipsis"), style: .plain, target: self, action: #selector(tappedMore(_:)))
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor.systemBackground
+        
+        // Setup nav
         navigationItem.title = artist.signing_name
+        navigationItem.rightBarButtonItem = moreButton
+        
         view.addSubview(tabsViewController.view!)
         tabsViewController.view!.fill(view: view)
         addChild(tabsViewController)
@@ -101,6 +106,21 @@ class ArtistProfileViewController: UIViewController {
         }
     }
     
+    @objc func tappedMore(_ sender: UIBarButtonItem) {
+        let ac = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        let followAction = UIAlertAction(title: "Follow", style: .default, handler: { _ in
+            self.followArtist { success in
+                
+            }
+        })
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: { _ in
+                                            ac.dismiss(animated: true, completion: nil)
+        })
+        ac.addAction(followAction)
+        ac.addAction(cancelAction)
+        present(ac, animated: true, completion: nil)
+    }
+    
     func updateLabels() {
         nameLabel.text = artist.signing_name
         if let bio = artist.bio, bio.count > 0 {
@@ -113,6 +133,28 @@ class ArtistProfileViewController: UIViewController {
         }
         if let dateString = artist.createdAt?.justTheDate {
             memberSinceLabel.text = "\(Strings.ProfileCreatedOnFieldLabel) \(dateString)"
+        }
+    }
+    
+    private func followArtist(onCompletion: @escaping (Bool) -> ()) {
+        let endpoint = PrivateRouter.createSavedSearch(search: [
+            "SavedArtistSearches": [
+                ["SavedArtistId": artist.id]
+            ]
+        ]
+)
+        _ = appContext.networkService.request(endpoint) { (result: UAResult<SavedSearchResponse>) in
+            
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let container):
+                    log.info(container.saved_search)
+                    onCompletion(true)
+                case .failure(let error):
+                    log.error(error)
+                    onCompletion(false)
+                }
+            }
         }
     }
 }
